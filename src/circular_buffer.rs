@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use num_traits::Zero;
 
 #[derive(Debug)]
@@ -61,11 +59,7 @@ where
         if self.size == 0 {
             return None;
         }
-        if self.end > 0 {
-            Some(self.buffer[self.end - 1])
-        } else {
-            Some(self.buffer[self.capacity()])
-        }
+        if self.end > 0 { Some(self.buffer[self.end - 1]) } else { Some(self.buffer[self.capacity()]) }
     }
     pub fn begin(&self) -> usize {
         self.begin
@@ -115,8 +109,15 @@ where
 
 #[cfg(any(debug_assertions, test))]
 mod tests {
+    #![allow(unused)]
     use super::*;
 
+    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+
+    #[test]
+    fn normal_types() {
+        is_normal::<CircularBuffer<f32, 2>>();
+    }
     #[test]
     fn new() {
         let cb = CircularBuffer::<f32, 3>::new();

@@ -5,6 +5,8 @@
         "Biquad",
         "Budden",
         "bytemuck",
+        "codegen",
+        "debuginfo",
         "libm",
         "Uninit"
     ]

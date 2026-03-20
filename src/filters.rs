@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use core::f32::consts;
 use core::ops::{Add, Mul, Sub};
 use num_traits::Zero;
@@ -18,10 +16,7 @@ where
     T: Zero,
 {
     fn default() -> Self {
-        Self {
-            state: T::zero(),
-            k: 1.0,
-        }
+        Self { state: T::zero(), k: 1.0 }
     }
 }
 
@@ -30,10 +25,7 @@ where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<f32, Output = T>,
 {
     pub fn new(k: f32) -> Self {
-        Self {
-            state: T::zero(),
-            k,
-        }
+        Self { state: T::zero(), k }
     }
 
     pub fn reset(&mut self) {
@@ -80,6 +72,7 @@ where
     }
 
     // for testing
+    #[allow(dead_code)]
     fn state(self) -> T {
         self.state
     }
@@ -99,10 +92,7 @@ where
     T: Zero,
 {
     fn default() -> Self {
-        Self {
-            state: [T::zero(), T::zero()],
-            k: 1.0,
-        }
+        Self { state: [T::zero(), T::zero()], k: 1.0 }
     }
 }
 
@@ -114,10 +104,7 @@ where
     #[allow(clippy::excessive_precision)]
     const CUTOFF_CORRECTION: f32 = 1.553773974;
     pub fn new(k: f32) -> Self {
-        Self {
-            state: [T::zero(), T::zero()],
-            k,
-        }
+        Self { state: [T::zero(), T::zero()], k }
     }
 
     pub fn reset(&mut self) {
@@ -157,6 +144,7 @@ where
         FilterPt1::<T>::gain_from_frequency(cutoff_frequency_hz * Self::CUTOFF_CORRECTION, delta_t)
     }
     // for testing
+    #[allow(dead_code)]
     fn state(self) -> [T; 2] {
         self.state
     }
@@ -176,10 +164,7 @@ where
     T: Zero,
 {
     fn default() -> Self {
-        Self {
-            state: [T::zero(), T::zero(), T::zero()],
-            k: 1.0,
-        }
+        Self { state: [T::zero(), T::zero(), T::zero()], k: 1.0 }
     }
 }
 
@@ -191,10 +176,7 @@ where
     #[allow(clippy::excessive_precision)]
     const CUTOFF_CORRECTION: f32 = 1.961459177;
     pub fn new(k: f32) -> Self {
-        Self {
-            state: [T::zero(), T::zero(), T::zero()],
-            k,
-        }
+        Self { state: [T::zero(), T::zero(), T::zero()], k }
     }
 
     pub fn reset(&mut self) {
@@ -237,6 +219,7 @@ where
     }
 
     // for testing
+    #[allow(dead_code)]
     fn state(self) -> [T; 3] {
         self.state
     }
@@ -255,12 +238,7 @@ where
     T: Zero,
 {
     fn default() -> Self {
-        Self {
-            x1: T::zero(),
-            x2: T::zero(),
-            y1: T::zero(),
-            y2: T::zero(),
-        }
+        Self { x1: T::zero(), x2: T::zero(), y1: T::zero(), y2: T::zero() }
     }
 }
 
@@ -287,12 +265,7 @@ where
 {
     fn default() -> Self {
         Self {
-            state: BiquadFilterState {
-                x1: T::zero(),
-                x2: T::zero(),
-                y1: T::zero(),
-                y2: T::zero(),
-            },
+            state: BiquadFilterState { x1: T::zero(), x2: T::zero(), y1: T::zero(), y2: T::zero() },
             weight: 1.0,
             a1: 0.0,
             a2: 0.0,
@@ -319,15 +292,7 @@ where
         self.weight
     }
 
-    pub fn set_parameters_and_weight(
-        &mut self,
-        a1: f32,
-        a2: f32,
-        b0: f32,
-        b1: f32,
-        b2: f32,
-        weight: f32,
-    ) {
+    pub fn set_parameters_and_weight(&mut self, a1: f32, a2: f32, b0: f32, b1: f32, b2: f32, weight: f32) {
         self.weight = weight;
         self.a1 = a1;
         self.a2 = a2;
@@ -454,33 +419,18 @@ where
         self.set_notch_frequency_weighted_assuming_q(frequency_hz, 1.0);
     }
 
-    pub fn set_notch_frequency(
-        &mut self,
-        center_frequency_hz: f32,
-        lower_cutoff_frequency_hz: f32,
-    ) {
-        self.set_q(Self::calculate_q(
-            center_frequency_hz,
-            lower_cutoff_frequency_hz,
-        ));
+    pub fn set_notch_frequency(&mut self, center_frequency_hz: f32, lower_cutoff_frequency_hz: f32) {
+        self.set_q(Self::calculate_q(center_frequency_hz, lower_cutoff_frequency_hz));
         self.set_notch_frequency_assuming_q(center_frequency_hz);
     }
 
     pub fn calculate_q(center_frequency_hz: f32, lower_cutoff_frequency_hz: f32) -> f32 {
         center_frequency_hz * lower_cutoff_frequency_hz
-            / (center_frequency_hz * center_frequency_hz
-                - lower_cutoff_frequency_hz * lower_cutoff_frequency_hz)
+            / (center_frequency_hz * center_frequency_hz - lower_cutoff_frequency_hz * lower_cutoff_frequency_hz)
     }
 
-    pub fn set_q_from_frequencies(
-        &mut self,
-        center_frequency_hz: f32,
-        lower_cutoff_frequency_hz: f32,
-    ) {
-        self.set_q(Self::calculate_q(
-            center_frequency_hz,
-            lower_cutoff_frequency_hz,
-        ));
+    pub fn set_q_from_frequencies(&mut self, center_frequency_hz: f32, lower_cutoff_frequency_hz: f32) {
+        self.set_q(Self::calculate_q(center_frequency_hz, lower_cutoff_frequency_hz));
     }
 
     pub fn set_q(&mut self, q: f32) {
@@ -502,6 +452,7 @@ where
     }
 
     // for testing
+    #[allow(dead_code)]
     fn state(self) -> BiquadFilterState<T> {
         self.state
     }
@@ -522,13 +473,8 @@ impl<T, const N: usize> FilterMovingAverage<T, N>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<f32, Output = T>,
 {
-    fn new() -> Self {
-        Self {
-            count: 0,
-            index: 0,
-            sum: T::zero(),
-            samples: [T::zero(); N],
-        }
+    pub fn new() -> Self {
+        Self { count: 0, index: 0, sum: T::zero(), samples: [T::zero(); N] }
     }
     pub fn reset(&mut self) {
         self.sum = T::zero();
@@ -554,14 +500,34 @@ where
         self.sum * (1.0 / N as f32)
     }
 }
+impl<T, const N: usize> Default for FilterMovingAverage<T, N>
+where
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<f32, Output = T>,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 #[cfg(any(debug_assertions, test))]
 mod tests {
+    #![allow(unused)]
     use super::*;
     use vector_quaternion_matrix::Vector3df32;
     use vector_quaternion_matrix::Vector3di16;
     use vector_quaternion_matrix::Vector3di32;
 
+    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+
+    #[test]
+    fn normal_types() {
+        is_normal::<FilterPt1<f32>>();
+        is_normal::<FilterPt2<f32>>();
+        is_normal::<FilterPt3<f32>>();
+        is_normal::<BiquadFilter<f32>>();
+        is_normal::<BiquadFilterState<f32>>();
+        is_normal::<FilterMovingAverage<f32, 2>>();
+    }
     #[test]
     fn filter_pt1_f32() {
         let mut filter = FilterPt1::<f32>::new(1.0);
@@ -703,127 +669,30 @@ mod tests {
         let mut state: Vector3df32;
 
         // test that filter with default settings performs no filtering
-        output = filter.filter(Vector3df32 {
-            x: 2.0,
-            y: 3.0,
-            z: 5.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 2.0,
-                y: 3.0,
-                z: 5.0
-            },
-            output
-        );
+        output = filter.filter(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+        assert_eq!(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }, output);
         state = filter.state();
-        assert_eq!(
-            Vector3df32 {
-                x: 2.0,
-                y: 3.0,
-                z: 5.0
-            },
-            state
-        );
+        assert_eq!(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }, state);
 
         filter.reset();
         state = filter.state();
-        assert_eq!(
-            Vector3df32 {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0
-            },
-            state
-        );
+        assert_eq!(Vector3df32 { x: 0.0, y: 0.0, z: 0.0 }, state);
 
         filter.set_cutoff_frequency(100.0, 0.001);
-        assert_eq!(
-            0.38586956,
-            filter
-                .filter(Vector3df32 {
-                    x: 1.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
-        assert_eq!(
-            1.0087134,
-            filter
-                .filter(Vector3df32 {
-                    x: 2.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
+        assert_eq!(0.38586956, filter.filter(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0087134, filter.filter(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
 
         filter.set_k(1.0);
-        assert_eq!(
-            1.0,
-            filter
-                .filter(Vector3df32 {
-                    x: 1.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
-        assert_eq!(
-            2.0,
-            filter
-                .filter(Vector3df32 {
-                    x: 2.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
+        assert_eq!(1.0, filter.filter(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(2.0, filter.filter(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
 
         filter.set_cutoff_frequency_and_reset(100.0, 0.001);
-        assert_eq!(
-            0.38586956,
-            filter
-                .filter(Vector3df32 {
-                    x: 1.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
-        assert_eq!(
-            1.0087134,
-            filter
-                .filter(Vector3df32 {
-                    x: 2.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
+        assert_eq!(0.38586956, filter.filter(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0087134, filter.filter(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
 
         filter.set_to_passthrough();
-        assert_eq!(
-            1.0,
-            filter
-                .filter(Vector3df32 {
-                    x: 1.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
-        assert_eq!(
-            2.0,
-            filter
-                .filter(Vector3df32 {
-                    x: 2.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
+        assert_eq!(1.0, filter.filter(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(2.0, filter.filter(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
     }
     #[test]
     fn biquad_filter_vector3df32() {
@@ -832,19 +701,8 @@ mod tests {
         let mut state: BiquadFilterState<Vector3df32>;
 
         // test that filter with default settings performs no filtering
-        output = filter.filter(Vector3df32 {
-            x: 2.0,
-            y: 3.0,
-            z: 5.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 2.0,
-                y: 3.0,
-                z: 5.0
-            },
-            output
-        );
+        output = filter.filter(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+        assert_eq!(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }, output);
         state = filter.state();
         assert_eq!(2.0, state.x1.x);
         assert_eq!(0.0, state.x2.x);
@@ -857,203 +715,48 @@ mod tests {
         assert_eq!(0.0, state.x2.x);
         assert_eq!(0.0, state.y1.x);
         assert_eq!(0.0, state.y2.x);
-        assert_eq!(
-            4.0,
-            filter
-                .filter(Vector3df32 {
-                    x: 4.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
+        assert_eq!(4.0, filter.filter(Vector3df32 { x: 4.0, y: 0.0, z: 0.0 }).x);
 
         filter.set_parameters_and_weight(2.0, 3.0, 5.0, 7.0, 11.0, 13.0);
         filter.set_to_passthrough();
-        assert_eq!(
-            1.0,
-            filter
-                .filter(Vector3df32 {
-                    x: 1.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
-        assert_eq!(
-            2.0,
-            filter
-                .filter(Vector3df32 {
-                    x: 2.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
-        assert_eq!(
-            1.0,
-            filter
-                .filter_weighted(Vector3df32 {
-                    x: 1.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
-        assert_eq!(
-            2.0,
-            filter
-                .filter_weighted(Vector3df32 {
-                    x: 2.0,
-                    y: 0.0,
-                    z: 0.0
-                })
-                .x
-        );
+        assert_eq!(1.0, filter.filter(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(2.0, filter.filter(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0, filter.filter_weighted(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(2.0, filter.filter_weighted(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
     }
     #[test]
     fn moving_average_filter_vector3df32() {
         let mut filter = FilterMovingAverage::<Vector3df32, 4>::new();
-        let mut m = filter.filter(Vector3df32 {
-            x: 1.0,
-            y: 0.0,
-            z: -3.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 1.0,
-                y: 0.0,
-                z: -3.0
-            },
-            m
-        );
+        let mut m = filter.filter(Vector3df32 { x: 1.0, y: 0.0, z: -3.0 });
+        assert_eq!(Vector3df32 { x: 1.0, y: 0.0, z: -3.0 }, m);
 
-        m = filter.filter(Vector3df32 {
-            x: 2.0,
-            y: 0.0,
-            z: -3.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 1.5,
-                y: 0.0,
-                z: -3.0
-            },
-            m
-        );
+        m = filter.filter(Vector3df32 { x: 2.0, y: 0.0, z: -3.0 });
+        assert_eq!(Vector3df32 { x: 1.5, y: 0.0, z: -3.0 }, m);
 
-        m = filter.filter(Vector3df32 {
-            x: 3.0,
-            y: 3.0,
-            z: 0.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 2.0,
-                y: 1.0,
-                z: -2.0
-            },
-            m
-        );
+        m = filter.filter(Vector3df32 { x: 3.0, y: 3.0, z: 0.0 });
+        assert_eq!(Vector3df32 { x: 2.0, y: 1.0, z: -2.0 }, m);
 
-        m = filter.filter(Vector3df32 {
-            x: 4.0,
-            y: 2.0,
-            z: -3.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 2.5,
-                y: 1.25,
-                z: -2.25
-            },
-            m
-        );
+        m = filter.filter(Vector3df32 { x: 4.0, y: 2.0, z: -3.0 });
+        assert_eq!(Vector3df32 { x: 2.5, y: 1.25, z: -2.25 }, m);
 
-        m = filter.filter(Vector3df32 {
-            x: 5.0,
-            y: 2.0,
-            z: -3.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 3.5,
-                y: 1.75,
-                z: -2.25
-            },
-            m
-        );
+        m = filter.filter(Vector3df32 { x: 5.0, y: 2.0, z: -3.0 });
+        assert_eq!(Vector3df32 { x: 3.5, y: 1.75, z: -2.25 }, m);
 
-        m = filter.filter(Vector3df32 {
-            x: 6.0,
-            y: 2.0,
-            z: -3.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 4.5,
-                y: 2.25,
-                z: -2.25
-            },
-            m
-        );
+        m = filter.filter(Vector3df32 { x: 6.0, y: 2.0, z: -3.0 });
+        assert_eq!(Vector3df32 { x: 4.5, y: 2.25, z: -2.25 }, m);
 
-        m = filter.filter(Vector3df32 {
-            x: 10.0,
-            y: 2.0,
-            z: -3.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 6.25,
-                y: 2.0,
-                z: -3.0
-            },
-            m
-        );
+        m = filter.filter(Vector3df32 { x: 10.0, y: 2.0, z: -3.0 });
+        assert_eq!(Vector3df32 { x: 6.25, y: 2.0, z: -3.0 }, m);
 
         filter.reset();
-        m = filter.filter(Vector3df32 {
-            x: 4.0,
-            y: 2.0,
-            z: -3.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 4.0,
-                y: 2.0,
-                z: -3.0
-            },
-            m
-        );
+        m = filter.filter(Vector3df32 { x: 4.0, y: 2.0, z: -3.0 });
+        assert_eq!(Vector3df32 { x: 4.0, y: 2.0, z: -3.0 }, m);
 
-        m = filter.filter(Vector3df32 {
-            x: 20.0,
-            y: 0.0,
-            z: -3.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 12.0,
-                y: 1.0,
-                z: -3.0
-            },
-            m
-        );
+        m = filter.filter(Vector3df32 { x: 20.0, y: 0.0, z: -3.0 });
+        assert_eq!(Vector3df32 { x: 12.0, y: 1.0, z: -3.0 }, m);
 
-        m = filter.filter(Vector3df32 {
-            x: -9.0,
-            y: 0.0,
-            z: -3.0,
-        });
-        assert_eq!(
-            Vector3df32 {
-                x: 5.0,
-                y: 2.0 / 3.0,
-                z: -3.0
-            },
-            m
-        );
+        m = filter.filter(Vector3df32 { x: -9.0, y: 0.0, z: -3.0 });
+        assert_eq!(Vector3df32 { x: 5.0, y: 2.0 / 3.0, z: -3.0 }, m);
     }
     #[test]
     fn filter_pt1_vector3df32_i16() {
@@ -1079,11 +782,7 @@ mod tests {
         m = filter.filter(Vector3di16 { x: 12, y: 12, z: 0 });
         assert_eq!(Vector3di16 { x: 8, y: 4, z: -8 }, m);
 
-        m = filter.filter(Vector3di16 {
-            x: 16,
-            y: 8,
-            z: -12,
-        });
+        m = filter.filter(Vector3di16 { x: 16, y: 8, z: -12 });
         assert_eq!(Vector3di16 { x: 10, y: 5, z: -9 }, m);
     }
     #[test]
@@ -1114,11 +813,7 @@ mod tests {
         m = filter.filter(Vector3di32 { x: 12, y: 12, z: 0 });
         assert_eq!(Vector3di32 { x: 8, y: 4, z: -8 }, m);
 
-        m = filter.filter(Vector3di32 {
-            x: 16,
-            y: 8,
-            z: -12,
-        });
+        m = filter.filter(Vector3di32 { x: 16, y: 8, z: -12 });
         assert_eq!(Vector3di32 { x: 10, y: 5, z: -9 }, m);
     }
 }

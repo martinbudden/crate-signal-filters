@@ -9,7 +9,5 @@ mod filters;
 mod rolling_buffer;
 
 pub use circular_buffer::CircularBuffer;
-pub use filters::{
-    BiquadFilter, BiquadFilterState, FilterMovingAverage, FilterPt1, FilterPt2, FilterPt3,
-};
+pub use filters::{BiquadFilter, BiquadFilterState, FilterMovingAverage, FilterPt1, FilterPt2, FilterPt3};
 pub use rolling_buffer::RollingBuffer;
