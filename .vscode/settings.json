@@ -7,6 +7,7 @@
         "bytemuck",
         "codegen",
         "debuginfo",
+        "Filterf",
         "libm",
         "Uninit"
     ]
