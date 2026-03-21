@@ -1,15 +1,15 @@
 use core::ops::{Add, Div, Mul, Sub};
-use num_traits::{Zero,One};
-use vector_quaternion_matrix::{MathMethods,MathConstants};
+use num_traits::{One, Zero};
+use vector_quaternion_matrix::{MathConstants, MathFunctions};
 
-pub type FilterPt1f32<T> = FilterPt1<T,f32>;
-pub type FilterPt1f64<T> = FilterPt1<T,f64>;
-pub type FilterPt2f32<T> = FilterPt2<T,f32>;
-pub type FilterPt2f64<T> = FilterPt2<T,f64>;
-pub type FilterPt3f32<T> = FilterPt3<T,f32>;
-pub type FilterPt3f64<T> = FilterPt3<T,f64>;
-pub type BiquadFilterf32<T> = BiquadFilter<T,f32>;
-pub type BiquadFilterf64<T> = BiquadFilter<T,f64>;
+pub type FilterPt1f32<T> = FilterPt1<T, f32>;
+pub type FilterPt1f64<T> = FilterPt1<T, f64>;
+pub type FilterPt2f32<T> = FilterPt2<T, f32>;
+pub type FilterPt2f64<T> = FilterPt2<T, f64>;
+pub type FilterPt3f32<T> = FilterPt3<T, f32>;
+pub type FilterPt3f64<T> = FilterPt3<T, f64>;
+pub type BiquadFilterf32<T> = BiquadFilter<T, f32>;
+pub type BiquadFilterf64<T> = BiquadFilter<T, f64>;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct FilterPt1<T, F> {
@@ -31,7 +31,7 @@ where
 impl<T, F> FilterPt1<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
-    F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output= F>,
+    F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output = F>,
 {
     pub fn new(k: F) -> Self {
         Self { state: T::zero(), k }
@@ -111,7 +111,7 @@ where
 impl<T, F> FilterPt2<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
-    F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output= F>,
+    F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output = F>,
 {
     pub fn new(k: F) -> Self {
         Self { state: [T::zero(), T::zero()], k }
@@ -146,10 +146,10 @@ where
         self.reset();
     }
 
-    pub fn gain_from_delay(delay: F, delta_t: F)-> F {
+    pub fn gain_from_delay(delay: F, delta_t: F) -> F {
         FilterPt1::<T, F>::gain_from_delay(delay * F::FILTER_PT2_CUTOFF_CORRECTION, delta_t)
     }
-    pub fn gain_from_frequency(cutoff_frequency_hz: F, delta_t: F)-> F {
+    pub fn gain_from_frequency(cutoff_frequency_hz: F, delta_t: F) -> F {
         // shift cutoffFrequency to satisfy -3dB cutoff condition
         FilterPt1::<T, F>::gain_from_frequency(cutoff_frequency_hz * F::FILTER_PT2_CUTOFF_CORRECTION, delta_t)
     }
@@ -180,7 +180,7 @@ where
 impl<T, F> FilterPt3<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
-    F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output= F>,
+    F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output = F>,
 {
     pub fn new(k: F) -> Self {
         Self { state: [T::zero(), T::zero(), T::zero()], k }
@@ -216,11 +216,11 @@ where
         self.reset();
     }
 
-    pub fn gain_from_delay(delay: F, delta_t: F)-> F {
+    pub fn gain_from_delay(delay: F, delta_t: F) -> F {
         FilterPt1::<T, F>::gain_from_delay(delay * F::FILTER_PT3_CUTOFF_CORRECTION, delta_t)
     }
 
-    pub fn gain_from_frequency(cutoff_frequency_hz: F, delta_t: F)-> F {
+    pub fn gain_from_frequency(cutoff_frequency_hz: F, delta_t: F) -> F {
         // shift cutoffFrequency to satisfy -3dB cutoff condition
         FilterPt1::<T, F>::gain_from_frequency(cutoff_frequency_hz * F::FILTER_PT3_CUTOFF_CORRECTION, delta_t)
     }
@@ -264,10 +264,10 @@ pub struct BiquadFilter<T, F> {
     one_over_2q: F,
 }
 
-impl<T,F> Default for BiquadFilter<T,F>
+impl<T, F> Default for BiquadFilter<T, F>
 where
     T: Zero,
-    F: Zero + One + Div<F, Output= F>,
+    F: Zero + One + Div<F, Output = F>,
 {
     fn default() -> Self {
         Self {
@@ -281,7 +281,7 @@ where
             loop_time_seconds: F::zero(),
             two_pi_loop_time_seconds: F::zero(),
             q: F::one(),
-            one_over_2q: F::one() / (F::one()+F::one()),
+            one_over_2q: F::one() / (F::one() + F::one()),
         }
     }
 }
@@ -289,7 +289,15 @@ where
 impl<T, F> BiquadFilter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
-    F: Copy + Zero + One + MathConstants + MathMethods+ PartialOrd + Mul<F, Output= F> + Div<F, Output= F> + Sub<F, Output= F>,
+    F: Copy
+        + Zero
+        + One
+        + MathConstants
+        + MathFunctions
+        + PartialOrd
+        + Mul<F, Output = F>
+        + Div<F, Output = F>
+        + Sub<F, Output = F>,
 {
     pub fn set_weight(&mut self, weight: F) {
         self.weight = weight;
@@ -387,9 +395,9 @@ where
         let a0_reciprocal = F::one() / (F::one() + alpha);
 
         self.b1 = (F::one() - cos_omega) * a0_reciprocal;
-        self.b0 = self.b1 * (F::one()/(F::one()+F::one()));
+        self.b0 = self.b1 * (F::one() / (F::one() + F::one()));
         self.b2 = self.b0;
-        self.a1 = F::zero()-(F::one()+F::one()) * cos_omega * a0_reciprocal;
+        self.a1 = F::zero() - (F::one() + F::one()) * cos_omega * a0_reciprocal;
         self.a2 = (F::one() - alpha) * a0_reciprocal;
     }
 
@@ -397,12 +405,7 @@ where
         self.set_low_pass_frequency_weighted_assuming_q(frequency_hz, F::one());
     }
 
-    pub fn set_notch_frequency_weighted_from_sin_cos_assuming_q(
-        &mut self,
-        sin_omega: F,
-        cos_omega: F,
-        weight: F,
-    ) {
+    pub fn set_notch_frequency_weighted_from_sin_cos_assuming_q(&mut self, sin_omega: F, cos_omega: F, weight: F) {
         self.weight = weight;
 
         let alpha = sin_omega * self.one_over_2q;
@@ -410,7 +413,7 @@ where
 
         self.b0 = a0reciprocal;
         self.b2 = a0reciprocal;
-        self.b1 = F::zero()-(F::one()+F::one()) * cos_omega * a0reciprocal;
+        self.b1 = F::zero() - (F::one() + F::one()) * cos_omega * a0reciprocal;
         self.a1 = self.b1;
         self.a2 = (F::one() - alpha) * a0reciprocal;
     }
@@ -442,7 +445,7 @@ where
 
     pub fn set_q(&mut self, q: F) {
         self.q = q;
-        self.one_over_2q = F::one() / ((F::one()+F::one()) * q); // cache value for faster setting of frequencies
+        self.one_over_2q = F::one() / ((F::one() + F::one()) * q); // cache value for faster setting of frequencies
     }
 
     pub fn q(&self) -> F {
@@ -675,7 +678,7 @@ mod tests {
     }
     #[test]
     fn filter_pt1_vector3df32() {
-        let mut filter = FilterPt1::<Vector3df32,f32>::new(1.0);
+        let mut filter = FilterPt1::<Vector3df32, f32>::new(1.0);
         let mut output: Vector3df32;
         let mut state: Vector3df32;
 
@@ -771,7 +774,7 @@ mod tests {
     }
     #[test]
     fn filter_pt1_vector3df32_i16() {
-        let mut filter = FilterPt1::<Vector3di16,f32>::new(1.0);
+        let mut filter = FilterPt1::<Vector3di16, f32>::new(1.0);
         let mut output: Vector3di16;
         let mut state: Vector3di16;
 
@@ -798,7 +801,7 @@ mod tests {
     }
     #[test]
     fn filter_pt1_vector3df32_i32() {
-        let mut filter = FilterPt1::<Vector3di32,f32>::new(1.0);
+        let mut filter = FilterPt1::<Vector3di32, f32>::new(1.0);
         let mut output: Vector3di32;
         let mut state: Vector3di32;
 
