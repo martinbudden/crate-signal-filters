@@ -1,6 +1,6 @@
 use core::ops::{Add, Div, Mul, Sub};
 use num_traits::{Zero,One};
-use vector_quaternion_matrix::{MathMethods};
+use vector_quaternion_matrix::{MathMethods,MathConstants};
 
 pub type FilterPt1f32<T> = FilterPt1<T,f32>;
 pub type FilterPt1f64<T> = FilterPt1<T,f64>;
@@ -10,29 +10,6 @@ pub type FilterPt3f32<T> = FilterPt3<T,f32>;
 pub type FilterPt3f64<T> = FilterPt3<T,f64>;
 pub type BiquadFilterf32<T> = BiquadFilter<T,f32>;
 pub type BiquadFilterf64<T> = BiquadFilter<T,f64>;
-
-pub trait MathConstants {
-    const PI: Self;
-    const FILTER_PT2_CUTOFF_CORRECTION: Self;
-    const FILTER_PT3_CUTOFF_CORRECTION: Self;
-}
-
-impl MathConstants for f32 {
-    const PI: Self = core::f32::consts::PI;
-    // PowerTransferFilter<n> cutoff correction = 1/sqrt(2^(1/n) - 1)
-    #[allow(clippy::excessive_precision)]
-    const FILTER_PT2_CUTOFF_CORRECTION: Self = 1.553_773_974;
-    #[allow(clippy::excessive_precision)]
-    const FILTER_PT3_CUTOFF_CORRECTION: Self = 1.961_459_177;
-}
-
-impl MathConstants for f64 {
-    const PI: Self = core::f64::consts::PI;
-    // PowerTransferFilter<n> cutoff correction = 1/sqrt(2^(1/n) - 1)
-    const FILTER_PT2_CUTOFF_CORRECTION: Self = 1.553_773_974;
-    const FILTER_PT3_CUTOFF_CORRECTION: Self = 1.961_459_177;
-}
-
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct FilterPt1<T, F> {
