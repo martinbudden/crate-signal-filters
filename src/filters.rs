@@ -11,7 +11,7 @@ pub type Pt3Filterf64<T> = Pt3Filter<T, f64>;
 pub type BiquadFilterf32<T> = BiquadFilter<T, f32>;
 pub type BiquadFilterf64<T> = BiquadFilter<T, f64>;
 
-pub trait Filter<T, F> {
+pub trait FIlterSignal<T, F> {
     fn apply(&mut self, input: T) -> T;
     fn reset(&mut self);
 }
@@ -43,7 +43,7 @@ where
     }
 }
 
-impl<T, F> Filter<T, F> for Pt1Filter<T, F>
+impl<T, F> FIlterSignal<T, F> for Pt1Filter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy,
@@ -135,7 +135,7 @@ where
     }
 }
 
-impl<T, F> Filter<T, F> for Pt2Filter<T, F>
+impl<T, F> FIlterSignal<T, F> for Pt2Filter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy,
@@ -216,7 +216,7 @@ where
     }
 }
 
-impl<T, F> Filter<T, F> for Pt3Filter<T, F>
+impl<T, F> FIlterSignal<T, F> for Pt3Filter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy + Zero,
@@ -337,7 +337,7 @@ where
     }
 }
 
-impl<T, F> Filter<T, F> for BiquadFilter<T, F>
+impl<T, F> FIlterSignal<T, F> for BiquadFilter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy + Zero + One + Div<F, Output = F>,
