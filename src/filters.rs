@@ -11,6 +11,11 @@ pub type FilterPt3f64<T> = FilterPt3<T, f64>;
 pub type BiquadFilterf32<T> = BiquadFilter<T, f32>;
 pub type BiquadFilterf64<T> = BiquadFilter<T, f64>;
 
+pub trait Filter<T, F> {
+    fn filter(&mut self, input: T) -> T;
+    fn reset(&mut self);
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct FilterPt1<T, F> {
     state: T,
@@ -24,7 +29,32 @@ where
     F: One,
 {
     fn default() -> Self {
-        Self { state: T::zero(), k: F::one() }
+        Self::new(F::one())
+    }
+}
+
+impl<T, F> FilterPt1<T, F>
+where
+    T: Zero,
+    F: One,
+{
+    pub fn new(k: F) -> Self {
+        Self { state: T::zero(), k }
+    }
+}
+
+impl<T, F> Filter<T, F> for FilterPt1<T, F>
+where
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
+    F: Copy,
+{
+    fn filter(&mut self, input: T) -> T {
+        self.state = self.state + (input - self.state) * self.k; // equivalent to self.state = self.k*input + (1.0 - self.k)*self.state;
+        self.state
+    }
+
+    fn reset(&mut self) {
+        self.state = T::zero();
     }
 }
 
@@ -33,26 +63,13 @@ where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output = F>,
 {
-    pub fn new(k: F) -> Self {
-        Self { state: T::zero(), k }
-    }
-
-    pub fn reset(&mut self) {
-        self.state = T::zero();
+    pub fn set_to_passthrough(&mut self) {
+        self.k = F::one();
+        self.reset();
     }
 
     pub fn set_k(&mut self, k: F) {
         self.k = k;
-        self.reset();
-    }
-
-    pub fn filter(&mut self, input: T) -> T {
-        self.state = self.state + (input - self.state) * self.k; // equivalent to self.state = self.k*input + (1.0 - self.k)*self.state;
-        self.state
-    }
-
-    pub fn set_to_passthrough(&mut self) {
-        self.k = F::one();
         self.reset();
     }
 
@@ -104,7 +121,33 @@ where
     F: One,
 {
     fn default() -> Self {
-        Self { state: [T::zero(), T::zero()], k: F::one() }
+        Self::new(F::one())
+    }
+}
+
+impl<T, F> FilterPt2<T, F>
+where
+    T: Zero,
+    F: One,
+{
+    pub fn new(k: F) -> Self {
+        Self { state: [T::zero(), T::zero()], k }
+    }
+}
+
+impl<T, F> Filter<T, F> for FilterPt2<T, F>
+where
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
+    F: Copy,
+{
+    fn filter(&mut self, input: T) -> T {
+        self.state[1] = self.state[1] + (input - self.state[1]) * self.k;
+        self.state[0] = self.state[0] + (self.state[1] - self.state[0]) * self.k;
+        self.state[0]
+    }
+
+    fn reset(&mut self) {
+        self.state = [T::zero(), T::zero()];
     }
 }
 
@@ -113,28 +156,14 @@ where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output = F>,
 {
-    pub fn new(k: F) -> Self {
-        Self { state: [T::zero(), T::zero()], k }
-    }
-
-    pub fn reset(&mut self) {
-        self.state = [T::zero(), T::zero()];
-    }
-
-    pub fn set_k(&mut self, k: F) {
-        self.k = k;
-        self.reset();
-    }
-
     pub fn set_to_passthrough(&mut self) {
         self.k = F::one();
         self.reset();
     }
 
-    pub fn filter(&mut self, input: T) -> T {
-        self.state[1] = self.state[1] + (input - self.state[1]) * self.k;
-        self.state[0] = self.state[0] + (self.state[1] - self.state[0]) * self.k;
-        self.state[0]
+    pub fn set_k(&mut self, k: F) {
+        self.k = k;
+        self.reset();
     }
 
     pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: F, delta_t: F) {
@@ -173,7 +202,34 @@ where
     F: One,
 {
     fn default() -> Self {
-        Self { state: [T::zero(), T::zero(), T::zero()], k: F::one() }
+        Self::new(F::one())
+    }
+}
+
+impl<T, F> FilterPt3<T, F>
+where
+    T: Zero,
+    F: One,
+{
+    pub fn new(k: F) -> Self {
+        Self { state: [T::zero(), T::zero(), T::zero()], k }
+    }
+}
+
+impl<T, F> Filter<T, F> for FilterPt3<T, F>
+where
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
+    F: Copy + Zero,
+{
+    fn filter(&mut self, input: T) -> T {
+        self.state[2] = self.state[2] + (input - self.state[2]) * self.k;
+        self.state[1] = self.state[1] + (self.state[2] - self.state[1]) * self.k;
+        self.state[0] = self.state[0] + (self.state[1] - self.state[0]) * self.k;
+        self.state[0]
+    }
+
+    fn reset(&mut self) {
+        self.state = [T::zero(), T::zero(), T::zero()];
     }
 }
 
@@ -182,29 +238,14 @@ where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output = F>,
 {
-    pub fn new(k: F) -> Self {
-        Self { state: [T::zero(), T::zero(), T::zero()], k }
-    }
-
-    pub fn reset(&mut self) {
-        self.state = [T::zero(), T::zero(), T::zero()];
-    }
-
-    pub fn set_k(&mut self, k: F) {
-        self.k = k;
-        self.reset();
-    }
-
     pub fn set_to_passthrough(&mut self) {
         self.k = F::one();
         self.reset();
     }
 
-    pub fn filter(&mut self, input: T) -> T {
-        self.state[2] = self.state[2] + (input - self.state[2]) * self.k;
-        self.state[1] = self.state[1] + (self.state[2] - self.state[1]) * self.k;
-        self.state[0] = self.state[0] + (self.state[1] - self.state[0]) * self.k;
-        self.state[0]
+    pub fn set_k(&mut self, k: F) {
+        self.k = k;
+        self.reset();
     }
 
     pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: F, delta_t: F) {
@@ -270,6 +311,16 @@ where
     F: Zero + One + Div<F, Output = F>,
 {
     fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<T, F> BiquadFilter<T, F>
+where
+    T: Zero,
+    F: Zero + One + Div<F, Output = F>,
+{
+    fn new() -> Self {
         Self {
             state: BiquadFilterState { x1: T::zero(), x2: T::zero(), y1: T::zero(), y2: T::zero() },
             weight: F::one(),
@@ -286,6 +337,31 @@ where
     }
 }
 
+impl<T, F> Filter<T, F> for BiquadFilter<T, F>
+where
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
+    F: Copy + Zero + One + Div<F, Output = F>,
+{
+    fn filter(&mut self, input: T) -> T {
+        let output = input * self.b0 + self.state.x1 * self.b1 + self.state.x2 * self.b2
+            - self.state.y1 * self.a1
+            - self.state.y2 * self.a2;
+
+        self.state.x2 = self.state.x1;
+        self.state.x1 = input;
+        self.state.y2 = self.state.y1;
+        self.state.y1 = output;
+        output
+    }
+
+    fn reset(&mut self) {
+        self.state.x1 = T::zero();
+        self.state.x2 = T::zero();
+        self.state.y1 = T::zero();
+        self.state.y2 = T::zero();
+    }
+}
+
 impl<T, F> BiquadFilter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
@@ -299,6 +375,22 @@ where
         + Div<F, Output = F>
         + Sub<F, Output = F>,
 {
+    pub fn set_to_passthrough(&mut self) {
+        self.b0 = F::one();
+        self.b1 = F::zero();
+        self.b2 = F::zero();
+        self.a1 = F::zero();
+        self.a2 = F::zero();
+        self.weight = F::one();
+        self.reset();
+    }
+
+    pub fn filter_weighted(&mut self, input: T) -> T {
+        let output = self.filter(input);
+        // weight of 1.0 gives just output, weight of 0.0 gives just input
+        (output - input) * self.weight + input
+    }
+
     pub fn set_weight(&mut self, weight: F) {
         self.weight = weight;
     }
@@ -328,41 +420,6 @@ where
         self.b0 = other.b0;
         self.b1 = other.b1;
         self.b2 = other.b2;
-    }
-
-    pub fn reset(&mut self) {
-        self.state.x1 = T::zero();
-        self.state.x2 = T::zero();
-        self.state.y1 = T::zero();
-        self.state.y2 = T::zero();
-    }
-
-    pub fn set_to_passthrough(&mut self) {
-        self.b0 = F::one();
-        self.b1 = F::zero();
-        self.b2 = F::zero();
-        self.a1 = F::zero();
-        self.a2 = F::zero();
-        self.weight = F::one();
-        self.reset();
-    }
-
-    pub fn filter(&mut self, input: T) -> T {
-        let output = input * self.b0 + self.state.x1 * self.b1 + self.state.x2 * self.b2
-            - self.state.y1 * self.a1
-            - self.state.y2 * self.a2;
-
-        self.state.x2 = self.state.x1;
-        self.state.x1 = input;
-        self.state.y2 = self.state.y1;
-        self.state.y1 = output;
-        output
-    }
-
-    pub fn filter_weighted(&mut self, input: T) -> T {
-        let output = self.filter(input);
-        // weight of 1.0 gives just output, weight of 0.0 gives just input
-        (output - input) * self.weight + input
     }
 
     pub fn init_low_pass(&mut self, frequency_hz: F, loop_time_seconds: F, q: F) {
@@ -479,19 +536,28 @@ pub struct FilterMovingAverage<T, const N: usize> {
     samples: [T; N],
 }
 
+impl<T, const N: usize> Default for FilterMovingAverage<T, N>
+where
+    T: Copy + Zero,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T, const N: usize> FilterMovingAverage<T, N>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<f32, Output = T>,
+    T: Copy + Zero,
 {
     pub fn new() -> Self {
         Self { count: 0, index: 0, sum: T::zero(), samples: [T::zero(); N] }
     }
-    pub fn reset(&mut self) {
-        self.sum = T::zero();
-        self.count = 0;
-        self.index = 0;
-    }
+}
 
+impl<T, const N: usize> FilterMovingAverage<T, N>
+where
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<f32, Output = T>,
+{
     pub fn filter(&mut self, input: T) -> T {
         self.sum = self.sum + input;
         if self.count < N {
@@ -509,13 +575,11 @@ where
 
         self.sum * (1.0 / N as f32)
     }
-}
-impl<T, const N: usize> Default for FilterMovingAverage<T, N>
-where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<f32, Output = T>,
-{
-    fn default() -> Self {
-        Self::new()
+
+    pub fn reset(&mut self) {
+        self.sum = T::zero();
+        self.count = 0;
+        self.index = 0;
     }
 }
 
@@ -527,23 +591,24 @@ mod tests {
     use vector_quaternion_matrix::Vector3di16;
     use vector_quaternion_matrix::Vector3di32;
 
-    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
+    fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
 
     #[test]
     fn normal_types() {
-        is_normal::<FilterPt1<f32, f32>>();
-        is_normal::<FilterPt1f32<f32>>();
-        is_normal::<FilterPt2<f32, f32>>();
-        is_normal::<FilterPt2f32<f32>>();
-        is_normal::<FilterPt3<f32, f32>>();
-        is_normal::<FilterPt3f32<f32>>();
-        is_normal::<BiquadFilter<f32, f32>>();
-        is_normal::<BiquadFilterf32<f32>>();
-        is_normal::<BiquadFilterState<f32>>();
-        is_normal::<FilterMovingAverage<f32, 2>>();
+        is_full::<FilterPt1<f32, f32>>();
+        is_full::<FilterPt1f32<f32>>();
+        is_full::<FilterPt2<f32, f32>>();
+        is_full::<FilterPt2f32<f32>>();
+        is_full::<FilterPt3<f32, f32>>();
+        is_full::<FilterPt3f32<f32>>();
+        is_full::<BiquadFilter<f32, f32>>();
+        is_full::<BiquadFilterf32<f32>>();
+        is_full::<BiquadFilterState<f32>>();
+        is_full::<FilterMovingAverage<f32, 2>>();
     }
     #[test]
-    fn filter_pt1_f32() {
+    fn pt1_filter_f32() {
         let mut filter = FilterPt1f32::<f32>::new(1.0);
 
         // test that filter with default settings performs no filtering
@@ -573,7 +638,7 @@ mod tests {
         assert_eq!(2.0, filter.filter(2.0));
     }
     #[test]
-    fn filter_pt2_f32() {
+    fn pt2_filter_f32() {
         let mut filter = FilterPt2f32::<f32>::new(1.0);
 
         // test that filter with default settings performs no filtering
@@ -602,7 +667,7 @@ mod tests {
         assert_eq!(2.0, filter.filter(2.0));
     }
     #[test]
-    fn filter_pt3_f32() {
+    fn pt3_filter_f32() {
         let mut filter = FilterPt3f32::<f32>::new(1.0);
 
         let mut state = filter.state();
@@ -677,7 +742,7 @@ mod tests {
         assert_eq!(5.0, filter.filter(-9.0));
     }
     #[test]
-    fn filter_pt1_vector3df32() {
+    fn pt1_filter_vector3df32() {
         let mut filter = FilterPt1::<Vector3df32, f32>::new(1.0);
         let mut output: Vector3df32;
         let mut state: Vector3df32;
@@ -773,7 +838,7 @@ mod tests {
         assert_eq!(Vector3df32 { x: 5.0, y: 2.0 / 3.0, z: -3.0 }, m);
     }
     #[test]
-    fn filter_pt1_vector3df32_i16() {
+    fn pt1_filter_vector3df32_i16() {
         let mut filter = FilterPt1::<Vector3di16, f32>::new(1.0);
         let mut output: Vector3di16;
         let mut state: Vector3di16;
@@ -800,7 +865,7 @@ mod tests {
         assert_eq!(Vector3di16 { x: 10, y: 5, z: -9 }, m);
     }
     #[test]
-    fn filter_pt1_vector3df32_i32() {
+    fn pt1_filter_vector3df32_i32() {
         let mut filter = FilterPt1::<Vector3di32, f32>::new(1.0);
         let mut output: Vector3di32;
         let mut state: Vector3di32;
