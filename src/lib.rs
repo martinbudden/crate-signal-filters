@@ -10,7 +10,7 @@ mod rolling_buffer;
 
 pub use circular_buffer::CircularBuffer;
 pub use filters::{
-    BiquadFilter, BiquadFilterState, BiquadFilterf32, BiquadFilterf64, FilterMovingAverage, FilterPt1, FilterPt1f32,
-    FilterPt1f64, FilterPt2, FilterPt2f32, FilterPt2f64, FilterPt3, FilterPt3f32, FilterPt3f64,
+    BiquadFilter, BiquadFilterState, BiquadFilterf32, BiquadFilterf64, FilterMovingAverage, Pt1Filter, Pt1Filterf32,
+    Pt1Filterf64, Pt2Filter, Pt2Filterf32, Pt2Filterf64, Pt3Filter, Pt3Filterf32, Pt3Filterf64,
 };
 pub use rolling_buffer::RollingBuffer;

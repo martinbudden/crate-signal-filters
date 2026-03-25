@@ -2,12 +2,12 @@ use core::ops::{Add, Div, Mul, Sub};
 use num_traits::{One, Zero};
 use vector_quaternion_matrix::{MathConstants, MathFunctions};
 
-pub type FilterPt1f32<T> = FilterPt1<T, f32>;
-pub type FilterPt1f64<T> = FilterPt1<T, f64>;
-pub type FilterPt2f32<T> = FilterPt2<T, f32>;
-pub type FilterPt2f64<T> = FilterPt2<T, f64>;
-pub type FilterPt3f32<T> = FilterPt3<T, f32>;
-pub type FilterPt3f64<T> = FilterPt3<T, f64>;
+pub type Pt1Filterf32<T> = Pt1Filter<T, f32>;
+pub type Pt1Filterf64<T> = Pt1Filter<T, f64>;
+pub type Pt2Filterf32<T> = Pt2Filter<T, f32>;
+pub type Pt2Filterf64<T> = Pt2Filter<T, f64>;
+pub type Pt3Filterf32<T> = Pt3Filter<T, f32>;
+pub type Pt3Filterf64<T> = Pt3Filter<T, f64>;
 pub type BiquadFilterf32<T> = BiquadFilter<T, f32>;
 pub type BiquadFilterf64<T> = BiquadFilter<T, f64>;
 
@@ -17,13 +17,13 @@ pub trait Filter<T, F> {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct FilterPt1<T, F> {
+pub struct Pt1Filter<T, F> {
     state: T,
     k: F,
 }
 
 /// Default is k = 1.0, which is passthrough
-impl<T, F> Default for FilterPt1<T, F>
+impl<T, F> Default for Pt1Filter<T, F>
 where
     T: Zero,
     F: One,
@@ -33,7 +33,7 @@ where
     }
 }
 
-impl<T, F> FilterPt1<T, F>
+impl<T, F> Pt1Filter<T, F>
 where
     T: Zero,
     F: One,
@@ -43,7 +43,7 @@ where
     }
 }
 
-impl<T, F> Filter<T, F> for FilterPt1<T, F>
+impl<T, F> Filter<T, F> for Pt1Filter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy,
@@ -58,7 +58,7 @@ where
     }
 }
 
-impl<T, F> FilterPt1<T, F>
+impl<T, F> Pt1Filter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output = F>,
@@ -109,13 +109,13 @@ where
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct FilterPt2<T, F> {
+pub struct Pt2Filter<T, F> {
     state: [T; 2],
     k: F,
 }
 
 /// Default is k = 1.0, which is passthrough
-impl<T, F> Default for FilterPt2<T, F>
+impl<T, F> Default for Pt2Filter<T, F>
 where
     T: Zero,
     F: One,
@@ -125,7 +125,7 @@ where
     }
 }
 
-impl<T, F> FilterPt2<T, F>
+impl<T, F> Pt2Filter<T, F>
 where
     T: Zero,
     F: One,
@@ -135,7 +135,7 @@ where
     }
 }
 
-impl<T, F> Filter<T, F> for FilterPt2<T, F>
+impl<T, F> Filter<T, F> for Pt2Filter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy,
@@ -151,7 +151,7 @@ where
     }
 }
 
-impl<T, F> FilterPt2<T, F>
+impl<T, F> Pt2Filter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output = F>,
@@ -176,11 +176,11 @@ where
     }
 
     pub fn gain_from_delay(delay: F, delta_t: F) -> F {
-        FilterPt1::<T, F>::gain_from_delay(delay * F::FILTER_PT2_CUTOFF_CORRECTION, delta_t)
+        Pt1Filter::<T, F>::gain_from_delay(delay * F::FILTER_PT2_CUTOFF_CORRECTION, delta_t)
     }
     pub fn gain_from_frequency(cutoff_frequency_hz: F, delta_t: F) -> F {
         // shift cutoffFrequency to satisfy -3dB cutoff condition
-        FilterPt1::<T, F>::gain_from_frequency(cutoff_frequency_hz * F::FILTER_PT2_CUTOFF_CORRECTION, delta_t)
+        Pt1Filter::<T, F>::gain_from_frequency(cutoff_frequency_hz * F::FILTER_PT2_CUTOFF_CORRECTION, delta_t)
     }
     // for testing
     #[allow(dead_code)]
@@ -190,13 +190,13 @@ where
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct FilterPt3<T, F> {
+pub struct Pt3Filter<T, F> {
     state: [T; 3],
     k: F,
 }
 
 /// Default is k = 1.0, which is passthrough
-impl<T, F> Default for FilterPt3<T, F>
+impl<T, F> Default for Pt3Filter<T, F>
 where
     T: Zero,
     F: One,
@@ -206,7 +206,7 @@ where
     }
 }
 
-impl<T, F> FilterPt3<T, F>
+impl<T, F> Pt3Filter<T, F>
 where
     T: Zero,
     F: One,
@@ -216,7 +216,7 @@ where
     }
 }
 
-impl<T, F> Filter<T, F> for FilterPt3<T, F>
+impl<T, F> Filter<T, F> for Pt3Filter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy + Zero,
@@ -233,7 +233,7 @@ where
     }
 }
 
-impl<T, F> FilterPt3<T, F>
+impl<T, F> Pt3Filter<T, F>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<F, Output = T>,
     F: Copy + Zero + One + MathConstants + PartialOrd + Div<F, Output = F>,
@@ -258,12 +258,12 @@ where
     }
 
     pub fn gain_from_delay(delay: F, delta_t: F) -> F {
-        FilterPt1::<T, F>::gain_from_delay(delay * F::FILTER_PT3_CUTOFF_CORRECTION, delta_t)
+        Pt1Filter::<T, F>::gain_from_delay(delay * F::FILTER_PT3_CUTOFF_CORRECTION, delta_t)
     }
 
     pub fn gain_from_frequency(cutoff_frequency_hz: F, delta_t: F) -> F {
         // shift cutoffFrequency to satisfy -3dB cutoff condition
-        FilterPt1::<T, F>::gain_from_frequency(cutoff_frequency_hz * F::FILTER_PT3_CUTOFF_CORRECTION, delta_t)
+        Pt1Filter::<T, F>::gain_from_frequency(cutoff_frequency_hz * F::FILTER_PT3_CUTOFF_CORRECTION, delta_t)
     }
 
     // for testing
@@ -596,12 +596,12 @@ mod tests {
 
     #[test]
     fn normal_types() {
-        is_full::<FilterPt1<f32, f32>>();
-        is_full::<FilterPt1f32<f32>>();
-        is_full::<FilterPt2<f32, f32>>();
-        is_full::<FilterPt2f32<f32>>();
-        is_full::<FilterPt3<f32, f32>>();
-        is_full::<FilterPt3f32<f32>>();
+        is_full::<Pt1Filter<f32, f32>>();
+        is_full::<Pt1Filterf32<f32>>();
+        is_full::<Pt2Filter<f32, f32>>();
+        is_full::<Pt2Filterf32<f32>>();
+        is_full::<Pt3Filter<f32, f32>>();
+        is_full::<Pt3Filterf32<f32>>();
         is_full::<BiquadFilter<f32, f32>>();
         is_full::<BiquadFilterf32<f32>>();
         is_full::<BiquadFilterState<f32>>();
@@ -609,7 +609,7 @@ mod tests {
     }
     #[test]
     fn pt1_filter_f32() {
-        let mut filter = FilterPt1f32::<f32>::new(1.0);
+        let mut filter = Pt1Filterf32::<f32>::new(1.0);
 
         // test that filter with default settings performs no filtering
         assert_eq!(1.0, filter.filter(1.0));
@@ -639,7 +639,7 @@ mod tests {
     }
     #[test]
     fn pt2_filter_f32() {
-        let mut filter = FilterPt2f32::<f32>::new(1.0);
+        let mut filter = Pt2Filterf32::<f32>::new(1.0);
 
         // test that filter with default settings performs no filtering
         assert_eq!(1.0, filter.filter(1.0));
@@ -668,7 +668,7 @@ mod tests {
     }
     #[test]
     fn pt3_filter_f32() {
-        let mut filter = FilterPt3f32::<f32>::new(1.0);
+        let mut filter = Pt3Filterf32::<f32>::new(1.0);
 
         let mut state = filter.state();
         assert_eq!([0.0, 0.0, 0.0], state);
@@ -743,7 +743,7 @@ mod tests {
     }
     #[test]
     fn pt1_filter_vector3df32() {
-        let mut filter = FilterPt1::<Vector3df32, f32>::new(1.0);
+        let mut filter = Pt1Filter::<Vector3df32, f32>::new(1.0);
         let mut output: Vector3df32;
         let mut state: Vector3df32;
 
@@ -839,7 +839,7 @@ mod tests {
     }
     #[test]
     fn pt1_filter_vector3df32_i16() {
-        let mut filter = FilterPt1::<Vector3di16, f32>::new(1.0);
+        let mut filter = Pt1Filter::<Vector3di16, f32>::new(1.0);
         let mut output: Vector3di16;
         let mut state: Vector3di16;
 
@@ -866,7 +866,7 @@ mod tests {
     }
     #[test]
     fn pt1_filter_vector3df32_i32() {
-        let mut filter = FilterPt1::<Vector3di32, f32>::new(1.0);
+        let mut filter = Pt1Filter::<Vector3di32, f32>::new(1.0);
         let mut output: Vector3di32;
         let mut state: Vector3di32;
 
