@@ -1,6 +1,6 @@
 use core::ops::{Add, Div, Mul, Sub};
 use num_traits::{One, Zero};
-use vector_quaternion_matrix::{MathConstants, MathFunctions};
+use vector_quaternion_matrix::{MathConstants, MathMethods};
 
 pub type Pt1Filterf32<T> = Pt1Filter<T, f32>;
 pub type Pt1Filterf64<T> = Pt1Filter<T, f64>;
@@ -369,7 +369,7 @@ where
         + Zero
         + One
         + MathConstants
-        + MathFunctions
+        + MathMethods
         + PartialOrd
         + Mul<F, Output = F>
         + Div<F, Output = F>
