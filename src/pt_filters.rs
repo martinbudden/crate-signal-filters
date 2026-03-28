@@ -2,7 +2,7 @@ use core::ops::{Add, Div, Mul, Sub};
 use num_traits::{One, Zero};
 use vector_quaternion_matrix::MathConstants;
 
-use crate::FilterSignal;
+use crate::SignalFilter;
 
 pub type Pt1Filterf32<T> = Pt1Filter<T, f32>;
 pub type Pt1Filterf64<T> = Pt1Filter<T, f64>;
@@ -50,18 +50,18 @@ where
     }
 }
 
-impl<T, R> FilterSignal<T, R> for Pt1Filter<T, R>
+impl<T, R> SignalFilter<T, R> for Pt1Filter<T, R>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
     R: Copy,
 {
-    fn apply(&mut self, input: T) -> T {
-        self.state = self.state + (input - self.state) * self.k; // equivalent to self.state = self.k*input + (1.0 - self.k)*self.state;
-        self.state
-    }
-
     fn reset(&mut self) {
         self.state = T::zero();
+    }
+
+    fn update(&mut self, input: T) -> T {
+        self.state = self.state + (input - self.state) * self.k; // equivalent to self.state = self.k*input + (1.0 - self.k)*self.state;
+        self.state
     }
 }
 
@@ -81,6 +81,10 @@ where
     }
 
     // for testing
+    #[allow(dead_code)]
+    fn k(self) -> R {
+        self.k
+    }
     #[allow(dead_code)]
     fn state(self) -> T {
         self.state
@@ -161,19 +165,19 @@ where
     }
 }
 
-impl<T, R> FilterSignal<T, R> for Pt2Filter<T, R>
+impl<T, R> SignalFilter<T, R> for Pt2Filter<T, R>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
     R: Copy,
 {
-    fn apply(&mut self, input: T) -> T {
+    fn reset(&mut self) {
+        self.state = [T::zero(), T::zero()];
+    }
+
+    fn update(&mut self, input: T) -> T {
         self.state[1] = self.state[1] + (input - self.state[1]) * self.k;
         self.state[0] = self.state[0] + (self.state[1] - self.state[0]) * self.k;
         self.state[0]
-    }
-
-    fn reset(&mut self) {
-        self.state = [T::zero(), T::zero()];
     }
 }
 
@@ -193,6 +197,10 @@ where
     }
 
     // for testing
+    #[allow(dead_code)]
+    fn k(self) -> R {
+        self.k
+    }
     #[allow(dead_code)]
     fn state(self) -> [T; 2] {
         self.state
@@ -260,20 +268,20 @@ where
     }
 }
 
-impl<T, R> FilterSignal<T, R> for Pt3Filter<T, R>
+impl<T, R> SignalFilter<T, R> for Pt3Filter<T, R>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
     R: Copy + Zero,
 {
-    fn apply(&mut self, input: T) -> T {
+    fn reset(&mut self) {
+        self.state = [T::zero(), T::zero(), T::zero()];
+    }
+
+    fn update(&mut self, input: T) -> T {
         self.state[2] = self.state[2] + (input - self.state[2]) * self.k;
         self.state[1] = self.state[1] + (self.state[2] - self.state[1]) * self.k;
         self.state[0] = self.state[0] + (self.state[1] - self.state[0]) * self.k;
         self.state[0]
-    }
-
-    fn reset(&mut self) {
-        self.state = [T::zero(), T::zero(), T::zero()];
     }
 }
 
@@ -293,6 +301,10 @@ where
     }
 
     // for testing
+    #[allow(dead_code)]
+    fn k(self) -> R {
+        self.k
+    }
     #[allow(dead_code)]
     fn state(self) -> [T; 3] {
         self.state
@@ -326,6 +338,8 @@ where
 #[cfg(any(debug_assertions, test))]
 mod tests {
     #![allow(unused)]
+    use crate::UpdateFilter;
+
     use super::*;
     use vector_quaternion_matrix::Vector3df32;
     use vector_quaternion_matrix::Vector3di16;
@@ -348,63 +362,115 @@ mod tests {
         let mut filter = Pt1Filterf32::<f32>::new(1.0);
 
         let mut reading: f32 = 2.7;
-        reading = filter.apply(reading);
+        reading = filter.update(reading);
         assert_eq!(2.7, reading);
 
         // test that filter with default settings performs no filtering
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(-1.0, filter.apply(-1.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(-1.0, filter.update(-1.0));
 
         filter.reset();
         assert_eq!(0.0, filter.state());
-        assert_eq!(4.0, filter.apply(4.0));
+        assert_eq!(4.0, filter.update(4.0));
 
         filter.reset();
         filter.set_cutoff_frequency(100.0, 0.001);
-        assert_eq!(0.38586956, filter.apply(1.0));
-        assert_eq!(1.0087134, filter.apply(2.0));
+        assert_eq!(0.38586956, filter.k());
+        assert_eq!(0.38586956, filter.update(1.0));
+        assert_eq!(1.0087134, filter.update(2.0));
 
         filter.set_k(1.0);
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(2.0, filter.apply(2.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(2.0, filter.update(2.0));
+
+        filter.reset();
+        filter.set_k(0.5);
+        assert_eq!(0.5, filter.update(1.0));
+        assert_eq!(1.25, filter.update(2.0));
 
         filter.set_cutoff_frequency_and_reset(100.0, 0.001);
-        assert_eq!(0.38586956, filter.apply(1.0));
-        assert_eq!(1.0087134, filter.apply(2.0));
+        assert_eq!(0.38586956, filter.update(1.0));
+        assert_eq!(1.0087134, filter.update(2.0));
 
         filter.set_to_passthrough();
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(2.0, filter.apply(2.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(2.0, filter.update(2.0));
+    }
+    #[test]
+    fn pt1_filter_f32_method_call() {
+        let mut filter = Pt1Filterf32::<f32>::new(0.2);
+        assert_eq!(0.2, filter.update(1.0));
+        assert_eq!(0.2, filter.update(0.2));
+
+        filter.reset();
+        let mut value: f32 = 1.0;
+        value.update_using(&mut filter);
+        assert_eq!(0.2, value);
+        value.update_using(&mut filter);
+        assert_eq!(0.2, value);
+    }
+    #[test]
+    fn pt1_filter_vector3df32_method_call() {
+        let mut filter = Pt1Filterf32::<f32>::new(0.25);
+        assert_eq!(0.05, filter.update(0.2));
+        filter.reset();
+        assert_eq!(0.125, filter.update(0.5));
+        filter.reset();
+        assert_eq!(0.375, filter.update(1.5));
+
+
+        let mut filter = Pt1Filterf32::<Vector3df32>::new(0.25);
+        let value = Vector3df32{x:0.2, y:0.5, z:1.5};
+        let output = filter.update(value);
+        assert_eq!(Vector3df32{x:0.05,y:0.125,z:0.375}, output);
+
+        filter.reset();
+        let mut value = Vector3df32{x:0.2, y:0.5, z:1.5};
+        value.update_using(&mut filter);
+        assert_eq!(Vector3df32{x:0.05,y:0.125,z:0.375}, value);
     }
     #[test]
     fn pt2_filter_f32() {
         let mut filter = Pt2Filterf32::<f32>::new(1.0);
 
         // test that filter with default settings performs no filtering
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(-1.0, filter.apply(-1.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(-1.0, filter.update(-1.0));
 
         filter.reset();
-        assert_eq!(4.0, filter.apply(4.0));
+        assert_eq!(4.0, filter.update(4.0));
 
         filter.reset();
         filter.set_cutoff_frequency(100.0, 0.001);
-        assert_eq!(0.24403107, filter.apply(1.0));
-        assert_eq!(0.73502403, filter.apply(2.0));
+        assert_eq!(0.24403107, filter.update(1.0));
+        assert_eq!(0.73502403, filter.update(2.0));
 
         filter.set_k(1.0);
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(2.0, filter.apply(2.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(2.0, filter.update(2.0));
 
         filter.set_cutoff_frequency_and_reset(100.0, 0.001);
-        assert_eq!(0.24403107, filter.apply(1.0));
-        assert_eq!(0.73502403, filter.apply(2.0));
+        assert_eq!(0.24403107, filter.update(1.0));
+        assert_eq!(0.73502403, filter.update(2.0));
 
         filter.set_to_passthrough();
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(2.0, filter.apply(2.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(2.0, filter.update(2.0));
+    }
+    #[test]
+    fn pt2_filter_f32_method_call() {
+        let mut filter = Pt2Filterf32::<f32>::new(0.2);
+        assert_eq!(0.040000003, filter.update(1.0));
+        assert_eq!(0.0656, filter.update(0.040000003));
+
+        filter.reset();
+        let mut value: f32 = 1.0;
+        value.update_using(&mut filter);
+        assert_eq!(0.040000003, value);
+        value.update_using(&mut filter);
+        assert_eq!(0.0656, value);
     }
     #[test]
     fn pt3_filter_f32() {
@@ -414,37 +480,37 @@ mod tests {
         assert_eq!([0.0, 0.0, 0.0], state);
 
         // test that filter with default settings performs no filtering
-        let mut output = filter.apply(1.0);
+        let mut output = filter.update(1.0);
         assert_eq!(1.0, output);
         state = filter.state();
         assert_eq!([1.0, 1.0, 1.0], state);
 
-        output = filter.apply(1.0);
+        output = filter.update(1.0);
         state = filter.state();
         assert_eq!([1.0, 1.0, 1.0], state);
         assert_eq!(1.0, output);
 
-        assert_eq!(-1.0, filter.apply(-1.0));
+        assert_eq!(-1.0, filter.update(-1.0));
 
         filter.reset();
-        assert_eq!(4.0, filter.apply(4.0));
+        assert_eq!(4.0, filter.update(4.0));
 
         filter.reset();
         filter.set_cutoff_frequency(100.0, 0.001);
-        assert_eq!(0.16824766, filter.apply(1.0));
-        assert_eq!(0.56259197, filter.apply(2.0));
+        assert_eq!(0.16824766, filter.update(1.0));
+        assert_eq!(0.56259197, filter.update(2.0));
 
         filter.set_k(1.0);
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(2.0, filter.apply(2.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(2.0, filter.update(2.0));
 
         filter.set_cutoff_frequency_and_reset(100.0, 0.001);
-        assert_eq!(0.16824766, filter.apply(1.0));
-        assert_eq!(0.56259197, filter.apply(2.0));
+        assert_eq!(0.16824766, filter.update(1.0));
+        assert_eq!(0.56259197, filter.update(2.0));
 
         filter.set_to_passthrough();
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(2.0, filter.apply(2.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(2.0, filter.update(2.0));
     }
     #[test]
     fn pt1_filter_vector3df32() {
@@ -452,7 +518,7 @@ mod tests {
         let mut output: Vector3df32;
 
         // test that filter with default settings performs no filtering
-        output = filter.apply(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+        output = filter.update(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
         assert_eq!(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }, output);
         let state = filter.state();
         assert_eq!(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }, state);
@@ -462,20 +528,20 @@ mod tests {
         assert_eq!(Vector3df32 { x: 0.0, y: 0.0, z: 0.0 }, state);
 
         filter.set_cutoff_frequency(100.0, 0.001);
-        assert_eq!(0.38586956, filter.apply(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(1.0087134, filter.apply(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(0.38586956, filter.update(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0087134, filter.update(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
 
         filter.set_k(1.0);
-        assert_eq!(1.0, filter.apply(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(2.0, filter.apply(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0, filter.update(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(2.0, filter.update(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
 
         filter.set_cutoff_frequency_and_reset(100.0, 0.001);
-        assert_eq!(0.38586956, filter.apply(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(1.0087134, filter.apply(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(0.38586956, filter.update(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0087134, filter.update(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
 
         filter.set_to_passthrough();
-        assert_eq!(1.0, filter.apply(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(2.0, filter.apply(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0, filter.update(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(2.0, filter.update(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
     }
     #[test]
     fn pt1_filter_vector3df32_i16() {
@@ -484,7 +550,7 @@ mod tests {
         let mut state: Vector3di16;
 
         // test that filter with default settings performs no filtering
-        output = filter.apply(Vector3di16 { x: 2, y: 3, z: 5 });
+        output = filter.update(Vector3di16 { x: 2, y: 3, z: 5 });
         assert_eq!(Vector3di16 { x: 2, y: 3, z: 5 }, output);
         state = filter.state();
         assert_eq!(Vector3di16 { x: 2, y: 3, z: 5 }, state);
@@ -496,7 +562,7 @@ mod tests {
         let mut state: Vector3di32;
 
         // test that filter with default settings performs no filtering
-        output = filter.apply(Vector3di32 { x: 2, y: 3, z: 5 });
+        output = filter.update(Vector3di32 { x: 2, y: 3, z: 5 });
         assert_eq!(2, output.x);
         assert_eq!(3, output.y);
         assert_eq!(5, output.z);

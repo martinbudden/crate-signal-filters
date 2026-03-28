@@ -7,10 +7,7 @@ use num_traits::Zero;
 pub type SlewRateLimiterf32 = SlewRateLimiter<f32>;
 pub type SlewRateLimiterf64 = SlewRateLimiter<f64>;
 
-pub type SymmetricSlewRateLimiterf32 = SymmetricSlewRateLimiter<f32>;
-pub type SymmetricSlewRateLimiterf64 = SymmetricSlewRateLimiter<f64>;
-
-/// An Asymmetric Slew Rate Limiter.
+/// An Slew Rate Limiter.
 ///
 /// This filter limits the maximum rate of change ($dV/dt$) of a signal.
 /// It allows for different rates depending on whether the signal is
@@ -50,6 +47,7 @@ where
     pub fn new(rise_rate_per_second: T, fall_rate_per_second: T, dt: T) -> Self {
         Self { last_output: T::zero(), rise_rate_per_second, fall_rate_per_second, dt }
     }
+
     pub fn reset(&mut self) {
         self.last_output = T::zero();
     }
@@ -57,7 +55,7 @@ where
 
 impl<T> SlewRateLimiter<T>
 where
-    T: Copy + PartialOrd + Zero + Neg<Output = T> + Add<T, Output = T> + Sub<T, Output = T> + Mul<T, Output = T>,
+    T: Copy + Zero + Neg<Output = T> + PartialOrd + Add<T, Output = T> + Sub<T, Output = T> + Mul<T, Output = T>,
 {
     pub fn update(&mut self, input: T) -> T {
         let diff = input - self.last_output;
@@ -66,7 +64,7 @@ where
         let max_change =
             if diff > T::zero() { self.rise_rate_per_second * self.dt } else { self.fall_rate_per_second * self.dt };
 
-        // Clamp the change (fall_rate_per_second is used as a magnitude, so we clamp -max to +max)
+        // Clamp the change
         let actual_change: T = if diff < -max_change {
             -max_change
         } else if diff > max_change {
@@ -95,83 +93,12 @@ where
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct SymmetricSlewRateLimiter<T> {
-    last_output: T,
-    max_rate_per_second: T, // Units per second (e.g., max change in duty cycle/sec)
-    dt: T,
-}
-
-impl<T> Default for SymmetricSlewRateLimiter<T>
-where
-    T: Copy + Zero,
-{
-    fn default() -> Self {
-        Self::new(T::zero(), T::zero())
-    }
-}
-
-impl<T> SymmetricSlewRateLimiter<T>
-where
-    T: Copy + Zero,
-{
-    pub fn new(max_rate_per_second: T, dt: T) -> Self {
-        Self { last_output: T::zero(), max_rate_per_second, dt }
-    }
-}
-
-impl<T> SymmetricSlewRateLimiter<T>
-where
-    T: Copy + Zero,
-{
-    pub fn reset(&mut self) {
-        self.last_output = T::zero();
-    }
-}
-
-impl<T> SymmetricSlewRateLimiter<T>
-where
-    T: Copy + PartialOrd + Neg<Output = T> + Add<T, Output = T> + Sub<T, Output = T> + Mul<T, Output = T>,
-{
-    pub fn update(&mut self, input: T) -> T {
-        // Calculate the maximum change allowed for this specific time step
-        let max_change = self.max_rate_per_second * self.dt;
-        let diff = input - self.last_output;
-
-        // Clamp the difference to the max allowed change
-        //let actual_change = diff.clamp(-max_change, max_change);
-        let actual_change: T = if diff < -max_change {
-            -max_change
-        } else if diff > max_change {
-            max_change
-        } else {
-            diff
-        };
-
-        self.last_output = self.last_output + actual_change;
-        self.last_output
-    }
-}
-
-// Extension trait for symmetric slew limiter.
-pub trait LimitSlewSymmetric<T> {
-    fn limit_symmetric_slew_using(&mut self, limiter: &mut SymmetricSlewRateLimiter<T>) -> &mut Self;
-}
-
-impl<T> LimitSlewSymmetric<T> for T
-where
-    T: Copy + PartialOrd + Neg<Output = T> + Add<T, Output = T> + Sub<T, Output = T> + Mul<T, Output = T>,
-{
-    fn limit_symmetric_slew_using(&mut self, limiter: &mut SymmetricSlewRateLimiter<T>) -> &mut Self {
-        *self = limiter.update(*self);
-        self
-    }
-}
-
 #[cfg(any(debug_assertions, test))]
 mod tests {
     #![allow(unused)]
-    use crate::ApplyFilter;
+    use core::default;
+
+    use crate::UpdateFilter;
 
     use super::*;
 
@@ -180,8 +107,6 @@ mod tests {
 
     #[test]
     fn normal_types() {
-        is_full::<SymmetricSlewRateLimiter<f32>>();
-        is_full::<SymmetricSlewRateLimiter<f64>>();
         is_full::<SlewRateLimiter<f32>>();
         is_full::<SlewRateLimiter<f64>>();
     }
@@ -272,6 +197,25 @@ mod tests {
 
     #[test]
     fn output_array() {
+        use crate::SlewRateLimiterf32;
+        const MAX_MOTOR_COUNT:usize = 8;
+        type MotorOutputs = [f32;MAX_MOTOR_COUNT];
+
+        let mut motor_outputs = MotorOutputs::default();
+
+        const QUAD_MOTOR_COUNT:usize = 4;
+        type QuadOutputs = [f32;QUAD_MOTOR_COUNT];
+
+        let quad_outputs = QuadOutputs::default();
+
+        let mut output_filters = <[SlewRateLimiterf32;QUAD_MOTOR_COUNT]>::default();
+
+        for ii in 0..QUAD_MOTOR_COUNT {
+            // 1. Take raw value from quad_outputs
+            // 2. Update it using the corresponding filter
+            // 3. Store result directly in the motor_outputs array
+            motor_outputs[ii] = output_filters[ii].update(quad_outputs[ii]);
+        }
         /*type Outputs = [f32; 4];
         type OutputSlewRateLimiter = SlewRateLimiter<Outputs, f32>;
 

@@ -2,7 +2,7 @@
 use num_traits::Zero;
 use vector_quaternion_matrix::Vector2df32;
 
-use crate::FilterSignal;
+use crate::SignalFilter;
 
 pub type Median3Filterf32 = Median3Filter<f32>;
 pub type Median3FilterVector3df32<const N: usize> = Median3Filter<Vector2df32>;
@@ -75,11 +75,17 @@ where
     }
 }
 
-impl<T, F> FilterSignal<T, F> for Median3FilterTF<T, F>
+impl<T, F> SignalFilter<T, F> for Median3FilterTF<T, F>
 where
     T: Copy + Zero + PartialOrd,
 {
-    fn apply(&mut self, input: T) -> T {
+    fn reset(&mut self) {
+        self.buffer = [T::zero(); 3];
+        self.index = 0;
+        self.count = 0;
+    }
+
+    fn update(&mut self, input: T) -> T {
         // Store new sample in the ring buffer
         self.buffer[self.index] = input;
         self.index = (self.index + 1) % 3;
@@ -110,12 +116,6 @@ where
         // b is now the median
         b
     }
-
-    fn reset(&mut self) {
-        self.buffer = [T::zero(); 3];
-        self.index = 0;
-        self.count = 0;
-    }
 }
 
 /// General-Purpose Moving Median (Window of N)
@@ -144,12 +144,17 @@ where
     }
 }
 
-impl<T, F, const N: usize> FilterSignal<T, F> for MedianFilter<T, N>
+impl<T, F, const N: usize> SignalFilter<T, F> for MedianFilter<T, N>
 where
     T: Copy + Zero + PartialOrd,
     F: Copy,
 {
-    fn apply(&mut self, input: T) -> T {
+    fn reset(&mut self) {
+        self.buffer.fill(T::zero());
+        self.index = 0;
+    }
+
+    fn update(&mut self, input: T) -> T {
         self.buffer[self.index] = input;
         self.index = (self.index + 1) % N;
 
@@ -160,10 +165,6 @@ where
 
         // Return the middle element
         sorted[N / 2]
-    }
-    fn reset(&mut self) {
-        self.buffer.fill(T::zero());
-        self.index = 0;
     }
 }
 
@@ -183,60 +184,60 @@ mod tests {
     #[test]
     fn test_median3_spike_rejection() {
         //let mut filter = MovingAverageFilter::<f32, 3>::new();
-        //let mut filter: Median3Filterf32; // as FilterSignal<f32, f32>>;
+        //let mut filter: Median3Filterf32; // as SignalFilter<f32, f32>>;
         let mut filter = <Median3FilterTF<f32, f32>>::new();
         //let mut filter = Median3Filter<f32>::new();
 
         // 1. Initial values (filling the buffer)
         // Values: [10.0, 0.0, 0.0] -> Count 1 -> Returns 10.0
         let input = 10.0f32;
-        //let output = <crate::median_filter::Median3Filter<f32> as crate::median_filter::FilterSignal<f32, f32>>::apply(&mut filter, input);
-        //let output = <crate::Median3Filter<f32> as crate::FilterSignal<f32, f32>>::apply(&mut filter, input);
-        //let output = <Median3Filter<f32> as FilterSignal<f32, f32>>::apply(&mut filter, input);
+        //let output = <crate::median_filter::Median3Filter<f32> as crate::median_filter::SignalFilter<f32, f32>>::update(&mut filter, input);
+        //let output = <crate::Median3Filter<f32> as crate::SignalFilter<f32, f32>>::update(&mut filter, input);
+        //let output = <Median3Filter<f32> as SignalFilter<f32, f32>>::update(&mut filter, input);
 
-        let output = filter.apply(input);
+        let output = filter.update(input);
         assert_eq!(input, output);
         // Values: [10.0, 20.0, 0.0] -> Count 2 -> Returns 20.0
-        //assert_eq!(filter.apply(20.0), 20.0);
+        //assert_eq!(filter.update(20.0), 20.0);
         /*
         // 2. The Buffer is now full: [10.0, 20.0, 30.0]
         // Median of {10, 20, 30} is 20.0
-        assert_eq!(filter.apply(30.0), 20.0);
+        assert_eq!(filter.update(30.0), 20.0);
 
         // 3. Test a massive outlier "spike"
         // Buffer: [400.0, 20.0, 30.0] (400 replaces 10)
         // Median of {400, 20, 30} is 30.0 (The spike is ignored!)
-        assert_eq!(filter.apply(400.0), 30.0);
+        assert_eq!(filter.update(400.0), 30.0);
 
         // 4. Return to normal
         // Buffer: [400.0, 25.0, 30.0] (25 replaces 20)
         // Median of {400, 25, 30} is 30.0
-        assert_eq!(filter.apply(25.0), 30.0);
+        assert_eq!(filter.update(25.0), 30.0);
 
         // Buffer: [400.0, 25.0, 22.0] (22 replaces 30)
         // Median of {400, 25, 22} is 25.0
-        assert_eq!(filter.apply(22.0), 25.0);*/
+        assert_eq!(filter.update(22.0), 25.0);*/
     }
 
     /*#[test]
     fn test_median3_identical_values() {
         let mut filter = Median3Filter::new();
-        filter.apply(5.0);
-        filter.apply(5.0);
-        assert_eq!(filter.apply(5.0), 5.0);
-        assert_eq!(filter.apply(100.0), 5.0); // Spike rejected
+        filter.update(5.0);
+        filter.update(5.0);
+        assert_eq!(filter.update(5.0), 5.0);
+        assert_eq!(filter.update(100.0), 5.0); // Spike rejected
     }
 
     #[test]
     fn test_median3_reset() {
         let mut filter = Median3Filter::new();
-        filter.apply(100.0);
-        filter.apply(100.0);
-        filter.apply(100.0);
+        filter.update(100.0);
+        filter.update(100.0);
+        filter.update(100.0);
 
         filter.reset();
 
         // After reset, the first update should return the input directly (count < 3)
-        assert_eq!(filter.apply(5.0), 5.0);
+        assert_eq!(filter.update(5.0), 5.0);
     }*/
 }

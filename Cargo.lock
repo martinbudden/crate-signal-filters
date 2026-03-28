@@ -89,7 +89,7 @@ checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
 [[package]]
 name = "vector-quaternion-matrix"
 version = "0.1.0"
-source = "git+https://github.com/martinbudden/Crate-vector_quaternion_matrix#9e05cfb5687d6207f5fb96547e38d2577499fa6d"
+source = "git+https://github.com/martinbudden/Crate-vector_quaternion_matrix#65d719c507e4b2037c045d143d58907122d1ce80"
 dependencies = [
  "bytemuck",
  "libm",

@@ -2,7 +2,7 @@ use core::ops::{Add, Div, Mul, Neg, Sub};
 use num_traits::{One, Zero};
 use vector_quaternion_matrix::{MathConstants, MathMethods};
 
-use crate::FilterSignal;
+use crate::SignalFilter;
 
 pub type BiquadFilterf32<T> = BiquadFilter<T, f32>;
 pub type BiquadFilterf64<T> = BiquadFilter<T, f64>;
@@ -21,7 +21,7 @@ pub type BiquadFilterf64<T> = BiquadFilter<T, f64>;
 /// where $x$ represents the input signal and $y$ represents the filtered output.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BiquadFilter<T, R> {
-    state: BiquadFilterHistory<T>,
+    state: BiquadFilterState<T>,
     weight: R,
     a1: R,
     a2: R,
@@ -31,7 +31,7 @@ pub struct BiquadFilter<T, R> {
     loop_time_seconds: R,
     two_pi_loop_time_seconds: R, // cached value of 2.0 * PI * loop_time_seconds
     q: R,
-    one_over_2q: R,
+    one_over_2q: R, // cached value of 1.0 / (2.0 * q)
 }
 
 impl<T, R> Default for BiquadFilter<T, R>
@@ -51,7 +51,7 @@ where
 {
     fn new() -> Self {
         Self {
-            state: BiquadFilterHistory::default(),
+            state: BiquadFilterState::default(),
             weight: R::one(),
             a1: R::zero(),
             a2: R::zero(),
@@ -67,7 +67,7 @@ where
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
-struct BiquadFilterHistory<T> {
+struct BiquadFilterState<T> {
     // Input history
     x1: T,
     x2: T,
@@ -76,7 +76,7 @@ struct BiquadFilterHistory<T> {
     y2: T,
 }
 
-impl<T, R> FilterSignal<T, R> for BiquadFilter<T, R>
+impl<T, R> SignalFilter<T, R> for BiquadFilter<T, R>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
     R: Copy,
@@ -88,7 +88,7 @@ where
         self.state.y2 = T::zero();
     }
 
-    fn apply(&mut self, input: T) -> T {
+    fn update(&mut self, input: T) -> T {
         // 9 operations: 5 multiplications, 4 additions
         let output = input * self.b0 + self.state.x1 * self.b1 + self.state.x2 * self.b2
             - self.state.y1 * self.a1
@@ -102,17 +102,15 @@ where
     }
 }
 
-/*
-Pro-Tip: Because
- a1 and b1 are identical for a standard notch, and b0 equals b2
-, you can technically reduce this to three multiplications if you are really pushing the limits of the RP2040.
- */
+/// Biquad update notch.
+///
+/// For a notch filter a1 == b1 and b0 == b2, so this optimized form can be used.
 impl<T, R> BiquadFilter<T, R>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
     R: Copy,
 {
-    pub fn apply_notch(&mut self, input: T) -> T {
+    pub fn update_notch(&mut self, input: T) -> T {
         // 8 operations: 3 multiplications, 5 additions
         let output = (input + self.state.x2) * self.b0 + (self.state.x1 + self.state.x1 - self.state.y1) * self.a1
             - self.state.y2 * self.a2;
@@ -138,7 +136,7 @@ where
 
 impl<T, R> BiquadFilter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
+    T: Copy + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
     R: Copy + Zero + One,
 {
     pub fn set_weight(&mut self, weight: R) {
@@ -186,7 +184,7 @@ where
 
     // for testing
     #[allow(dead_code)]
-    fn state(self) -> BiquadFilterHistory<T> {
+    fn state(self) -> BiquadFilterState<T> {
         self.state
     }
 }
@@ -206,14 +204,14 @@ where
         self.reset();
     }
 
-    pub fn apply_weighted(&mut self, input: T) -> T {
-        let output = self.apply(input);
+    pub fn update_weighted(&mut self, input: T) -> T {
+        let output = self.update(input);
         // weight of 1.0 gives just output, weight of 0.0 gives just input
         (output - input) * self.weight + input
     }
 
-    pub fn apply_notch_weighted(&mut self, input: T) -> T {
-        let output = self.apply_notch(input);
+    pub fn update_notch_weighted(&mut self, input: T) -> T {
+        let output = self.update_notch(input);
         // weight of 1.0 gives just output, weight of 0.0 gives just input
         (output - input) * self.weight + input
     }
@@ -258,7 +256,7 @@ where
 
         let alpha = sin_omega * self.one_over_2q;
         let a0reciprocal = R::one() / (R::one() + alpha);
-        // NOTE: b0 == b2 and a1 == b1
+        // NOTE: b0 == b2 and a1 == b1 for notch filter
         self.b0 = a0reciprocal;
         self.b2 = a0reciprocal;
         self.b1 = R::zero() - (R::one() + R::one()) * cos_omega * a0reciprocal;
@@ -318,35 +316,35 @@ mod tests {
     fn normal_types() {
         is_full::<BiquadFilter<f32, f32>>();
         is_full::<BiquadFilterf32<f32>>();
-        is_full::<BiquadFilterHistory<f32>>();
+        is_full::<BiquadFilterState<f32>>();
     }
     #[test]
     fn biquad_filter_f32() {
         let mut filter = BiquadFilterf32::<f32>::default();
 
         // test that filter with default settings performs no filtering
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(-1.0, filter.apply(-1.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(-1.0, filter.update(-1.0));
 
         filter.reset();
-        assert_eq!(4.0, filter.apply(4.0));
+        assert_eq!(4.0, filter.update(4.0));
 
         filter.set_parameters_and_weight(2.0, 3.0, 5.0, 7.0, 11.0, 13.0);
         filter.set_to_passthrough();
-        assert_eq!(1.0, filter.apply(1.0));
-        assert_eq!(2.0, filter.apply(2.0));
-        assert_eq!(1.0, filter.apply_weighted(1.0));
-        assert_eq!(2.0, filter.apply_weighted(2.0));
+        assert_eq!(1.0, filter.update(1.0));
+        assert_eq!(2.0, filter.update(2.0));
+        assert_eq!(1.0, filter.update_weighted(1.0));
+        assert_eq!(2.0, filter.update_weighted(2.0));
     }
     #[test]
     fn biquad_filter_vector3df32() {
         let mut filter = BiquadFilterf32::<Vector3df32>::default();
         let mut output: Vector3df32;
-        let mut state: BiquadFilterHistory<Vector3df32>;
+        let mut state: BiquadFilterState<Vector3df32>;
 
         // test that filter with default settings performs no filtering
-        output = filter.apply(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+        output = filter.update(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
         assert_eq!(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }, output);
         state = filter.state();
         assert_eq!(2.0, state.x1.x);
@@ -360,13 +358,13 @@ mod tests {
         assert_eq!(0.0, state.x2.x);
         assert_eq!(0.0, state.y1.x);
         assert_eq!(0.0, state.y2.x);
-        assert_eq!(4.0, filter.apply(Vector3df32 { x: 4.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(4.0, filter.update(Vector3df32 { x: 4.0, y: 0.0, z: 0.0 }).x);
 
         filter.set_parameters_and_weight(2.0, 3.0, 5.0, 7.0, 11.0, 13.0);
         filter.set_to_passthrough();
-        assert_eq!(1.0, filter.apply(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(2.0, filter.apply(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(1.0, filter.apply_weighted(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(2.0, filter.apply_weighted(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0, filter.update(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(2.0, filter.update(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0, filter.update_weighted(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(2.0, filter.update_weighted(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
     }
 }

@@ -11,6 +11,7 @@
         "libm",
         "Limiterf",
         "rustdoc",
+        "setpoints",
         "Uninit"
     ]
 }
