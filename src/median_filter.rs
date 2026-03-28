@@ -10,28 +10,19 @@ pub type Median3FilterVector3df32<const N: usize> = Median3Filter<Vector2df32>;
 pub type MedianFilterf32<const N: usize> = MedianFilter<f32, N>;
 pub type MedianFilterVector3df32<const N: usize> = MedianFilter<Vector2df32, N>;
 
-/*
-For embedded performance on your Pico, a window of 3 is ideal. It is the smallest size that can reject a single outlier "spike" with minimal lag, and it can be implemented with a very fast "sorting network" that uses zero loops or sorting algorithms.
-1. The Median-of-3 Filter
-This implementation uses a simple swap-based sorting network to find the median of the last three samples.
-3. Usage for your IMU
-You can now chain the median filter before your PT1 filter to reject spikes before they are "smeared" by the low-pass logic:
-// Reject spikes first, then smooth the signal
-accel.apply_using(&mut median_filter).apply_using(&mut low_pass);
-
-Why use Median 3?
-Zero Allocation: Uses a fixed stack array.
-Constant Time (): The sorting network is extremely fast—just three comparisons and potential swaps.
-Outlier Rejection: It completely ignores a single massive "spike" reading that would otherwise disturb your PT1 filter's state.
-*/
-/*
-What these tests prove:
-Warm-up phase: Until 3 samples are received, the filter simply passes the input through.
-Spike Rejection: When 400.0 is sent, the output remains a sensible 30.0. This proves the "trash" is being filtered out.
-Permutations: The sorting network works regardless of whether the new value is the largest, smallest, or middle value in the set.
-Pro-Tip: Testing Vector3df32
-If you implemented the ApplyFilter trait for Vector3df32, you should also test that a spike on the X-axis does not affect the Y-axis output. This confirms you are using independent filter states for each channel.
- */
+/// A non-linear Median-of-3 filter for spike rejection.
+///
+/// This filter maintains a window of the last three samples and returns the
+/// median value. It is exceptionally effective at removing single-sample
+/// outliers without "smearing" the error into subsequent samples like a
+/// linear low-pass filter would.
+///
+/// The output $y_{n}$ is defined as:
+///
+/// $$y_{n} = \text{median}(x_{n}, x_{n-1}, x_{n-2})$$
+///
+/// **Note:** This filter introduces a fixed lag of 1 sample. During the
+/// first two samples after a reset, the filter returns the raw input.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Median3Filter<T> {
     buffer: [T; 3],

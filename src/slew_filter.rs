@@ -10,14 +10,22 @@ pub type SlewRateLimiterf64 = SlewRateLimiter<f64>;
 pub type SymmetricSlewRateLimiterf32 = SymmetricSlewRateLimiter<f32>;
 pub type SymmetricSlewRateLimiterf64 = SymmetricSlewRateLimiter<f64>;
 
-/// Slew rate limiter.
+/// An Asymmetric Slew Rate Limiter.
 ///
-/// Useful for motor control: we often want a slow ramp-up to protect the gears and reduce current in-rush,
-/// and a fast ramp-down (or "emergency" deceleration) for safety and responsiveness.
+/// This filter limits the maximum rate of change ($dV/dt$) of a signal.
+/// It allows for different rates depending on whether the signal is
+/// increasing (rising) or decreasing (falling).
 ///
-/// In  control loop, a Slew-Rate Limiter ensures that a motor doesn't try to change speed faster than it physically can.
-/// A low-pass filter (eg a Pt1Filter) "rounds off" sharp edges, a slew-rate limiter "slopes" them at a constant, linear rate.
-//
+/// The algorithm calculates the difference $\Delta = x_{n} - y_{n-1}$ and
+/// clamps it based on the elapsed time $\Delta t$:
+///
+/// $$ \Delta_{max} = \begin{cases} R \cdot \Delta t & \text{if } \Delta > 0 \\ F \cdot \Delta t & \text{if } \Delta < 0 \end{cases} $$
+///
+/// $$ y_{n} = y_{n-1} + \text{clamp}(\Delta, -\Delta_{max}, \Delta_{max}) $$
+///
+/// where:
+/// - $R$ is the `rise_rate_per_second`
+/// - $F$ is the `fall_rate_per_second`
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SlewRateLimiter<T> {
     last_output: T,

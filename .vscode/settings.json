@@ -1,16 +1,16 @@
 {
     "cSpell.words": [
         "AHRS",
-        "autocfg",
         "Biquad",
         "Budden",
         "bytemuck",
         "codegen",
         "debuginfo",
         "Filterf",
+        "katex",
         "libm",
         "Limiterf",
-        "pico",
+        "rustdoc",
         "Uninit"
     ]
 }

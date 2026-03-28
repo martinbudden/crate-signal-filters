@@ -2,7 +2,7 @@
 
 use num_traits::Zero;
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct RollingBuffer<T, const N: usize> {
     /// The virtual beginning of the rolling buffer.
     begin: usize,
@@ -39,34 +39,47 @@ where
             buffer: [T::zero(); N],
         }
     }
+}
+
+impl<T, const N: usize> RollingBuffer<T, N>
+where
+    T: Copy,
+{
     // need one spare empty cell so we can avoid end == begin when full
     pub fn capacity(&self) -> usize {
         N - 1
     }
+
     pub fn size(&self) -> usize {
         self.size
     }
+
     pub fn is_empty(&self) -> bool {
         self.size == 0
     }
+
     pub fn is_full(&self) -> bool {
         self.size == self.capacity()
     }
+
     pub fn front(&self) -> Option<T> {
         if self.size == 0 {
             return None;
         }
         Some(self.buffer[self.begin])
     }
+
     pub fn back(&self) -> Option<T> {
         if self.size == 0 {
             return None;
         }
         if self.end > 0 { Some(self.buffer[self.end - 1]) } else { Some(self.buffer[self.capacity()]) }
     }
+
     pub fn begin(&self) -> usize {
         self.begin
     }
+
     pub fn end(&self) -> usize {
         self.end
     }
@@ -108,11 +121,12 @@ mod tests {
     #![allow(unused)]
     use super::*;
 
-    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+    fn is_normal<T: Send + Sized + Sync + Unpin>() {}
+    fn is_full<T: Send + Sized + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
 
     #[test]
     fn normal_types() {
-        is_normal::<RollingBuffer<f32, 2>>();
+        is_full::<RollingBuffer<f32, 2>>();
     }
     #[test]
     fn new() {

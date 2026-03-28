@@ -13,6 +13,16 @@ pub type Pt2Filterf64<T> = Pt2Filter<T, f64>;
 pub type Pt3Filterf32<T> = Pt3Filter<T, f32>;
 pub type Pt3Filterf64<T> = Pt3Filter<T, f64>;
 
+/// The Pt1Filter is a discrete-time, first-order low-pass filter (Proportional Time element).
+/// It is implemented as a stateful struct that allows for efficient, in-place smoothing of sensor data or motor setpoints."
+/// A first-order low-pass filter (PT1 element).
+///
+/// The discrete-time transfer function is:
+///
+/// $$y_{n} = y_{n-1} + k \cdot (x_{n} - y_{n-1})$$
+///
+/// where $k$ is calculated from the time constant $T$ and sample time $dt$:
+/// $k = \frac{dt}{T + dt}$
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Pt1Filter<T, R> {
     state: T,
@@ -111,6 +121,19 @@ where
     }
 }
 
+/// A second-order low-pass filter (PT2 element).
+///
+/// This is equivalent to two cascaded PT1 filters with the same time constant.
+/// The discrete-time difference equations are:
+///
+/// $$w_{n} = w_{n-1} + k \cdot (x_{n} - w_{n-1})$$
+/// $$y_{n} = y_{n-1} + k \cdot (w_{n} - y_{n-1})$$
+///
+/// where:
+/// - $x_{n}$ is the raw input
+/// - $w_{n}$ is the internal state (output of the first stage)
+/// - $y_{n}$ is the final filtered output
+/// - $k$ is the filter gain
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Pt2Filter<T, R> {
     state: [T; 2],
@@ -199,6 +222,17 @@ where
     }
 }
 
+/// A third-order low-pass filter (PT3 element).
+///
+/// This is equivalent to three cascaded PT1 filters. It provides a very steep
+/// 60dB/decade roll-off. The discrete-time difference equations are:
+///
+/// $$u_{n} = u_{n-1} + k \cdot (x_{n} - u_{n-1})$$
+/// $$v_{n} = v_{n-1} + k \cdot (u_{n} - v_{n-1})$$
+/// $$y_{n} = y_{n-1} + k \cdot (v_{n} - y_{n-1})$$
+///
+/// where $u_{n}$ and $v_{n}$ are internal intermediate states, and $y_{n}$
+/// is the final output.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Pt3Filter<T, R> {
     state: [T; 3],

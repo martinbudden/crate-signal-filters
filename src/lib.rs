@@ -1,8 +1,12 @@
+#![doc = include_str!("../README.md")]
+//#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
+
 // Conventions for generics used in this crate:
 //    T: general type, eg f32, Vector3d, Vector3df32, Quaternion etc
 //    R: real number type ie f32 or f64
 //    F: filter type, eg Pt1Filter, BiquadFilter etc
 
+//#![doc(html_math_jax_enabled)]
 #![no_std]
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::expect_used)]
@@ -18,7 +22,7 @@ mod pt_filters;
 mod rolling_buffer;
 mod slew_filter;
 
-pub use biquad_filter::{BiquadFilter, BiquadFilterState, BiquadFilterf32, BiquadFilterf64};
+pub use biquad_filter::{BiquadFilter, BiquadFilterf32, BiquadFilterf64};
 pub use circular_buffer::CircularBuffer;
 pub use filters::{ApplyFilter, FilterSignal};
 pub use median_filter::{
@@ -29,7 +33,6 @@ pub use pt_filters::{
     Pt1Filter, Pt1Filterf32, Pt1Filterf64, Pt2Filter, Pt2Filterf32, Pt2Filterf64, Pt3Filter, Pt3Filterf32, Pt3Filterf64,
 };
 pub use rolling_buffer::RollingBuffer;
-
 pub use slew_filter::{
     LimitSlew, LimitSlewSymmetric, SlewRateLimiter, SlewRateLimiterf32, SlewRateLimiterf64,
     SymmetricSlewRateLimiterf32, SymmetricSlewRateLimiterf64,

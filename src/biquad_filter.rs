@@ -1,4 +1,4 @@
-use core::ops::{Add, Div, Mul, Sub};
+use core::ops::{Add, Div, Mul, Neg, Sub};
 use num_traits::{One, Zero};
 use vector_quaternion_matrix::{MathConstants, MathMethods};
 
@@ -7,26 +7,21 @@ use crate::FilterSignal;
 pub type BiquadFilterf32<T> = BiquadFilter<T, f32>;
 pub type BiquadFilterf64<T> = BiquadFilter<T, f64>;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct BiquadFilterState<T> {
-    x1: T,
-    x2: T,
-    y1: T,
-    y2: T,
-}
-
-impl<T> Default for BiquadFilterState<T>
-where
-    T: Zero,
-{
-    fn default() -> Self {
-        Self { x1: T::zero(), x2: T::zero(), y1: T::zero(), y2: T::zero() }
-    }
-}
-
+/// A second-order biquad IIR filter.
+///
+/// This implementation uses the Direct Form I structure. The transfer function in
+/// the Z-domain is:
+///
+/// $$H(z) = \frac{b_{0} + b_{1} z^{-1} + b_{2} z^{-2}}{1 + a_{1} z^{-1} + a_{2} z^{-2}}$$
+///
+/// The resulting difference equation is:
+///
+/// $$y_{n} = b_{0} x_{n} + b_{1} x_{n-1} + b_{2} x_{n-2} - a_{1} y_{n-1} - a_{2} y_{n-2}$$
+///
+/// where $x$ represents the input signal and $y$ represents the filtered output.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BiquadFilter<T, R> {
-    state: BiquadFilterState<T>,
+    state: BiquadFilterHistory<T>,
     weight: R,
     a1: R,
     a2: R,
@@ -41,7 +36,7 @@ pub struct BiquadFilter<T, R> {
 
 impl<T, R> Default for BiquadFilter<T, R>
 where
-    T: Zero,
+    T: Default,
     R: Zero + One + Div<R, Output = R>,
 {
     fn default() -> Self {
@@ -51,12 +46,12 @@ where
 
 impl<T, R> BiquadFilter<T, R>
 where
-    T: Zero,
+    T: Default,
     R: Zero + One + Div<R, Output = R>,
 {
     fn new() -> Self {
         Self {
-            state: BiquadFilterState { x1: T::zero(), x2: T::zero(), y1: T::zero(), y2: T::zero() },
+            state: BiquadFilterHistory::default(),
             weight: R::one(),
             a1: R::zero(),
             a2: R::zero(),
@@ -71,12 +66,30 @@ where
     }
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+struct BiquadFilterHistory<T> {
+    // Input history
+    x1: T,
+    x2: T,
+    // Output
+    y1: T,
+    y2: T,
+}
+
 impl<T, R> FilterSignal<T, R> for BiquadFilter<T, R>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
-    R: Copy + Zero + One + Div<R, Output = R>,
+    R: Copy,
 {
+    fn reset(&mut self) {
+        self.state.x1 = T::zero();
+        self.state.x2 = T::zero();
+        self.state.y1 = T::zero();
+        self.state.y2 = T::zero();
+    }
+
     fn apply(&mut self, input: T) -> T {
+        // 9 operations: 5 multiplications, 4 additions
         let output = input * self.b0 + self.state.x1 * self.b1 + self.state.x2 * self.b2
             - self.state.y1 * self.a1
             - self.state.y2 * self.a2;
@@ -87,18 +100,34 @@ where
         self.state.y1 = output;
         output
     }
+}
 
-    fn reset(&mut self) {
-        self.state.x1 = T::zero();
-        self.state.x2 = T::zero();
-        self.state.y1 = T::zero();
-        self.state.y2 = T::zero();
+/*
+Pro-Tip: Because
+ a1 and b1 are identical for a standard notch, and b0 equals b2
+, you can technically reduce this to three multiplications if you are really pushing the limits of the RP2040.
+ */
+impl<T, R> BiquadFilter<T, R>
+where
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
+    R: Copy,
+{
+    pub fn apply_notch(&mut self, input: T) -> T {
+        // 8 operations: 3 multiplications, 5 additions
+        let output = (input + self.state.x2) * self.b0 + (self.state.x1 + self.state.x1 - self.state.y1) * self.a1
+            - self.state.y2 * self.a2;
+
+        self.state.x2 = self.state.x1;
+        self.state.x1 = input;
+        self.state.y2 = self.state.y1;
+        self.state.y1 = output;
+        output
     }
 }
 
 impl<T, R> BiquadFilter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
+    T: Copy + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
     R: Copy + Zero + One + Div<R, Output = R>,
 {
     pub fn set_q(&mut self, q: R) {
@@ -157,7 +186,7 @@ where
 
     // for testing
     #[allow(dead_code)]
-    fn state(self) -> BiquadFilterState<T> {
+    fn state(self) -> BiquadFilterHistory<T> {
         self.state
     }
 }
@@ -165,7 +194,7 @@ where
 impl<T, R> BiquadFilter<T, R>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
-    R: Copy + Zero + One + MathConstants + MathMethods + Div<R, Output = R> + Sub<R, Output = R>,
+    R: Copy + Zero + One + Neg<Output = R> + MathConstants + MathMethods + Div<R, Output = R> + Sub<R, Output = R>,
 {
     pub fn set_to_passthrough(&mut self) {
         self.b0 = R::one();
@@ -182,6 +211,13 @@ where
         // weight of 1.0 gives just output, weight of 0.0 gives just input
         (output - input) * self.weight + input
     }
+
+    pub fn apply_notch_weighted(&mut self, input: T) -> T {
+        let output = self.apply_notch(input);
+        // weight of 1.0 gives just output, weight of 0.0 gives just input
+        (output - input) * self.weight + input
+    }
+
     pub fn init_low_pass(&mut self, frequency_hz: R, loop_time_seconds: R, q: R) {
         //assert(Q != 0.0 && "Q cannot be zero");
         self.set_loop_time(loop_time_seconds);
@@ -209,7 +245,7 @@ where
         self.b1 = (R::one() - cos_omega) * a0_reciprocal;
         self.b0 = self.b1 * (R::one() / (R::one() + R::one()));
         self.b2 = self.b0;
-        self.a1 = R::zero() - (R::one() + R::one()) * cos_omega * a0_reciprocal;
+        self.a1 = -(R::one() + R::one()) * cos_omega * a0_reciprocal;
         self.a2 = (R::one() - alpha) * a0_reciprocal;
     }
 
@@ -222,7 +258,7 @@ where
 
         let alpha = sin_omega * self.one_over_2q;
         let a0reciprocal = R::one() / (R::one() + alpha);
-
+        // NOTE: b0 == b2 and a1 == b1
         self.b0 = a0reciprocal;
         self.b2 = a0reciprocal;
         self.b1 = R::zero() - (R::one() + R::one()) * cos_omega * a0reciprocal;
@@ -282,7 +318,7 @@ mod tests {
     fn normal_types() {
         is_full::<BiquadFilter<f32, f32>>();
         is_full::<BiquadFilterf32<f32>>();
-        is_full::<BiquadFilterState<f32>>();
+        is_full::<BiquadFilterHistory<f32>>();
     }
     #[test]
     fn biquad_filter_f32() {
@@ -307,7 +343,7 @@ mod tests {
     fn biquad_filter_vector3df32() {
         let mut filter = BiquadFilterf32::<Vector3df32>::default();
         let mut output: Vector3df32;
-        let mut state: BiquadFilterState<Vector3df32>;
+        let mut state: BiquadFilterHistory<Vector3df32>;
 
         // test that filter with default settings performs no filtering
         output = filter.apply(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });

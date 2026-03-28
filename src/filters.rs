@@ -22,15 +22,15 @@ pub trait FilterSignal<T, F> {
 
 /// The Filter Extension Trait (for the data)
 ///
-/// T is the type being filtered, so it might be an f32 or a Vector3df32
-/// R is the type of the filter's internal constant. It is either f32 or f64
-/// and should correspond to T.
+/// `T` is the type being filtered, so it might be an `f32` or a `Vector3df32`
+/// `R` is the type of the filter's internal constant. It is either `f32` or `f64`
+/// and should correspond to `T`.
 ///
 /// So:
-///     Ff T is f32, R is f32.
-///     If T is f64, R is f64.
-///     If T is Vector3df32, R is f32
-///     If T is Vector3df64, R is f64
+/// * If `T` is `f32`, `R` is `f32`.
+/// * If `T` is `f64`, `R` is `f64`.
+/// * If `T` is `Vector3df32`, `R` is `f32`
+/// * If `T` is `Vector3df64`, `R` is `f64`
 pub trait ApplyFilter<T, R> {
     fn apply_using<F: FilterSignal<T, R>>(&mut self, filter: &mut F) -> &mut Self;
 }
