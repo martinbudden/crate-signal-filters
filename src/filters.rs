@@ -1,16 +1,19 @@
-use vector_quaternion_matrix::{Vector2df32,Vector2df64,Vector3df32,Vector3df64};
-
-/// The Filter Definition trait
-///
 /// Note the "filter" function is called "update" rather than "apply" or "filter".
 /// This is because update implies the filter has internal state whereas
 /// apply sometimes implies a "pure" mathematical function with no memory.
 ///
 /// filter.update() reads better than filter.filter()
 /// and it also avoids confusion with the filter function in the Iterator trait.
+use vector_quaternion_matrix::{Vector2df32, Vector2df64, Vector3df32, Vector3df64};
+
+/// Filter Definition trait.
+/// `filter.reset()`
+/// `filter.update(value)`
 /// ```
+///
 /// use filters::{Pt2Filterf32,SignalFilter};
-/// let mut filter = Pt2Filterf32::<f32>::new(0.25);
+///
+/// let mut filter = Pt2Filterf32::new(0.25);
 /// let mut value:f32 = 1.0;
 ///
 /// value = filter.update(value);
@@ -32,14 +35,13 @@ pub trait SignalFilter<T, F> {
 //  * If `T` is `f64`, `R` is `f64`.
 // * If `T` is `Vector3df32`, `R` is `f32`
 // * If `T` is `Vector3df64`, `R` is `f64`
-/// The Filter Extension Trait (for the data)
-///
-/// This allows the use of method call syntax, eg;
+
+/// Adds `value.update_using(&mut filter)` method call syntax to `SignalFilter`
 /// ```
 /// use filters::{Pt2Filterf32,UpdateFilter};
-/// let mut filter = Pt2Filterf32::<f32>::new(0.25);
+/// let mut filter = Pt2Filterf32::new(0.25);
 /// let mut value: f32 = 1.0;
-/// 
+///
 /// value.update_using(&mut filter);
 ///
 /// assert_eq!(0.0625, value);

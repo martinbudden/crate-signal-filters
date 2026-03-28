@@ -2,6 +2,8 @@
 
 use num_traits::Zero;
 
+/// `RollingBuffer<T, const N: usize>`. `N` items of type `T``.<br>
+/// Once full, old items fall off the front when new items are pushed on the back.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct RollingBuffer<T, const N: usize> {
     /// The virtual beginning of the rolling buffer.

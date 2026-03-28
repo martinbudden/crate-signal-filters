@@ -8,7 +8,6 @@
 
 //#![doc(html_math_jax_enabled)]
 #![no_std]
-
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::expect_used)]
 #![deny(clippy::panic)]
@@ -36,7 +35,16 @@ pub use moving_average_filter::MovingAverageFilterVector3df32;
 pub use moving_average_filter::{MovingAverageFilter, MovingAverageFilterf32};
 
 pub use pt_filters::{
-    Pt1Filter, Pt1Filterf32, Pt1Filterf64, Pt2Filter, Pt2Filterf32, Pt2Filterf64, Pt3Filter, Pt3Filterf32, Pt3Filterf64,
+    Pt1Filter, Pt1FilterVector2df32, Pt1FilterVector2df64, Pt1FilterVector3df32, Pt1FilterVector3df64, Pt1Filterf32,
+    Pt1Filterf64,
+};
+pub use pt_filters::{
+    Pt2Filter, Pt2FilterVector2df32, Pt2FilterVector2df64, Pt2FilterVector3df32, Pt2FilterVector3df64, Pt2Filterf32,
+    Pt2Filterf64,
+};
+pub use pt_filters::{
+    Pt3Filter, Pt3FilterVector2df32, Pt3FilterVector2df64, Pt3FilterVector3df32, Pt3FilterVector3df64, Pt3Filterf32,
+    Pt3Filterf64,
 };
 
 pub use rolling_buffer::RollingBuffer;

@@ -5,7 +5,7 @@ use vector_quaternion_matrix::Vector2df32;
 pub type MovingAverageFilterf32<const N: usize> = MovingAverageFilter<f32, N>;
 pub type MovingAverageFilterVector3df32<const N: usize> = MovingAverageFilter<Vector2df32, N>;
 
-/// Simple moving average filter.
+/// Simple moving average filter.<br>
 /// See [Moving Average Filter - Theory and Software Implementation - Phil's Lab #21](https://www.youtube.com/watch?v=rttn46_Y3c8).
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct MovingAverageFilter<T, const N: usize> {

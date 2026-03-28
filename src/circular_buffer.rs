@@ -1,5 +1,6 @@
 use num_traits::Zero;
 
+/// `CircularBuffer<T, const N: usize>`. `N` items of type `T`.<br>
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CircularBuffer<T, const N: usize> {
     /// The virtual beginning of the circular buffer.

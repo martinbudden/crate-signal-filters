@@ -7,10 +7,10 @@ use crate::SignalFilter;
 pub type BiquadFilterf32<T> = BiquadFilter<T, f32>;
 pub type BiquadFilterf64<T> = BiquadFilter<T, f64>;
 
-/// A second-order biquad IIR filter.
+/// Second-order biquad IIR filter.<br>
+/// This implementation uses the Direct Form I structure.
 ///
-/// This implementation uses the Direct Form I structure. The transfer function in
-/// the Z-domain is:
+/// The transfer function in the Z-domain is:
 ///
 /// $$H(z) = \frac{b_{0} + b_{1} z^{-1} + b_{2} z^{-2}}{1 + a_{1} z^{-1} + a_{2} z^{-2}}$$
 ///

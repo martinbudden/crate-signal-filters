@@ -7,9 +7,7 @@ use num_traits::Zero;
 pub type SlewRateLimiterf32 = SlewRateLimiter<f32>;
 pub type SlewRateLimiterf64 = SlewRateLimiter<f64>;
 
-/// An Slew Rate Limiter.
-///
-/// This filter limits the maximum rate of change ($dV/dt$) of a signal.
+/// Limits the maximum rate of change ($dV/dt$) of a signal.
 /// It allows for different rates depending on whether the signal is
 /// increasing (rising) or decreasing (falling).
 ///
@@ -78,7 +76,7 @@ where
     }
 }
 
-/// Extension trait for slew rate limiter.
+/// Adds `value.limit_slew_using(&mut slew_rate_limiter)` method call to SlewRateLimiter.
 pub trait LimitSlew<T> {
     fn limit_slew_using(&mut self, limiter: &mut SlewRateLimiter<T>) -> &mut Self;
 }
@@ -198,17 +196,17 @@ mod tests {
     #[test]
     fn output_array() {
         use crate::SlewRateLimiterf32;
-        const MAX_MOTOR_COUNT:usize = 8;
-        type MotorOutputs = [f32;MAX_MOTOR_COUNT];
+        const MAX_MOTOR_COUNT: usize = 8;
+        type MotorOutputs = [f32; MAX_MOTOR_COUNT];
 
         let mut motor_outputs = MotorOutputs::default();
 
-        const QUAD_MOTOR_COUNT:usize = 4;
-        type QuadOutputs = [f32;QUAD_MOTOR_COUNT];
+        const QUAD_MOTOR_COUNT: usize = 4;
+        type QuadOutputs = [f32; QUAD_MOTOR_COUNT];
 
         let quad_outputs = QuadOutputs::default();
 
-        let mut output_filters = <[SlewRateLimiterf32;QUAD_MOTOR_COUNT]>::default();
+        let mut output_filters = <[SlewRateLimiterf32; QUAD_MOTOR_COUNT]>::default();
 
         for ii in 0..QUAD_MOTOR_COUNT {
             // 1. Take raw value from quad_outputs

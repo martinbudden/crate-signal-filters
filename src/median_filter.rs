@@ -10,12 +10,11 @@ pub type Median3FilterVector3df32<const N: usize> = Median3Filter<Vector2df32>;
 pub type MedianFilterf32<const N: usize> = MedianFilter<f32, N>;
 pub type MedianFilterVector3df32<const N: usize> = MedianFilter<Vector2df32, N>;
 
-/// A non-linear Median-of-3 filter for spike rejection.
+/// Non-linear median-of-3 filter for spike rejection.<br>
+/// Maintains a window of the last three samples and returns the median value.
 ///
-/// This filter maintains a window of the last three samples and returns the
-/// median value. It is exceptionally effective at removing single-sample
-/// outliers without "smearing" the error into subsequent samples like a
-/// linear low-pass filter would.
+/// It is effective at removing single-sample outliers without "smearing"
+/// the error into subsequent samples like a linear low-pass filter would.
 ///
 /// The output $y_{n}$ is defined as:
 ///
@@ -118,8 +117,8 @@ where
     }
 }
 
-/// General-Purpose Moving Median (Window of N)
-/// For larger windows (eg 5 or 7), we must sort a copy of the buffer on every update.
+/// General purpose Moving Median (Window of N)
+/// Maintains a window of the last `N` samples and returns the median value.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct MedianFilter<T, const N: usize> {
     buffer: [T; N],
