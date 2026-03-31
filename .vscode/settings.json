@@ -1,17 +1,21 @@
 {
     "cSpell.words": [
         "AHRS",
+        "armv",
         "Biquad",
         "Budden",
         "bytemuck",
         "codegen",
         "debuginfo",
+        "eabihf",
         "Filterf",
         "katex",
         "libm",
         "Limiterf",
         "rustdoc",
+        "rustflags",
         "setpoints",
+        "thumbv",
         "Uninit"
     ]
 }

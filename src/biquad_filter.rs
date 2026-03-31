@@ -1,6 +1,6 @@
 use core::ops::{Add, Div, Mul, Neg, Sub};
 use num_traits::{One, Zero};
-use vector_quaternion_matrix::{MathConstants, MathMethods};
+use vector_quaternion_matrix::{MathConstants, TrigonometricMethods};
 
 use crate::SignalFilter;
 
@@ -192,7 +192,14 @@ where
 impl<T, R> BiquadFilter<T, R>
 where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
-    R: Copy + Zero + One + Neg<Output = R> + MathConstants + MathMethods + Div<R, Output = R> + Sub<R, Output = R>,
+    R: Copy
+        + Zero
+        + One
+        + Neg<Output = R>
+        + MathConstants
+        + TrigonometricMethods
+        + Div<R, Output = R>
+        + Sub<R, Output = R>,
 {
     pub fn set_to_passthrough(&mut self) {
         self.b0 = R::one();

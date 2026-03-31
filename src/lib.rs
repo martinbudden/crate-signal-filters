@@ -1,4 +1,5 @@
-#![doc = include_str!("../README.md")]
+//#![feature(portable_simd)]
+//use core::simd::f32x4; // A vector of four 32-bit floats#![doc = include_str!("../README.md")]
 //#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
 
 // Conventions for generics used in this crate:
@@ -19,6 +20,7 @@ mod filters;
 mod median_filter;
 mod moving_average_filter;
 mod pt_filters;
+mod pt_filters_simd;
 mod rolling_buffer;
 mod slew_filter;
 

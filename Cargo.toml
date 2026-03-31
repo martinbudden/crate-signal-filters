@@ -6,6 +6,22 @@ authors = ["Martin Budden"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 
+[features]
+default = ["rp2350", "align", "libm", "simd",]
+std = []
+align = []
+rp2040 = []
+rp2350 = []
+simd = []
+libm = []
+
+[target.thumbv8m.main-none-eabihf]
+rustflags = [
+    "-C", "target-cpu=cortex-m33",
+    "-C", "target-feature=+fp-armv8d16sp", # This enables the specific floating-point features for the M33
+    "-C", "target-feature=+vfp4sp", # Enables single-precision FPU
+]
+
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "katex-header.html"]
 
@@ -46,4 +62,3 @@ rpath = false
 [profile.release-lto]
 inherits = "release"
 lto = true
-
