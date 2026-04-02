@@ -24,7 +24,10 @@ mod pt_filters_simd;
 mod rolling_buffer;
 mod slew_filter;
 
-pub use biquad_filter::{BiquadFilter, BiquadFilterf32, BiquadFilterf64, BiquadFilterVector2df32, BiquadFilterVector2df64, BiquadFilterVector3df32, BiquadFilterVector3df64};
+pub use biquad_filter::{
+    BiquadFilter, BiquadFilterVector2df32, BiquadFilterVector2df64, BiquadFilterVector3df32, BiquadFilterVector3df64,
+    BiquadFilterf32, BiquadFilterf64,
+};
 
 pub use circular_buffer::CircularBuffer;
 

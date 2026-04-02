@@ -12,7 +12,6 @@ pub type BiquadFilterf64 = BiquadFilter<f64, f64>;
 pub type BiquadFilterVector3df32 = BiquadFilter<Vector3d<f32>, f32>;
 pub type BiquadFilterVector3df64 = BiquadFilter<Vector3d<f64>, f64>;
 
-
 /// Second-order biquad IIR filter.<br>
 /// This implementation uses the Direct Form I structure.
 ///
