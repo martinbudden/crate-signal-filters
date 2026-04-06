@@ -20,7 +20,6 @@ mod filters;
 mod median_filter;
 mod moving_average_filter;
 mod pt_filters;
-mod pt_filters_simd;
 mod rolling_buffer;
 mod slew_filter;
 

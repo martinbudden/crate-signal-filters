@@ -1,5 +1,5 @@
 use core::ops::{Add, AddAssign, Div, Mul, Sub};
-use num_traits::{One, Zero};
+use num_traits::{MulAdd, One, Zero};
 use vector_quaternion_matrix::{MathConstants, Vector2d, Vector3d};
 
 use crate::SignalFilter;
@@ -82,7 +82,7 @@ where
 
 impl<T, R> SignalFilter<T, R> for Pt1Filter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + AddAssign,
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + AddAssign + MulAdd<R, T, Output = T>,
     R: Copy,
 {
     fn reset(&mut self) {
@@ -100,7 +100,7 @@ where
 
 impl<T, R> Pt1Filter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + AddAssign,
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + AddAssign + MulAdd<R, T, Output = T>,
     R: Copy + Zero + One,
 {
     pub fn set_to_passthrough(&mut self) {
@@ -126,7 +126,7 @@ where
 
 impl<T, R> Pt1Filter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + AddAssign,
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + AddAssign + MulAdd<R, T, Output = T>,
     R: Copy + Zero + One + MathConstants + PartialOrd + Div<R, Output = R>,
 {
     pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R) {
@@ -200,7 +200,7 @@ where
 
 impl<T, R> SignalFilter<T, R> for Pt2Filter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
+    T: Copy + Zero + AddAssign + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
     R: Copy,
 {
     fn reset(&mut self) {
@@ -208,15 +208,15 @@ where
     }
 
     fn update(&mut self, input: T) -> T {
-        self.state[1] = self.state[1] + (input - self.state[1]) * self.k;
-        self.state[0] = self.state[0] + (self.state[1] - self.state[0]) * self.k;
+        self.state[1] += (input - self.state[1]) * self.k;
+        self.state[0] += (self.state[1] - self.state[0]) * self.k;
         self.state[0]
     }
 }
 
 impl<T, R> Pt2Filter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
+    T: Copy + Zero + AddAssign + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
     R: Copy + Zero + One,
 {
     pub fn set_to_passthrough(&mut self) {
@@ -242,7 +242,7 @@ where
 
 impl<T, R> Pt2Filter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + AddAssign,
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + AddAssign + MulAdd<R, T, Output = T>,
     R: Copy + Zero + One + MathConstants + PartialOrd + Div<R, Output = R>,
 {
     pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R) {
@@ -303,7 +303,7 @@ where
 
 impl<T, R> SignalFilter<T, R> for Pt3Filter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
+    T: Copy + Zero + AddAssign + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
     R: Copy + Zero,
 {
     fn reset(&mut self) {
@@ -311,16 +311,16 @@ where
     }
 
     fn update(&mut self, input: T) -> T {
-        self.state[2] = self.state[2] + (input - self.state[2]) * self.k;
-        self.state[1] = self.state[1] + (self.state[2] - self.state[1]) * self.k;
-        self.state[0] = self.state[0] + (self.state[1] - self.state[0]) * self.k;
+        self.state[2] += (input - self.state[2]) * self.k;
+        self.state[1] += (self.state[2] - self.state[1]) * self.k;
+        self.state[0] += (self.state[1] - self.state[0]) * self.k;
         self.state[0]
     }
 }
 
 impl<T, R> Pt3Filter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>,
+    T: Copy + Zero + AddAssign + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
     R: Copy + Zero + One,
 {
     pub fn set_to_passthrough(&mut self) {
@@ -346,7 +346,7 @@ where
 
 impl<T, R> Pt3Filter<T, R>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + AddAssign,
+    T: Copy + Zero + AddAssign + Sub<Output = T> + Mul<R, Output = T> + AddAssign + MulAdd<R, T, Output = T>,
     R: Copy + Zero + One + MathConstants + PartialOrd + Div<R, Output = R>,
 {
     pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R) {
