@@ -7,26 +7,31 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 
 [features]
-default = []
+default = ["libm"]
+#default = ["libm", "simd",]
+#default = ["libm", "no_align"]
+std = ["vector-quaternion-matrix/std"]
+no_align = ["vector-quaternion-matrix/no_align"]
+simd = ["vector-quaternion-matrix/simd"]
+libm = ["num-traits/libm", "vector-quaternion-matrix/libm"]
 
 # used by RP2040
 [target.thumbv6m-none-eabi]
-rustflags = [
-    "-C", "target-cpu=cortex-m0plus",
-]
+rustflags = ["-C", "target-cpu=cortex-m0plus"]
 
 # used by RP2350
 [target.thumbv8m.main-none-eabihf] # hf = Hard Float
-rustflags = [
-    "-C", "target-cpu=cortex-m33",
-]
+rustflags = ["-C", "target-cpu=cortex-m33"]
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "katex-header.html"]
 
+[build-dependencies]
+rustc_version = "0.4"
+
 [dependencies]
-num-traits = { version = "0.2.19", default-features = false, features = ["libm"] }
-vector-quaternion-matrix = { git = "https://github.com/martinbudden/crate-vector-quaternion-matrix" }
+num-traits = { version = "0.2.19", default-features = false }
+vector-quaternion-matrix = { git = "https://github.com/martinbudden/crate-vector-quaternion-matrix", default-features = false }
 
 [dev-dependencies]
 # assert_float_eq = "1.2.0" # used for test

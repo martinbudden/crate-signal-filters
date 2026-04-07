@@ -28,6 +28,7 @@ name = "filters"
 version = "0.1.0"
 dependencies = [
  "num-traits",
+ "rustc_version",
  "vector-quaternion-matrix",
 ]
 
@@ -65,7 +66,7 @@ checksum = "8a7852d02fc848982e0c167ef163aaff9cd91dc640ba85e263cb1ce46fae51cd"
 [[package]]
 name = "vector-quaternion-matrix"
 version = "0.1.0"
-source = "git+https://github.com/martinbudden/crate-vector-quaternion-matrix#801d250fedcf5c90681697ebfadab28553a94d8d"
+source = "git+https://github.com/martinbudden/crate-vector-quaternion-matrix#9390c80f08355243e2eb6b4c86d6a1ff42bbbad4"
 dependencies = [
  "approx",
  "cfg-if",
