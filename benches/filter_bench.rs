@@ -5,7 +5,7 @@ use criterion::{BatchSize, Criterion, Throughput, criterion_group, criterion_mai
 use rand::{RngExt, rng};
 use std::hint::black_box;
 
-use filters::{
+use signal_filters::{
     BiquadFilterf32, MedianFilter3f32, MedianFilter5f32, MovingAverageFilterf32, Pt1FilterVector3df32, Pt1Filterf32,
     Pt2Filterf32, Pt3Filterf32, SignalFilter, SlewRateLimiterf32,
 };
