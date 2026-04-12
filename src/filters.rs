@@ -4,7 +4,7 @@
 ///
 /// `filter.update()` reads better than `filter.filter()`
 /// and it also avoids confusion with the filter function in the Iterator trait.
-use vector_quaternion_matrix::{Vector2df32, Vector2df64, Vector3df32, Vector3df64};
+use vqm::{Vector2df32, Vector2df64, Vector3df32, Vector3df64};
 
 /// Filter Definition trait.
 /// `filter.reset()`

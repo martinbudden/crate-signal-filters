@@ -1,6 +1,6 @@
 use core::ops::{Add, Div, Mul, Neg, Sub};
 use num_traits::{One, Zero};
-use vector_quaternion_matrix::{MathConstants, TrigonometricMethods, Vector2d, Vector3d};
+use vqm::{MathConstants, TrigonometricMethods, Vector2d, Vector3d};
 
 use crate::SignalFilter;
 
@@ -54,7 +54,7 @@ where
     T: Default,
     R: Zero + One + Div<R, Output = R>,
 {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             state: BiquadFilterState::default(),
             weight: R::one(),
@@ -351,7 +351,7 @@ mod tests {
     }
     #[test]
     fn biquad_filter_vector3df32() {
-        use vector_quaternion_matrix::Vector3df32;
+        use vqm::Vector3df32;
         let mut filter = BiquadFilterVector3df32::default();
         let mut state: BiquadFilterState<Vector3df32>;
 

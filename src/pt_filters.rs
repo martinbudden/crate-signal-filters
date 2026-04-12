@@ -1,6 +1,6 @@
 use core::ops::{Add, AddAssign, Div, Mul, Sub};
 use num_traits::{MulAdd, One, Zero};
-use vector_quaternion_matrix::{MathConstants, Vector2d, Vector3d};
+use vqm::{MathConstants, Vector2d, Vector3d};
 
 use crate::SignalFilter;
 
@@ -448,7 +448,7 @@ mod tests {
     #[test]
     fn pt1_filter_vector3df32_method_call() {
         use crate::UpdateFilter;
-        use vector_quaternion_matrix::Vector3df32;
+        use vqm::Vector3df32;
 
         let mut filter = Pt1Filterf32::new(0.25);
         assert_eq!(0.05, filter.update(0.2));
@@ -553,7 +553,7 @@ mod tests {
     }
     #[test]
     fn pt1_filter_vector3df32() {
-        use vector_quaternion_matrix::Vector3df32;
+        use vqm::Vector3df32;
 
         let mut filter = Pt1Filter::<Vector3df32, f32>::new(1.0);
 
@@ -585,7 +585,7 @@ mod tests {
     }
     #[test]
     fn pt1_filter_vector3di16_i32() {
-        use vector_quaternion_matrix::Vector3di16;
+        use vqm::Vector3di16;
         let mut filter = Pt1Filter::<Vector3di16, i32>::new(1);
 
         // test that filter with default settings performs no filtering
@@ -596,7 +596,7 @@ mod tests {
     }
     #[test]
     fn pt1_filter_vector3di16_f32() {
-        use vector_quaternion_matrix::Vector3di16;
+        use vqm::Vector3di16;
         let mut filter = Pt1Filter::<Vector3di16, f32>::new(1.0);
 
         // test that filter with default settings performs no filtering
@@ -607,7 +607,7 @@ mod tests {
     }
     /*#[test]
     fn pt1_filter_vector3df32_i32() {
-        use vector_quaternion_matrix::Vector3d;
+        use vqm::Vector3d;
         type Vector3di32 = Vector3d<i32>;
 
         let mut filter = Pt1Filter::<Vector3di32, f32>::new(1);

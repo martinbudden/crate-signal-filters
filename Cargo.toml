@@ -7,23 +7,22 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/martinbudden/crate-filters"
 description = "Filters library, including biquad, moving average, low-pass, and notch filters."
-keywords =  ["filter", "biquad", "moving average", "low-pass", "DSP"]
+keywords =  ["filter", "biquad", "signal-processing", "low-pass", "notch-filter"]
 categories = [
-    "Embedded development",
-    "Mathematics",
-    "No standard library",
-    "Robotics",
-    "Science",
+    "embedded",
+    "mathematics",
+    "no-std::no-alloc",
+    "science::robotics",
 ]
 
 [features]
 default = ["libm"]
 #default = ["libm", "simd",]
 #default = ["libm", "no_align"]
-std = ["vector-quaternion-matrix/std"]
-no_align = ["vector-quaternion-matrix/no_align"]
-simd = ["vector-quaternion-matrix/simd"]
-libm = ["num-traits/libm", "vector-quaternion-matrix/libm"]
+std = ["vqm/std"]
+no_align = ["vqm/no_align"]
+simd = ["vqm/simd"]
+libm = ["num-traits/libm", "vqm/libm"]
 
 # used by RP2040
 [target.thumbv6m-none-eabi]
@@ -41,7 +40,7 @@ rustc_version = "0.4.1"
 
 [dependencies]
 num-traits = { version = "0.2.19", default-features = false }
-vector-quaternion-matrix = { git = "https://github.com/martinbudden/crate-vector-quaternion-matrix", default-features = false }
+vqm = { version = "0.1.0" }
 
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }
@@ -50,7 +49,7 @@ rand = "0.10.1"
 # see https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.dev]
 opt-level = 0
-debug = true
+debug = "line-tables-only"
 # split-debuginfo = '...'  # Platform-specific.
 strip = "none"
 debug-assertions = true

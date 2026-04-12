@@ -1,6 +1,4 @@
-//use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-//use core::default::Default;
-use core::ops::{Add, Mul, Neg, Sub};
+use core::ops::{AddAssign, Mul, Neg, Sub};
 use num_traits::Zero;
 
 pub type SlewRateLimiterf32 = SlewRateLimiter<f32>;
@@ -23,14 +21,13 @@ pub type SlewRateLimiterf64 = SlewRateLimiter<f64>;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SlewRateLimiter<T> {
     last_output: T,
-    rise_rate_per_second: T,
-    fall_rate_per_second: T,
-    dt: T,
+    rise_step: T, // rise_rate_per_second * dt
+    fall_step: T, // fall_rate_per_second * dt
 }
 
 impl<T> Default for SlewRateLimiter<T>
 where
-    T: Copy + Zero,
+    T: Copy + Zero + Mul<T, Output = T>,
 {
     fn default() -> Self {
         Self::new(T::zero(), T::zero(), T::zero())
@@ -39,10 +36,10 @@ where
 
 impl<T> SlewRateLimiter<T>
 where
-    T: Copy + Zero,
+    T: Copy + Zero + Mul<T, Output = T>,
 {
     pub fn new(rise_rate_per_second: T, fall_rate_per_second: T, dt: T) -> Self {
-        Self { last_output: T::zero(), rise_rate_per_second, fall_rate_per_second, dt }
+        Self { last_output: T::zero(), rise_step: rise_rate_per_second * dt, fall_step: fall_rate_per_second * dt }
     }
 
     pub fn reset(&mut self) {
@@ -52,25 +49,24 @@ where
 
 impl<T> SlewRateLimiter<T>
 where
-    T: Copy + Zero + Neg<Output = T> + PartialOrd + Add<T, Output = T> + Sub<T, Output = T> + Mul<T, Output = T>,
+    T: Copy + Zero + PartialOrd + Neg<Output = T> + Sub<T, Output = T> + AddAssign,
 {
     pub fn update(&mut self, input: T) -> T {
         let diff = input - self.last_output;
 
-        // Choose the rate based on whether the signal is rising or falling
-        let max_change =
-            if diff > T::zero() { self.rise_rate_per_second * self.dt } else { self.fall_rate_per_second * self.dt };
+        // Select pre-calculated limit
+        let limit = if diff > T::zero() { self.rise_step } else { self.fall_step };
 
-        // Clamp the change
-        let actual_change: T = if diff < -max_change {
-            -max_change
-        } else if diff > max_change {
-            max_change
+        // Clamp using min/max logic (often compiles to branchless CMOV or MIN/MAX instructions)
+        let actual_change = if diff > limit {
+            limit
+        } else if diff < -limit {
+            -limit
         } else {
             diff
         };
 
-        self.last_output = self.last_output + actual_change;
+        self.last_output += actual_change;
         self.last_output
     }
 }
@@ -82,7 +78,7 @@ pub trait LimitSlew<T> {
 
 impl<T> LimitSlew<T> for T
 where
-    T: Copy + PartialOrd + Zero + Neg<Output = T> + Add<T, Output = T> + Sub<T, Output = T> + Mul<T, Output = T>,
+    T: Copy + Zero + PartialOrd + Neg<Output = T> + Sub<T, Output = T> + AddAssign,
 {
     fn limit_slew_using(&mut self, limiter: &mut SlewRateLimiter<T>) {
         *self = limiter.update(*self);

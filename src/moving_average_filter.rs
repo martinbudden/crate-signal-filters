@@ -2,7 +2,7 @@
 
 use core::ops::{Add, Mul, Sub};
 use num_traits::Zero;
-use vector_quaternion_matrix::{Vector2d, Vector3d, Vector4d};
+use vqm::{Vector2d, Vector3d, Vector4d};
 
 pub type MovingAverageFilterf32<const N: usize> = MovingAverageFilter<f32, N>;
 pub type MovingAverageFilterVector2df32<const N: usize> = MovingAverageFilter<Vector2d<f32>, N>;
@@ -104,7 +104,7 @@ mod tests {
     }
     #[test]
     fn moving_average_filter_vector3df32() {
-        use vector_quaternion_matrix::Vector3df32;
+        use vqm::Vector3df32;
         let mut filter = MovingAverageFilter::<Vector3df32, 4>::new();
         let mut m = filter.update(Vector3df32 { x: 1.0, y: 0.0, z: -3.0 });
         assert_eq!(Vector3df32 { x: 1.0, y: 0.0, z: -3.0 }, m);
