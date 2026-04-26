@@ -4,34 +4,58 @@ use vqm::{MathConstants, Vector2d, Vector3d, Vector4d};
 
 use crate::SignalFilter;
 
+/// `Pt1Filter` for `f32`<br>
 pub type Pt1Filterf32 = Pt1Filter<f32, f32>;
+/// `Pt1Filter` for `Vector2df32`<br>
 pub type Pt1FilterVector2df32 = Pt1Filter<Vector2d<f32>, f32>;
+/// `Pt1Filter` for `Vector3df32`<br>
 pub type Pt1FilterVector3df32 = Pt1Filter<Vector3d<f32>, f32>;
+/// `Pt1Filter` for `Vector4df32`<br>
 pub type Pt1FilterVector4df32 = Pt1Filter<Vector4d<f32>, f32>;
 
+/// `Pt1Filter` for `f64`<br><br>
 pub type Pt1Filterf64 = Pt1Filter<f64, f64>;
+/// `Pt1Filter` for `Vector2df64`<br><br>
 pub type Pt1FilterVector2df64 = Pt1Filter<Vector2d<f64>, f64>;
+/// `Pt1Filter` for `Vector3df64`<br><br>
 pub type Pt1FilterVector3df64 = Pt1Filter<Vector3d<f64>, f64>;
+/// `Pt1Filter` for `Vector4df64`<br><br>
 pub type Pt1FilterVector4df64 = Pt1Filter<Vector4d<f64>, f64>;
 
+/// `Pt2Filter` for `f32`<br>
 pub type Pt2Filterf32 = Pt2Filter<f32, f32>;
+/// `Pt2Filter` for `Vector2df32`<br>
 pub type Pt2FilterVector2df32 = Pt2Filter<Vector2d<f32>, f32>;
+/// `Pt2Filter` for `Vector3df32`<br>
 pub type Pt2FilterVector3df32 = Pt2Filter<Vector3d<f32>, f32>;
+/// `Pt2Filter` for `Vector4df32`<br>
 pub type Pt2FilterVector4df32 = Pt2Filter<Vector4d<f32>, f32>;
 
+/// `Pt2Filter` for `f64`<br><br>
 pub type Pt2Filterf64 = Pt2Filter<f64, f64>;
+/// `Pt2Filter` for `Vector2df64`<br><br>
 pub type Pt2FilterVector2df64 = Pt2Filter<Vector2d<f64>, f64>;
+/// `Pt2Filter` for `Vector3df64`<br><br>
 pub type Pt2FilterVector3df64 = Pt2Filter<Vector3d<f64>, f64>;
+/// `Pt2Filter` for `Vector4df64`<br><br>
 pub type Pt2FilterVector4df64 = Pt2Filter<Vector4d<f64>, f64>;
 
+/// `Pt3Filter` for `f32`<br>
 pub type Pt3Filterf32 = Pt3Filter<f32, f32>;
+/// `Pt3Filter` for `Vector2df32`<br>
 pub type Pt3FilterVector2df32 = Pt3Filter<Vector2d<f32>, f32>;
+/// `Pt3Filter` for `Vector3df32`<br>
 pub type Pt3FilterVector3df32 = Pt3Filter<Vector3d<f32>, f32>;
+/// `Pt3Filter` for `Vector4df32`<br>
 pub type Pt3FilterVector4df32 = Pt3Filter<Vector4d<f32>, f32>;
 
+/// `Pt3Filter` for `f64`<br><br>
 pub type Pt3Filterf64 = Pt3Filter<f64, f64>;
+/// `Pt3Filter` for `Vector2df64`<br><br>
 pub type Pt3FilterVector2df64 = Pt3Filter<Vector2d<f64>, f64>;
+/// `Pt3Filter` for `Vector3df64`<br><br>
 pub type Pt3FilterVector3df64 = Pt3Filter<Vector3d<f64>, f64>;
+/// `Pt3Filter` for `Vector4df64`<br><br>
 pub type Pt3FilterVector4df64 = Pt3Filter<Vector4d<f64>, f64>;
 
 #[allow(clippy::doc_paragraphs_missing_punctuation)]

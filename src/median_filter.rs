@@ -1,6 +1,10 @@
+/// `Median3Filter` for `f32`<br>
 pub type MedianFilter3f32 = MedianFilter3<f32>;
+/// `Median3Filter` for `f64`<br><br>
 pub type MedianFilter3f64 = MedianFilter3<f64>;
+/// `Median5Filter` for `f32`<br>
 pub type MedianFilter5f32 = MedianFilter5<f32>;
+/// `Median5Filter` for `f64`<br><br>
 pub type MedianFilter5f64 = MedianFilter5<f64>;
 
 #[allow(clippy::doc_paragraphs_missing_punctuation)]
@@ -86,6 +90,12 @@ where
         b
     }
 }
+
+/// Non-linear median-of-5 filter for spike rejection.<br>
+/// Maintains a window of the last three samples and returns the median value.
+///
+/// It is effective at removing single-sample outliers without "smearing"
+/// the error into subsequent samples like a linear low-pass filter would.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct MedianFilter5<T> {
     buffer: [T; 5],

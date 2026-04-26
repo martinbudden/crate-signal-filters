@@ -4,14 +4,22 @@ use vqm::{MathConstants, TrigonometricMethods, Vector2d, Vector3d, Vector4d};
 
 use crate::SignalFilter;
 
+/// `BiquadFilter` for `f32`<br>
 pub type BiquadFilterf32 = BiquadFilter<f32, f32>;
+/// `BiquadFilter` for `Vector2df32`<br>
 pub type BiquadFilterVector2df32 = BiquadFilter<Vector2d<f32>, f32>;
+/// `BiquadFilter` for `Vector3df32`<br>
 pub type BiquadFilterVector3df32 = BiquadFilter<Vector3d<f32>, f32>;
+/// `BiquadFilter` for `Vector4df32`<br>
 pub type BiquadFilterVector4df32 = BiquadFilter<Vector4d<f32>, f32>;
 
+/// `BiquadFilter` for `f64`<br><br>
 pub type BiquadFilterf64 = BiquadFilter<f64, f64>;
+/// `BiquadFilter` for `Vector2df64`<br><br>
 pub type BiquadFilterVector2df64 = BiquadFilter<Vector2d<f64>, f64>;
+/// `BiquadFilter` for `Vector3df64`<br><br>
 pub type BiquadFilterVector3df64 = BiquadFilter<Vector3d<f64>, f64>;
+/// `BiquadFilter` for `Vector4df64`<br><br>
 pub type BiquadFilterVector4df64 = BiquadFilter<Vector4d<f64>, f64>;
 
 #[allow(clippy::doc_paragraphs_missing_punctuation)]

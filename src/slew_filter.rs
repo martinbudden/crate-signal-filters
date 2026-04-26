@@ -1,7 +1,9 @@
 use core::ops::{AddAssign, Mul, Neg, Sub};
 use num_traits::Zero;
 
+/// `SlewRateLimiter` for `f32`<br>
 pub type SlewRateLimiterf32 = SlewRateLimiter<f32>;
+/// `SlewRateLimiter` for `f64`<br><br>
 pub type SlewRateLimiterf64 = SlewRateLimiter<f64>;
 
 #[allow(clippy::doc_paragraphs_missing_punctuation)]

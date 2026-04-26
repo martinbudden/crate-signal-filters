@@ -4,14 +4,22 @@ use core::ops::{Add, Mul, Sub};
 use num_traits::Zero;
 use vqm::{Vector2d, Vector3d, Vector4d};
 
+/// `MovingAverageFilter` for `f32`<br>
 pub type MovingAverageFilterf32<const N: usize> = MovingAverageFilter<f32, N>;
+/// `MovingAverageFilter` for `Vector2df32`<br>
 pub type MovingAverageFilterVector2df32<const N: usize> = MovingAverageFilter<Vector2d<f32>, N>;
+/// `MovingAverageFilter` for `Vector3df32`<br>
 pub type MovingAverageFilterVector3df32<const N: usize> = MovingAverageFilter<Vector3d<f32>, N>;
+/// `MovingAverageFilter` for `Vector4df32`<br>
 pub type MovingAverageFilterVector4df32<const N: usize> = MovingAverageFilter<Vector4d<f32>, N>;
 
+/// `MovingAverageFilter` for `f64`<br><br>
 pub type MovingAverageFilterf64<const N: usize> = MovingAverageFilter<f64, N>;
+/// `MovingAverageFilter` for `Vector2df64`<br><br>
 pub type MovingAverageFilterVector2df64<const N: usize> = MovingAverageFilter<Vector2d<f64>, N>;
+/// `MovingAverageFilter` for `Vector3df64`<br><br>
 pub type MovingAverageFilterVector3df64<const N: usize> = MovingAverageFilter<Vector3d<f64>, N>;
+/// `MovingAverageFilter` for `Vector4df64`<br><br>
 pub type MovingAverageFilterVector4df64<const N: usize> = MovingAverageFilter<Vector4d<f64>, N>;
 
 /// Simple moving average filter.<br>

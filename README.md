@@ -25,6 +25,7 @@ The filters have aliases for `f32` and `f64` versions:
 | ----------------------- | ------------------------|
 | `Pt1Filterf32`          | `Pt1Filterf64`          |
 | `Pt2Filterf32`          | `Pt2Filterf64`          |
+| `Pt3Filterf32`          | `Pt3Filterf64`          |
 | `BiquadFilterf32`       | `BiquadFilterf64`       |
 | `MedianFilter3f32`      | `MedianFilter3f64`      |
 | `MedianFilter5f32`      | `MedianFilter5f64`      |
