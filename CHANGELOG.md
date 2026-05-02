@@ -23,7 +23,13 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Security
 
-## [0.1.1] - 2026-04
+## [0.1.2] - 2026-05-02
+
+### Changed
+
+- Use vqm version 0.1.2
+
+## [0.1.1] - 2026-04-26
 
 ### Added
 

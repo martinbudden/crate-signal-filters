@@ -15,14 +15,11 @@ categories = [
     "science::robotics",
 ]
 
-[features]
-default = ["libm"]
-#default = ["libm", "simd",]
-#default = ["libm", "no_align"]
-std = ["vqm/std"]
-no_align = ["vqm/no_align"]
-simd = ["vqm/simd"]
-libm = ["num-traits/libm", "vqm/libm"]
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "katex-header.html"]
+
+[build-dependencies]
+rustc_version = "0.4.1"
 
 # used by RP2040
 [target.thumbv6m-none-eabi]
@@ -32,15 +29,18 @@ rustflags = ["-C", "target-cpu=cortex-m0plus"]
 [target.thumbv8m.main-none-eabihf] # hf = Hard Float
 rustflags = ["-C", "target-cpu=cortex-m33"]
 
-[package.metadata.docs.rs]
-rustdoc-args = ["--html-in-header", "katex-header.html"]
-
-[build-dependencies]
-rustc_version = "0.4.1"
+[features]
+default = ["libm"]
+#default = ["libm", "simd",]
+#default = ["libm", "no_align"]
+std = ["vqm/std"]
+no_align = ["vqm/no_align"]
+simd = ["vqm/simd"]
+libm = ["num-traits/libm", "vqm/libm"]
 
 [dependencies]
 num-traits = { version = "0.2.19", default-features = false }
-vqm = { version = "0.1.1" }
+vqm = { version = "0.1.2" }
 #vqm = { git = "https://github.com/martinbudden/crate-vector-quaternion-matrix" }
 #vqm = { path = "../vector-quaternion-matrix" }
 

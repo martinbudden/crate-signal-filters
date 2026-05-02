@@ -653,9 +653,9 @@ checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 
 [[package]]
 name = "vqm"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0724431caed98b5a15ab21a5ddef71bfbb65fcee169c9170daf6c5dc4d669c44"
+checksum = "0f85a8ce175077e453f296f2600952e9d5797db3c3370e8160bd676f0622d9ed"
 dependencies = [
  "approx",
  "cfg-if",
