@@ -388,21 +388,30 @@ where
             a2: (R::one() - alpha) * a0reciprocal,
         }
     }
+    #[inline]
+    pub fn set_notch_frequency_weighted_from_sin_cos_assuming_q(&mut self, sin_omega: R, cos_omega: R, weight: R) {
+        self.weight = weight;
+        self.coeffs = self.calculate_notch_coefficients_from_sin_cos_assuming_q(sin_omega, cos_omega);
+    }
+
     pub fn calculate_notch_coefficients_assuming_q(&mut self, frequency_hz: R) -> BiquadFilterCoefficients<R> {
         let omega = frequency_hz * self.two_pi_loop_time_seconds;
         let (sin_omega, cos_omega) = omega.sin_cos();
         self.calculate_notch_coefficients_from_sin_cos_assuming_q(sin_omega, cos_omega)
     }
 
+    #[inline]
     pub fn set_notch_frequency_weighted_assuming_q(&mut self, frequency_hz: R, weight: R) {
         self.weight = weight;
         self.coeffs = self.calculate_notch_coefficients_assuming_q(frequency_hz);
     }
 
+    #[inline]
     pub fn set_notch_frequency_assuming_q(&mut self, frequency_hz: R) {
         self.set_notch_frequency_weighted_assuming_q(frequency_hz, R::one());
     }
 
+    #[inline]
     pub fn set_notch_frequency(&mut self, center_frequency_hz: R, lower_cutoff_frequency_hz: R) {
         self.set_q(Self::calculate_q(center_frequency_hz, lower_cutoff_frequency_hz));
         self.set_notch_frequency_assuming_q(center_frequency_hz);
