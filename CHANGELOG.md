@@ -40,6 +40,9 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 - Improved handling of features in `Cargo.toml`.
 - Made `k` and `state` PtFilter accessor functions public.
 - Used `mul_add` in PtFilter `update` functions for speed and accuracy.
+- Changed `BiquadFilter` to use Direct Form II Transposed (DF2T) structure.
+- Optimized `BiquadFilter` `update` function.
+- Optimized `BiquadFilter` `update_notch` function.
 
 ## [0.1.4] - 2026-05-16
 

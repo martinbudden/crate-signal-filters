@@ -135,7 +135,7 @@ where
 
     fn update(&mut self, input: T) -> T {
         // Equation: state = (input - state) * k + state
- 
+
         self.state = (input - self.state).mul_add(self.k, self.state);
         self.state
     }
