@@ -175,11 +175,16 @@ where
 
 impl<T, R> Pt1Filter<T, R>
 where
-    T: Copy + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
     R: Copy + Zero + One + MathConstants + PartialOrd + Div<R, Output = R>,
 {
     pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R) {
         self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
+    }
+
+    pub fn set_cutoff_frequency_and_reset(&mut self, cutoff_frequency_hz: R, delta_t: R) {
+        self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
+        self.reset();
     }
 
     // Calculates filter gain based on delay (time constant of filter) - time it takes for filter response to reach 63.2% of a step input.
@@ -349,11 +354,16 @@ where
 
 impl<T, R> Pt2Filter<T, R>
 where
-    T: Copy + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
     R: Copy + Zero + One + MathConstants + PartialOrd + Div<R, Output = R>,
 {
     pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R) {
         self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
+    }
+
+    pub fn set_cutoff_frequency_and_reset(&mut self, cutoff_frequency_hz: R, delta_t: R) {
+        self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
+        self.reset();
     }
 
     pub fn gain_from_delay(delay: R, delta_t: R) -> R {
@@ -519,11 +529,16 @@ where
 
 impl<T, R> Pt3Filter<T, R>
 where
-    T: Copy + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
     R: Copy + Zero + One + MathConstants + PartialOrd + Div<R, Output = R>,
 {
     pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R) {
         self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
+    }
+
+    pub fn set_cutoff_frequency_and_reset(&mut self, cutoff_frequency_hz: R, delta_t: R) {
+        self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
+        self.reset();
     }
 
     pub fn gain_from_delay(delay: R, delta_t: R) -> R {
@@ -590,8 +605,7 @@ mod tests {
         assert_eq!(0.5, filter.update(1.0));
         assert_eq!(1.25, filter.update(2.0));
 
-        filter.set_cutoff_frequency(100.0, 0.001);
-        filter.reset();
+        filter.set_cutoff_frequency_and_reset(100.0, 0.001);
         assert_eq!(0.385_869_56, filter.update(1.0));
         assert_eq!(1.008_713_4, filter.update(2.0));
 
@@ -657,8 +671,7 @@ mod tests {
         assert_eq!(1.0, filter.update(1.0));
         assert_eq!(2.0, filter.update(2.0));
 
-        filter.set_cutoff_frequency(100.0, 0.001);
-        filter.reset();
+        filter.set_cutoff_frequency_and_reset(100.0, 0.001);
         assert_eq!(0.244_031_07, filter.update(1.0));
         assert_eq!(0.735_024_03, filter.update(2.0));
 
@@ -713,8 +726,7 @@ mod tests {
         assert_eq!(1.0, filter.update(1.0));
         assert_eq!(2.0, filter.update(2.0));
 
-        filter.set_cutoff_frequency(100.0, 0.001);
-        filter.reset();
+        filter.set_cutoff_frequency_and_reset(100.0, 0.001);
         assert_eq!(0.168_247_66, filter.update(1.0));
         assert_eq!(0.562_591_97, filter.update(2.0));
 
@@ -746,8 +758,7 @@ mod tests {
         assert_eq!(1.0, filter.update(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
         assert_eq!(2.0, filter.update(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
 
-        filter.set_cutoff_frequency(100.0, 0.001);
-        filter.reset();
+        filter.set_cutoff_frequency_and_reset(100.0, 0.001);
         assert_eq!(0.385_869_56, filter.update(Vector3df32 { x: 1.0, y: 0.0, z: 0.0 }).x);
         assert_eq!(1.008_713_4, filter.update(Vector3df32 { x: 2.0, y: 0.0, z: 0.0 }).x);
 
