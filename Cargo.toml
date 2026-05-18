@@ -13,6 +13,7 @@ categories = [
     "mathematics",
     "no-std",
     "science::robotics",
+    "aerospace::drones",
 ]
 
 [package.metadata.docs.rs]
@@ -21,27 +22,25 @@ rustdoc-args = ["--html-in-header", "katex-header.html"]
 [build-dependencies]
 rustc_version = "0.4.1"
 
-# used by RP2040
-[target.thumbv6m-none-eabi]
-rustflags = ["-C", "target-cpu=cortex-m0plus"]
-
-# used by RP2350
-[target.thumbv8m.main-none-eabihf] # hf = Hard Float
-rustflags = ["-C", "target-cpu=cortex-m33"]
-
 [features]
 default = ["libm"]
+#default = ["libm", "serde"]
+#default = ["std", "serde"]
 #default = ["libm", "simd",]
 #default = ["libm", "no_align"]
-std = ["vqm/std"]
+std = ["num-traits/std", "vqm/std"]
+libm = ["dep:libm", "num-traits/libm", "vqm/libm"]
+serde = ["dep:serde", "postcard", "vqm/serde"]
 no_align = ["vqm/no_align"]
 simd = ["vqm/simd"]
-libm = ["num-traits/libm", "vqm/libm"]
 
 [dependencies]
+# Set default-features = false to prevent host target leakage
+libm = { version = "0.2.16", optional = true }
+serde = { version = "1.0.228", default-features = false, features = ["derive"], optional = true }
+postcard = { version = "1.1.3", default-features = false, features = ["embedded-io"], optional = true }
 num-traits = { version = "0.2.19", default-features = false }
-vqm = { version = "0.1.5" }
-#vqm = { git = "https://github.com/martinbudden/crate-vector-quaternion-matrix" }
+vqm = { version = "0.1.7", default-features = false }
 
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }

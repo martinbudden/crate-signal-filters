@@ -23,6 +23,7 @@ use vqm::{Vector2df32, Vector2df64, Vector3df32, Vector3df64, Vector4df32, Vecto
 /// ```
 pub trait SignalFilter<T, F> {
     fn reset(&mut self);
+    fn reset_to_value(&mut self, value: T);
     fn update(&mut self, input: T) -> T;
 }
 

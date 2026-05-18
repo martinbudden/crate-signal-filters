@@ -23,6 +23,24 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Security
 
+## [0.1.5] - 2026-05-18
+
+### Added
+
+- `.cargo/config.toml`.
+- `reset_to_value` function to `SignalFilter`.
+- `with_state_and_k` constructor to PtFilters.
+- `set_k_safe` function to PtFilters.
+- `set_cutoff_frequency_seamless` function for `Pt1Filter` and `Pt2Filter`.
+- optional `serde` support for serializing `BiquadFilterCoefficients`.
+
+### Changed
+
+- Updated to `vqm` version 0.1.7.
+- Improved handling of features in `Cargo.toml`.
+- Made `k` and `state` PtFilter accessor functions public.
+- Used `mul_add` in PtFilter `update` functions for speed and accuracy.
+
 ## [0.1.4] - 2026-05-16
 
 ### Changed

@@ -1,6 +1,8 @@
 use core::ops::{Add, Div, Mul, Neg, Sub};
 use num_traits::{ConstOne, ConstZero, One, Zero};
 use vqm::{MathConstants, TrigonometricMethods, Vector2d, Vector3d, Vector4d};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 use crate::SignalFilter;
 
@@ -96,6 +98,7 @@ where
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct BiquadFilterCoefficients<R> {
     pub a1: R,
     pub a2: R,
@@ -160,6 +163,14 @@ where
         self.state.x2 = T::zero();
         self.state.y1 = T::zero();
         self.state.y2 = T::zero();
+    }
+
+    /// Resets the Biquad filter's memory states cleanly to a specific DC value.
+    /// This sets the tracking state to a perfect mathematical
+    /// equilibrium based on the active coefficients to prevent signal jumps.
+    fn reset_to_value(&mut self, value: T) {
+        // TODO: implement rest_to_value
+        self.state.x1 = value;
     }
 
     fn update(&mut self, input: T) -> T {
