@@ -23,6 +23,17 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Security
 
+## [0.1.6] - 2026-05-23
+
+- `set_notch_frequency_weighted_from_sin_cos_assuming_q` to `BiquadFilter`.
+- `set_cutoff_frequency_and_reset` to `PtFilter`s.
+
+### Changed
+
+- Updated to `vqm` version 0.1.8.
+
+### Added
+
 ## [0.1.5] - 2026-05-18
 
 ### Added
