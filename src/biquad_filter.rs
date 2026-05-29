@@ -86,10 +86,10 @@ where
         filter
     }
 
-    pub fn with_q_and_sample_rate(q: R, sample_rate_hz: R) -> Self {
+    pub fn with_q_and_sample_interval(q: R, loop_time_seconds: R) -> Self {
         let mut filter = Self::new();
         filter.set_q(q);
-        filter.set_sample_rate_hz(sample_rate_hz);
+        filter.set_sample_interval(loop_time_seconds);
         filter
     }
 }
@@ -104,13 +104,13 @@ where
         self.one_over_2q = R::one() / ((R::one() + R::one()) * q); // cache value for faster setting of frequencies
     }
 
-    pub fn set_loop_time(&mut self, loop_time_seconds: R) {
-        self.loop_time_seconds = loop_time_seconds;
-        self.two_pi_loop_time_seconds = (R::one() + R::one()) * R::PI * loop_time_seconds; // cache value for faster setting of frequencies
+    pub fn set_sample_interval(&mut self, sample_interval_seconds: R) {
+        self.loop_time_seconds = sample_interval_seconds;
+        self.two_pi_loop_time_seconds = (R::one() + R::one()) * R::PI * sample_interval_seconds; // cache value for faster setting of frequencies
     }
 
     pub fn set_sample_rate_hz(&mut self, sample_rate_hz: R) {
-        self.set_loop_time(R::one() / sample_rate_hz);
+        self.set_sample_interval(R::one() / sample_rate_hz);
     }
 }
 
@@ -317,17 +317,17 @@ where
         (output - input).mul_add(self.weight, input)
     }
 
-    pub fn init_low_pass(&mut self, frequency_hz: R, loop_time_seconds: R, q: R) {
+    pub fn init_low_pass(&mut self, frequency_hz: R, sample_interval_seconds: R, q: R) {
         debug_assert!(q > R::zero());
-        self.set_loop_time(loop_time_seconds);
+        self.set_sample_interval(sample_interval_seconds);
         self.set_q(q);
         self.set_low_pass_frequency_assuming_q(frequency_hz);
         self.reset();
     }
 
-    pub fn init_notch(&mut self, frequency_hz: R, loop_time_seconds: R, q: R) {
+    pub fn init_notch(&mut self, frequency_hz: R, sample_interval_seconds: R, q: R) {
         debug_assert!(q > R::zero());
-        self.set_loop_time(loop_time_seconds);
+        self.set_sample_interval(sample_interval_seconds);
         self.set_q(q);
         self.set_notch_frequency_assuming_q(frequency_hz);
         self.reset();
@@ -508,16 +508,16 @@ mod tests {
     }
     #[test]
     fn test_notch_filter_attenuation_and_passthrough() {
-        let sample_rate_hz: f32 = 1000.0; // 1 kHz sampling rate
-        let notch_freq: f32 = 50.0; // 50 Hz powerline hum filter
+        let sample_interval_s: f32 = 0.001; // 1 kHz sampling rate
+        let notch_frequency: f32 = 50.0; // 50 Hz powerline hum filter
         let q_factor: f32 = 10.0; // Narrow notch width
 
         // Initialize two identical filters to test different signals
-        let mut notch_signal_filter = BiquadFilter::with_q_and_sample_rate(q_factor, sample_rate_hz);
-        let mut pass_signal_filter = BiquadFilter::with_q_and_sample_rate(q_factor, sample_rate_hz);
+        let mut notch_signal_filter = BiquadFilter::with_q_and_sample_interval(q_factor, sample_interval_s);
+        let mut pass_signal_filter = BiquadFilter::with_q_and_sample_interval(q_factor, sample_interval_s);
 
         // Calculate filter coefficients
-        let coeffs = notch_signal_filter.calculate_notch_coefficients_assuming_q(notch_freq);
+        let coeffs = notch_signal_filter.calculate_notch_coefficients_assuming_q(notch_frequency);
 
         notch_signal_filter.set_coefficients(coeffs);
         pass_signal_filter.set_coefficients(coeffs);
@@ -556,10 +556,10 @@ mod tests {
 
         for i in 0..total_samples {
             #[allow(clippy::cast_precision_loss)]
-            let t = (i as f32) / sample_rate_hz;
+            let t = (i as f32) * sample_interval_s;
 
             // Signal A: Pure 50Hz sine wave (Targeted for suppression)
-            let notch_input = (2.0 * f32::PI * notch_freq * t).sin();
+            let notch_input = (2.0 * f32::PI * notch_frequency * t).sin();
             let notch_output = notch_signal_filter.update_notch(notch_input);
 
             // Signal B: Pure 5Hz sine wave (Far away from notch, should pass through)
@@ -616,11 +616,11 @@ mod tests {
     #[test]
     fn test_notch_filter_reset() {
         #![allow(clippy::excessive_precision)]
-        let sample_rate_hz: f32 = 1000.0; // 1 kHz sampling rate
+        let sample_interval_s: f32 = 0.001; // 1 kHz sampling rate
         let notch_freq: f32 = 60.0; // 50 Hz powerline hum filter
         let q_factor: f32 = 1.0; // Narrow notch width
 
-        let mut filter = BiquadFilter::with_q_and_sample_rate(q_factor, sample_rate_hz);
+        let mut filter = BiquadFilter::with_q_and_sample_interval(q_factor, sample_interval_s);
 
         // calculate the filter coefficients
         let coeffs = filter.calculate_notch_coefficients_assuming_q(notch_freq);

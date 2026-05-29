@@ -60,6 +60,70 @@ These filters have been developed for use in stabilized vehicles (self balancing
 3. Filter derivative terms in a PID controller.
 4. Filter motor power input values to smooth the motor speed.
 
+## Examples
+
+```rust
+use signal_filters::Pt1Filterf32;
+use signal_filters::Pt1FilterVector3df32;
+use signal_filters::BiquadFilterf32;
+use signal_filters::BiquadFilterVector3df32;
+use signal_filters::SignalFilter;
+use vqm::Vector3df32;
+
+//
+// Pt1 low pass filter.
+//
+let mut filter = Pt1Filterf32::new();
+let sample_interval_s: f32 = 0.001; // 1 kHz sampling rate
+filter.set_cutoff_frequency(100.0, sample_interval_s);
+
+let input: f32 = 2.7;
+let output = filter.update(input);
+
+//
+// Pt1 low pass filter with vector input.
+//
+let mut filter = Pt1FilterVector3df32::new();
+filter.set_cutoff_frequency(80.0, sample_interval_s);
+
+let gyro = Vector3df32 { x: 0.2, y: 0.5, z: 1.5 };
+let output = filter.update(gyro);
+
+//
+// Biquad filter used as low-pass filter.
+//
+let sample_interval_s: f32 = 0.001; // 1 kHz sampling rate
+let q_factor: f32 = 2.0;
+let cutoff_frequency_hz: f32 = 80.0;
+
+let mut notch_filter = BiquadFilterf32::with_q_and_sample_interval(q_factor, sample_interval_s);
+notch_filter.set_low_pass_frequency_assuming_q(cutoff_frequency_hz);
+
+let input: f32 = 0.8;
+let output = notch_filter.update(input);
+
+//
+// Biquad filter used as notch filter.
+//
+let notch_frequency_hz: f32 = 50.0; // 50 Hz powerline hum filter
+let q_factor: f32 = 10.0; // Narrow notch width
+
+let mut notch_filter = BiquadFilterf32::with_q_and_sample_interval(q_factor, sample_interval_s);
+notch_filter.set_notch_frequency_assuming_q(notch_frequency_hz);
+
+let input: f32 = 0.8;
+let output = notch_filter.update(input);
+
+//
+// Biquad notch filter with vector input.
+//
+let mut notch_filter = BiquadFilterVector3df32::with_q_and_sample_interval(q_factor, sample_interval_s);
+notch_filter.set_notch_frequency_assuming_q(notch_frequency_hz);
+
+let gyro = Vector3df32 { x: 0.8, y: 2.1, z: -0.2 };
+let output = notch_filter.update(gyro);
+```
+
 ## Original implementation
 
 I originally implemented this crate as a C++ library:

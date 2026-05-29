@@ -23,6 +23,22 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Security
 
+## [0.1.7] - 2026-05-29
+
+### Added
+
+- Examples to readme.
+
+### Changed
+
+- Updated to vqm version 0.1.10.
+- Renamed `set_loop_time` to `set_sample_interval`.
+- Use sample_interval rather than sample_rate in constructors.
+
+### Removed
+
+- `katex-header.html`.
+
 ## [0.1.6] - 2026-05-23
 
 - `set_notch_frequency_weighted_from_sin_cos_assuming_q` to `BiquadFilter`.
