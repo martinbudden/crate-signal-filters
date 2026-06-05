@@ -1,8 +1,11 @@
 use core::ops::{Add, Div, Mul, Neg, Sub};
 use num_traits::{ConstOne, ConstZero, MulAdd, One, Zero};
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 use vqm::{MathConstants, SqrtMethods, TrigonometricMethods, Vector2d, Vector3d, Vector4d};
+#[cfg(feature = "serde")]
+use {
+    sequential_storage::map::PostcardValue,
+    serde::{Deserialize, Serialize},
+};
 
 use crate::SignalFilter;
 
@@ -125,6 +128,9 @@ pub struct BiquadFilterCoefficients<R> {
     pub b1: R,
     pub b2: R,
 }
+
+#[cfg(feature = "serde")]
+impl<T> PostcardValue<'_> for BiquadFilterCoefficients<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 impl<T> Default for BiquadFilterCoefficients<T>
 where
