@@ -44,6 +44,7 @@ impl<T> MedianFilter3<T>
 where
     T: Copy + ConstZero,
 {
+    #[must_use]
     pub const fn new() -> Self {
         const COUNT: usize = 3;
         Self { buffer: [T::ZERO; COUNT], index: 0, count: 0 }
@@ -120,6 +121,7 @@ impl<T> MedianFilter5<T>
 where
     T: Copy + Default,
 {
+    #[must_use]
     pub fn new() -> Self {
         const COUNT: usize = 5;
         Self { buffer: [T::default(); COUNT], sorted_buffer: [T::default(); COUNT], index: 0 }

@@ -33,10 +33,12 @@ impl<T> SlewRateLimiter<T>
 where
     T: Copy + ConstZero + Mul<T, Output = T>,
 {
+    #[must_use]
     pub fn with_rates(rise_rate_per_second: T, fall_rate_per_second: T, dt: T) -> Self {
         Self { last_output: T::ZERO, rise_step: rise_rate_per_second * dt, fall_step: fall_rate_per_second * dt }
     }
 
+    #[must_use]
     pub const fn new() -> Self {
         Self { last_output: T::ZERO, rise_step: T::ZERO, fall_step: T::ZERO }
     }

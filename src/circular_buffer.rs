@@ -26,6 +26,7 @@ impl<T, const N: usize> CircularBuffer<T, N>
 where
     T: Copy + ConstZero,
 {
+    #[must_use]
     pub const fn new() -> Self {
         // SAFETY: Creating an uninitialized array is safe since we use MaybeUninit
         // let buffer = unsafe { core::mem::MaybeUninit::uninit().assume_init() };

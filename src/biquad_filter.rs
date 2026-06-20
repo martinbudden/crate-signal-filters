@@ -67,10 +67,12 @@ where
     T: Copy + ConstZero,
     R: Copy + Zero + One + ConstZero + ConstOne + MathConstants + Div<R, Output = R>,
 {
+    #[must_use]
     pub const fn new() -> Self {
         Self::with_coefficients(BiquadFilterCoefficients::new())
     }
 
+    #[must_use]
     pub const fn with_coefficients(coeffs: BiquadFilterCoefficients<R>) -> Self {
         Self {
             state: BiquadFilterState::new(),
@@ -83,12 +85,14 @@ where
         }
     }
 
+    #[must_use]
     pub fn with_q(q: R) -> Self {
         let mut filter = Self::new();
         filter.set_q(q);
         filter
     }
 
+    #[must_use]
     pub fn with_q_and_sample_interval(q: R, loop_time_seconds: R) -> Self {
         let mut filter = Self::new();
         filter.set_q(q);

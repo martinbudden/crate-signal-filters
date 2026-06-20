@@ -49,6 +49,7 @@ pub trait SignalFilter<T, F> {
 /// assert_eq!(0.0625, value);
 /// ```
 pub trait UpdateFilter<T, R> {
+    #[must_use]
     fn filter_using<F: SignalFilter<T, R>>(self, filter: &mut F) -> Self;
 }
 

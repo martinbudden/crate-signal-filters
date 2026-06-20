@@ -45,6 +45,7 @@ impl<T, const N: usize> MovingAverageFilter<T, N>
 where
     T: Copy + ConstZero,
 {
+    #[must_use]
     pub const fn new() -> Self {
         Self { count: 0, index: 0, sum: T::ZERO, samples: [T::ZERO; N] }
     }

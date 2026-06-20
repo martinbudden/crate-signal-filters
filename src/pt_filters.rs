@@ -97,11 +97,13 @@ where
     R: ConstOne,
 {
     /// Create a filter starting at a specific signal value with a specific k.
+    #[must_use]
     pub const fn with_state_and_k(state: T, k: R) -> Self {
         Self { state, k }
     }
 
     /// Create a filter starting at zero with a custom k.
+    #[must_use]
     pub const fn with_k(k: R) -> Self
     where
         T: ConstZero,
@@ -110,6 +112,7 @@ where
     }
 
     /// Create a passthrough filter starting at zero.
+    #[must_use]
     pub const fn new() -> Self
     where
         T: ConstZero,
@@ -276,11 +279,13 @@ where
     R: ConstOne,
 {
     /// Create a filter starting at a specific signal value with a specific k.
+    #[must_use]
     pub const fn with_state_and_k(state: [T; 2], k: R) -> Self {
         Self { state, k }
     }
 
     /// Create a filter starting at zero with a custom k.
+    #[must_use]
     pub const fn with_k(k: R) -> Self
     where
         T: ConstZero,
@@ -289,6 +294,7 @@ where
     }
 
     /// Create a passthrough filter starting at zero.
+    #[must_use]
     pub const fn new() -> Self
     where
         T: ConstZero,
@@ -459,14 +465,17 @@ where
     R: ConstOne,
 {
     /// Create a filter starting at a specific signal value with a specific k.
+    #[must_use]
     pub const fn with_state_and_k(state: [T; 3], k: R) -> Self {
         Self { state, k }
     }
     /// Create a filter starting at zero with a custom k.
+    #[must_use]
     pub const fn with_k(k: R) -> Self {
         Self { state: [T::ZERO, T::ZERO, T::ZERO], k }
     }
     /// Create a passthrough filter starting at zero.
+    #[must_use]
     pub const fn new() -> Self {
         Self::with_k(R::ONE)
     }
