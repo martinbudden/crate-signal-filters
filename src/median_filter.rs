@@ -44,6 +44,7 @@ impl<T> MedianFilter3<T>
 where
     T: Copy + ConstZero,
 {
+    /// Constructor.
     #[must_use]
     pub const fn new() -> Self {
         const COUNT: usize = 3;
@@ -121,6 +122,7 @@ impl<T> MedianFilter5<T>
 where
     T: Copy + Default,
 {
+    /// Constructor.
     #[must_use]
     pub fn new() -> Self {
         const COUNT: usize = 5;

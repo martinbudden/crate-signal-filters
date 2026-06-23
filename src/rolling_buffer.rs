@@ -28,6 +28,7 @@ impl<T, const N: usize> RollingBuffer<T, N>
 where
     T: Copy + ConstZero,
 {
+    /// Constructor.
     #[must_use]
     pub const fn new() -> Self {
         // SAFETY: Creating an uninitialized array is safe since we use MaybeUninit
