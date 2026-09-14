@@ -4,9 +4,10 @@ use vqm::{MathMethods, Vector2, Vector3, Vector4};
 #[cfg(feature = "serde")]
 use {
     postcard::experimental::max_size::MaxSize,
-    sequential_storage::map::PostcardValue,
     serde::{Deserialize, Serialize},
 };
+#[cfg(feature = "storage")]
+use sequential_storage::map::PostcardValue;
 
 use crate::SignalFilter;
 
@@ -153,7 +154,7 @@ pub struct BiquadFilterCoefficients<R> {
     pub b2: R,
 }
 
-#[cfg(feature = "serde")]
+#[cfg(feature = "storage")]
 impl<T> PostcardValue<'_> for BiquadFilterCoefficients<T> where T: Serialize + MaxSize + for<'de> Deserialize<'de> {}
 
 impl<T> Default for BiquadFilterCoefficients<T>
@@ -464,7 +465,9 @@ mod test_traits {
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     fn _is_full_eq<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + Eq + PartialEq>() {}
     #[cfg(feature = "serde")]
-    fn is_config<T: Serialize + MaxSize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}
+    fn is_serde<T: Serialize + MaxSize + for<'a> Deserialize<'a>>() {}
+    #[cfg(feature = "storage")]
+    fn is_storage<T: for<'a> PostcardValue<'a>>() {}
 
     #[test]
     fn normal_types() {
@@ -473,7 +476,9 @@ mod test_traits {
         is_full::<BiquadFilterState<f32>>();
         is_full::<BiquadFilterCoefficients<f32>>();
         #[cfg(feature = "serde")]
-        is_config::<BiquadFilterCoefficients<f32>>();
+        is_serde::<BiquadFilterCoefficients<f32>>();
+        #[cfg(feature = "storage")]
+        is_storage::<BiquadFilterCoefficients<f32>>();
     }
 }
 
