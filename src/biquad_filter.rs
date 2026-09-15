@@ -1,13 +1,14 @@
 use core::ops::{Add, Div, Mul, Neg, Sub};
 use num_traits::{ConstOne, ConstZero, MulAdd, One, Zero};
 use vqm::{MathMethods, Vector2, Vector3, Vector4};
+
+#[cfg(feature = "storage")]
+use sequential_storage::map::PostcardValue;
 #[cfg(feature = "serde")]
 use {
     postcard::experimental::max_size::MaxSize,
     serde::{Deserialize, Serialize},
 };
-#[cfg(feature = "storage")]
-use sequential_storage::map::PostcardValue;
 
 use crate::SignalFilter;
 

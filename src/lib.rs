@@ -1,5 +1,4 @@
 #![doc = include_str!("../README.md")]
-
 //#![cfg_attr(feature = "simd", feature(portable_simd))]
 // Conventions for generics used in this crate:
 //    T: general type, eg f32, Vector3, Vector3f32, Quaternion etc
