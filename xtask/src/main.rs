@@ -2,7 +2,7 @@ use std::env;
 use std::process::{Command, ExitStatus};
 
 fn main() {
-    // Collect the arguments passed to xtask (e.g., "ci" or "check-serde")
+    // Collect the arguments passed to xtask (e.g., "ci" or "check-msrv")
     let args: Vec<String> = env::args().collect();
     let command = args.get(1).map(|s| s.as_str()).unwrap_or("ci");
 
@@ -11,7 +11,7 @@ fn main() {
         "check-msrv" => run_msrv_check(),
         _ => {
             eprintln!("❌ Unknown xtask command: '{}'", command);
-            eprintln!("Available commands: ci, check-serde");
+            eprintln!("Available commands: ci, check-msrv");
             std::process::exit(1);
         }
     }

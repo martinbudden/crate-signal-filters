@@ -24,6 +24,10 @@ rustflags = [
 
 [alias]
 # Run using: 'cargo test-serde'
+check-none = "test --features serde"
+check-serde = "test --features serde"
+check-storage = "test --features storage"
+# Run using: 'cargo test-serde'
 test-serde = "test --features serde"
 test-storage = "test --features storage"
 
