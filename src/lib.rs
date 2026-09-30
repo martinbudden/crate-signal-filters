@@ -25,6 +25,9 @@
 #![warn(clippy::pedantic)]
 #![warn(clippy::doc_paragraphs_missing_punctuation)]
 
+#[cfg(all(not(feature = "std"), not(feature = "libm")))]
+compile_error!("signal-filters requires either the `std` or `libm` feature to provide a MulAdd trait in num-traits.");
+
 mod biquad_filter;
 mod circular_buffer;
 mod filters;
