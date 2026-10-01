@@ -96,7 +96,7 @@ let sample_interval_s: f32 = 0.001; // 1 kHz sampling rate
 let q_factor: f32 = 2.0;
 let cutoff_frequency_hz: f32 = 80.0;
 
-let mut notch_filter = BiquadFilterf32::with_q_and_sample_interval(q_factor, sample_interval_s);
+let mut notch_filter = BiquadFilterf32::new().with_q(q_factor).with_sample_interval(sample_interval_s);
 notch_filter.set_low_pass_frequency_assuming_q(cutoff_frequency_hz);
 
 let input: f32 = 0.8;
@@ -108,7 +108,7 @@ let output = notch_filter.update(input);
 let notch_frequency_hz: f32 = 50.0; // 50 Hz power line hum filter
 let q_factor: f32 = 10.0; // Narrow notch width
 
-let mut notch_filter = BiquadFilterf32::with_q_and_sample_interval(q_factor, sample_interval_s);
+let mut notch_filter = BiquadFilterf32::new().with_q(q_factor).with_sample_interval(sample_interval_s);
 notch_filter.set_notch_frequency_assuming_q(notch_frequency_hz);
 
 let input: f32 = 0.8;
@@ -117,7 +117,7 @@ let output = notch_filter.update(input);
 //
 // Biquad notch filter with vector input.
 //
-let mut notch_filter = BiquadFilterVector3f32::with_q_and_sample_interval(q_factor, sample_interval_s);
+let mut notch_filter = BiquadFilterVector3f32::new().with_q(q_factor).with_sample_interval(sample_interval_s);
 notch_filter.set_notch_frequency_assuming_q(notch_frequency_hz);
 
 let gyro = Vector3f32 { x: 0.8, y: 2.1, z: -0.2 };

@@ -120,21 +120,6 @@ where
     T: ConstZero,
     R: ConstOne,
 {
-    /// Create a filter starting at a specific signal value with a specific k.
-    #[must_use]
-    pub const fn with_state_and_k(state: T, k: R) -> Self {
-        Self { state, k }
-    }
-
-    /// Create a filter starting at zero with a custom k.
-    #[must_use]
-    pub const fn with_k(k: R) -> Self
-    where
-        T: ConstZero,
-    {
-        Self { state: T::ZERO, k }
-    }
-
     /// Create a passthrough filter starting at zero.
     #[must_use]
     pub const fn new() -> Self
@@ -143,6 +128,20 @@ where
         R: ConstOne,
     {
         Self { state: T::ZERO, k: R::ONE }
+    }
+
+    /// Set the `k` of a newly constructed filter.
+    #[must_use]
+    pub fn with_k(mut self, k: R) -> Self {
+        self.k = k;
+        self
+    }
+
+    /// Set the signal value (state) of a newly constructed filter.
+    #[must_use]
+    pub fn with_state(mut self, state: T) -> Self {
+        self.state = state;
+        self
     }
 }
 
@@ -160,6 +159,7 @@ where
         self.state = value;
     }
 
+    #[inline]
     fn update(&mut self, input: T) -> T {
         // Equation: state = (input - state) * k + state
 
@@ -302,21 +302,6 @@ where
     T: ConstZero,
     R: ConstOne,
 {
-    /// Create a filter starting at a specific signal value with a specific k.
-    #[must_use]
-    pub const fn with_state_and_k(state: [T; 2], k: R) -> Self {
-        Self { state, k }
-    }
-
-    /// Create a filter starting at zero with a custom k.
-    #[must_use]
-    pub const fn with_k(k: R) -> Self
-    where
-        T: ConstZero,
-    {
-        Self { state: [T::ZERO, T::ZERO], k }
-    }
-
     /// Create a passthrough filter starting at zero.
     #[must_use]
     pub const fn new() -> Self
@@ -325,6 +310,20 @@ where
         R: ConstOne,
     {
         Self { state: [T::ZERO, T::ZERO], k: R::ONE }
+    }
+
+    /// Set the `k` of a newly constructed filter.
+    #[must_use]
+    pub fn with_k(mut self, k: R) -> Self {
+        self.k = k;
+        self
+    }
+
+    /// Set the signal value (state) of a newly constructed filter.
+    #[must_use]
+    pub fn with_state(mut self, state: [T; 2]) -> Self {
+        self.state = state;
+        self
     }
 }
 
@@ -343,6 +342,7 @@ where
         self.state[0] = value;
     }
 
+    #[inline]
     fn update(&mut self, input: T) -> T {
         self.state[1] = (input - self.state[1]).mul_add(self.k, self.state[1]);
         self.state[0] = (self.state[1] - self.state[0]).mul_add(self.k, self.state[0]);
@@ -488,20 +488,24 @@ where
     T: ConstZero,
     R: ConstOne,
 {
-    /// Create a filter starting at a specific signal value with a specific k.
-    #[must_use]
-    pub const fn with_state_and_k(state: [T; 3], k: R) -> Self {
-        Self { state, k }
-    }
-    /// Create a filter starting at zero with a custom k.
-    #[must_use]
-    pub const fn with_k(k: R) -> Self {
-        Self { state: [T::ZERO, T::ZERO, T::ZERO], k }
-    }
     /// Create a passthrough filter starting at zero.
     #[must_use]
     pub const fn new() -> Self {
-        Self::with_k(R::ONE)
+        Self { state: [T::ZERO, T::ZERO, T::ZERO], k: R::ONE }
+    }
+
+    /// Set the `k` of a newly constructed filter.
+    #[must_use]
+    pub fn with_k(mut self, k: R) -> Self {
+        self.k = k;
+        self
+    }
+
+    /// Set the signal value (state) of a newly constructed filter.
+    #[must_use]
+    pub fn with_state(mut self, state: [T; 3]) -> Self {
+        self.state = state;
+        self
     }
 }
 
@@ -520,6 +524,7 @@ where
         self.state[0] = value;
     }
 
+    #[inline]
     fn update(&mut self, input: T) -> T {
         self.state[2] = (input - self.state[2]).mul_add(self.k, self.state[2]);
         self.state[1] = (self.state[2] - self.state[1]).mul_add(self.k, self.state[1]);
@@ -654,7 +659,7 @@ mod tests {
     fn pt1_filter_f32_method_call() {
         use crate::UpdateFilter;
 
-        let mut filter = Pt1Filterf32::with_k(0.2);
+        let mut filter = Pt1Filterf32::new().with_k(0.2);
         assert_eq!(0.2, filter.update(1.0));
         assert_eq!(0.2, filter.update(0.2));
 
@@ -671,14 +676,14 @@ mod tests {
         use crate::UpdateFilter;
         use vqm::Vector3f32;
 
-        let mut filter = Pt1Filterf32::with_k(0.25);
+        let mut filter = Pt1Filterf32::new().with_k(0.25);
         assert_eq!(0.05, filter.update(0.2));
         filter.reset();
         assert_eq!(0.125, filter.update(0.5));
         filter.reset();
         assert_eq!(0.375, filter.update(1.5));
 
-        let mut filter = Pt1FilterVector3f32::with_k(0.25);
+        let mut filter = Pt1FilterVector3f32::new().with_k(0.25);
         let value = Vector3f32 { x: 0.2, y: 0.5, z: 1.5 };
         let output = filter.update(value);
         assert_eq!(Vector3f32 { x: 0.05, y: 0.125, z: 0.375 }, output);
@@ -691,7 +696,7 @@ mod tests {
 
     #[test]
     fn pt2_filter_f32() {
-        let mut filter = Pt2Filterf32::with_k(1.0);
+        let mut filter = Pt2Filterf32::new().with_k(1.0);
 
         // test that filter with default settings performs no filtering
         assert_eq!(1.0, filter.update(1.0));
@@ -723,7 +728,7 @@ mod tests {
     fn pt2_filter_f32_method_call() {
         use crate::UpdateFilter;
 
-        let mut filter = Pt2Filterf32::with_k(0.2);
+        let mut filter = Pt2Filterf32::new().with_k(0.2);
         assert_eq!(0.040_000_003, filter.update(1.0));
         assert_eq!(0.0656, filter.update(0.040_000_003));
 
@@ -737,7 +742,7 @@ mod tests {
 
     #[test]
     fn pt3_filter_f32() {
-        let mut filter = Pt3Filterf32::with_k(1.0);
+        let mut filter = Pt3Filterf32::new().with_k(1.0);
 
         let mut state = filter.state();
         assert_eq!([0.0, 0.0, 0.0], state);
@@ -780,7 +785,7 @@ mod tests {
     fn pt1_filter_vector3df32() {
         use vqm::Vector3f32;
 
-        let mut filter = Pt1Filter::<Vector3f32, f32>::with_k(1.0);
+        let mut filter = Pt1Filter::<Vector3f32, f32>::new().with_k(1.0);
 
         // test that filter with default settings performs no filtering
         let output = filter.update(Vector3f32 { x: 2.0, y: 3.0, z: 5.0 });

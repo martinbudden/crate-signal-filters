@@ -24,7 +24,7 @@ fn bench_filter(c: &mut Criterion) {
     let mut median_filter3 = MedianFilter3f32::new();
     let mut median_filter5 = MedianFilter5f32::new();
     let mut ma_filter4 = MovingAverageFilter4f32::new();
-    let mut skew_limiter = SlewRateLimiterf32::with_rates(10.0, 100.0, 0.1);
+    let mut skew_limiter = SlewRateLimiterf32::new().with_rates(10.0, 100.0, 0.1);
 
     let mut pt1_v3_filter = Pt1FilterVector3f32::new();
 

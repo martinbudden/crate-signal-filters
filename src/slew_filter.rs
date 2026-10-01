@@ -39,10 +39,12 @@ where
         Self { last_output: T::ZERO, rise_step: T::ZERO, fall_step: T::ZERO }
     }
 
-    /// Constructor.
+    /// Set the rates of a newly constructed filter.
     #[must_use]
-    pub fn with_rates(rise_rate_per_second: T, fall_rate_per_second: T, dt: T) -> Self {
-        Self { last_output: T::ZERO, rise_step: rise_rate_per_second * dt, fall_step: fall_rate_per_second * dt }
+    pub fn with_rates(mut self, rise_rate_per_second: T, fall_rate_per_second: T, dt: T) -> Self {
+        self.rise_step = rise_rate_per_second * dt;
+        self.fall_step = fall_rate_per_second * dt;
+        self
     }
 }
 
@@ -53,12 +55,18 @@ where
     pub fn reset(&mut self) {
         self.last_output = T::zero();
     }
+
+    pub fn set_rates(&mut self, rise_rate_per_second: T, fall_rate_per_second: T, dt: T) {
+        self.rise_step = rise_rate_per_second * dt;
+        self.fall_step = fall_rate_per_second * dt;
+    }
 }
 
 impl<T> SlewRateLimiter<T>
 where
     T: Copy + Zero + PartialOrd + Neg<Output = T> + Sub<T, Output = T> + AddAssign,
 {
+    #[inline]
     pub fn update(&mut self, input: T) -> T {
         let diff = input - self.last_output;
 
@@ -118,7 +126,7 @@ mod tests {
         let dt = 0.1;
         let rise_rate_per_second = 10.0;
         let fall_rate_per_second = 100.0;
-        let mut limiter = SlewRateLimiterf32::with_rates(rise_rate_per_second, fall_rate_per_second, dt);
+        let mut limiter = SlewRateLimiterf32::new().with_rates(rise_rate_per_second, fall_rate_per_second, dt);
 
         // 1. Test Ramping Up
         // Max rise per step = 10.0 * 0.1 = 1.0 unit
@@ -140,7 +148,7 @@ mod tests {
         let dt = 0.1;
         let rise_rate_per_second = 4.0;
         let fall_rate_per_second = 50.0;
-        let mut limiter = SlewRateLimiterf32::with_rates(rise_rate_per_second, fall_rate_per_second, dt);
+        let mut limiter = SlewRateLimiterf32::new().with_rates(rise_rate_per_second, fall_rate_per_second, dt);
 
         let input = 100.0;
         let output = limiter.update(input);
@@ -163,7 +171,7 @@ mod tests {
         let dt = 0.1;
         let rise_rate_per_second = 4.0;
         let fall_rate_per_second = 50.0;
-        let mut limiter = SlewRateLimiterf32::with_rates(rise_rate_per_second, fall_rate_per_second, dt);
+        let mut limiter = SlewRateLimiterf32::new().with_rates(rise_rate_per_second, fall_rate_per_second, dt);
 
         let input = 100.0;
         let output = limiter.update(input);
@@ -183,7 +191,7 @@ mod tests {
         let dt = 0.1;
         let rise_rate_per_second = 4.0;
         let fall_rate_per_second = 50.0;
-        let mut limiter = SlewRateLimiterf32::with_rates(rise_rate_per_second, fall_rate_per_second, dt);
+        let mut limiter = SlewRateLimiterf32::new().with_rates(rise_rate_per_second, fall_rate_per_second, dt);
 
         let mut value = 100.0;
         value.limit_slew_using(&mut limiter);

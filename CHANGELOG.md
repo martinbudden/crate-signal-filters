@@ -9,6 +9,12 @@ that is each release may contain incompatible API changes.
 
 Once the API has stabilized this project will adopt semantic versioning, the first release to do so will be `0.2.0`.
 
+## [0.1.14] - 2026-10-01
+
+### Changed
+
+- improved `with` form of constructors.
+
 ## [0.1.13] - 2026-10-01
 
 ### Added

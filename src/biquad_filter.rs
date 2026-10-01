@@ -88,15 +88,9 @@ where
     /// Constructor.
     #[must_use]
     pub const fn new() -> Self {
-        Self::with_coefficients(BiquadFilterCoefficients::new())
-    }
-
-    /// Constructor.
-    #[must_use]
-    pub const fn with_coefficients(coeffs: BiquadFilterCoefficients<R>) -> Self {
         Self {
             state: BiquadFilterState::new(),
-            coeffs,
+            coeffs: BiquadFilterCoefficients::new(),
             weight: R::ONE,
             loop_time_seconds: R::ZERO,
             two_pi_loop_time_seconds: R::ZERO,
@@ -105,21 +99,24 @@ where
         }
     }
 
-    /// Constructor.
+    /// Set the coefficients of a newly constructed filter.
     #[must_use]
-    pub fn with_q(q: R) -> Self {
-        let mut filter = Self::new();
-        filter.set_q(q);
-        filter
+    pub fn with_coefficients(mut self, coeffs: BiquadFilterCoefficients<R>) -> Self {
+        self.coeffs = coeffs;
+        self
     }
 
-    /// Constructor.
+    /// Set the `q` of a newly constructed filter.
     #[must_use]
-    pub fn with_q_and_sample_interval(q: R, loop_time_seconds: R) -> Self {
-        let mut filter = Self::new();
-        filter.set_q(q);
-        filter.set_sample_interval(loop_time_seconds);
-        filter
+    pub fn with_q(mut self, q: R) -> Self {
+        self.set_q(q);
+        self
+    }
+    /// Set the sample interval of a newly constructed filter.
+    #[must_use]
+    pub fn with_sample_interval(mut self, loop_time_seconds: R) -> Self {
+        self.set_sample_interval(loop_time_seconds);
+        self
     }
 }
 
@@ -219,6 +216,7 @@ where
         self.state.w2 = value * (self.coeffs.b2 - self.coeffs.a2);
     }
 
+    #[inline]
     fn update(&mut self, input: T) -> T {
         // Uses Direct Form II (note: Direct Form I uses at least 9 operations: 5 multiplications, 4 additions).
 
@@ -243,6 +241,7 @@ where
     T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
     R: Copy + Zero + One + Sub<Output = R> + Neg<Output = R>,
 {
+    #[inline]
     pub fn update_notch(&mut self, input: T) -> T {
         /*
         // 6 operations: 2 mul_add, 2 multiplications, 2 addition/subtractions
@@ -273,41 +272,50 @@ where
     T: Copy,
     R: Copy + Zero + One,
 {
+    #[inline]
     pub fn set_weight(&mut self, weight: R) {
         self.weight = weight;
     }
 
+    #[inline]
     pub fn weight(&self) -> R {
         self.weight
     }
 
+    #[inline]
     pub fn set_coefficients(&mut self, coeffs: BiquadFilterCoefficients<R>) {
         self.coeffs = coeffs;
     }
 
+    #[inline]
     pub fn set_coefficients_and_weight(&mut self, coeffs: BiquadFilterCoefficients<R>, weight: R) {
         self.weight = weight;
         self.coeffs = coeffs;
     }
 
     /// Copy parameters from another Biquad filter.
+    #[inline]
     pub fn set_parameters_from(&mut self, other: &BiquadFilter<T, R>) {
         self.weight = other.weight;
         self.coeffs = other.coeffs;
     }
 
+    #[inline]
     pub fn calculate_omega(&self, frequency: R) -> R {
         frequency * self.two_pi_loop_time_seconds
     }
 
+    #[inline]
     pub fn q(&self) -> R {
         self.q
     }
 
+    #[inline]
     pub fn loop_time_seconds(&self) -> R {
         self.loop_time_seconds
     }
 
+    #[inline]
     pub fn state(self) -> BiquadFilterState<T> {
         self.state
     }
@@ -336,12 +344,14 @@ where
         self.reset();
     }
 
+    #[inline]
     pub fn update_weighted(&mut self, input: T) -> T {
         let output = self.update(input);
         // weight of 1.0 gives just output, weight of 0.0 gives just input
         (output - input).mul_add(self.weight, input)
     }
 
+    #[inline]
     pub fn update_notch_weighted(&mut self, input: T) -> T {
         let output = self.update_notch(input);
         // weight of 1.0 gives just output, weight of 0.0 gives just input
@@ -560,8 +570,8 @@ mod tests {
         let q_factor: f32 = 10.0; // Narrow notch width
 
         // Initialize two identical filters to test different signals
-        let mut notch_signal_filter = BiquadFilter::with_q_and_sample_interval(q_factor, sample_interval_s);
-        let mut pass_signal_filter = BiquadFilter::with_q_and_sample_interval(q_factor, sample_interval_s);
+        let mut notch_signal_filter = BiquadFilter::new().with_q(q_factor).with_sample_interval(sample_interval_s);
+        let mut pass_signal_filter = BiquadFilter::new().with_q(q_factor).with_sample_interval(sample_interval_s);
 
         // Calculate filter coefficients
         let coeffs = notch_signal_filter.calculate_notch_coefficients_assuming_q(notch_frequency);
@@ -667,7 +677,7 @@ mod tests {
         let notch_freq: f32 = 60.0; // 50 Hz power line hum filter
         let q_factor: f32 = 1.0; // Narrow notch width
 
-        let mut filter = BiquadFilter::with_q_and_sample_interval(q_factor, sample_interval_s);
+        let mut filter = BiquadFilter::new().with_q(q_factor).with_sample_interval(sample_interval_s);
 
         // calculate the filter coefficients
         let coeffs = filter.calculate_notch_coefficients_assuming_q(notch_freq);
