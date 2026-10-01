@@ -23,8 +23,7 @@ rustflags = [
 # target = "thumbv8m.main-none-eabihf" 
 
 [alias]
-# Run using: 'cargo test-serde'
-check-none = "test --features serde"
+# Run using: 'cargo check-serde'
 check-serde = "test --features serde"
 check-storage = "test --features storage"
 # Run using: 'cargo test-serde'

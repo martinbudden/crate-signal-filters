@@ -24,14 +24,10 @@ rustc_version = "0.4.1"
 default = ["libm"]
 #default = ["libm", "serde"]
 #default = ["std", "serde"]
-#default = ["libm", "simd", "align"]
-#default = ["libm", "align"]
 std = ["num-traits/std", "vqm/std"]
 libm = ["dep:libm", "num-traits/libm", "vqm/libm"]
 serde = ["dep:serde", "postcard", "vqm/serde"]
 storage = ["dep:sequential-storage", "serde", "vqm/storage"]
-align = ["vqm/align"]
-simd = ["vqm/simd"]
 
 [dependencies]
 # Set default-features = false to prevent host target leakage
@@ -42,7 +38,7 @@ sequential-storage = { version = "8.0.1", default-features = false, features = [
 num-traits = { version = "0.2.19", default-features = false }
 vqm = { version = "0.1.17", default-features = false }
 #vqm = { git = "https://github.com/martinbudden/crate-vector-quaternion-matrix", default-features = false }
-#vqm = { path = "../vqm", default-features = false   }
+#vqm = { path = "../vqm", default-features = false }
 
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }
