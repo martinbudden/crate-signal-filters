@@ -1,9 +1,8 @@
-# signal-filters Rust Crate<br>![License: MIT](https://img.shields.io/badge/license-MIT-green) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![open source](https://badgen.net/badge/open/source/blue?icon=github)
+# `signal-filters` Rust Crate<br>[![Crates.io](https://img.shields.io/crates/v/signal-filters.svg)](https://crates.io/crates/signal-filters) [![Documentation](https://docs.rs/signal-filters/badge.svg)](https://docs.rs/signal-filters) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) ![open source](https://badgen.net/badge/open/source/blue?icon=github)
 
 This crate contains a collection of filters and utilities for digital signal processing.
 
-This crate is `no_std`, that it does not link to the standard library and so does not depend on an operating system
-and uses no allocation. This means it is suitable for embedded system.
+This crate is `no_std`, `no alloc`, and the Minimum Supported Rust Version (MSRV) is `Rust 1.89`.
 
 ## Overview
 
