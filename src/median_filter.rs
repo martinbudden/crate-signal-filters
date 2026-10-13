@@ -150,14 +150,12 @@ where
         self.buffer[self.index] = input;
         self.index = (self.index + 1) % COUNT;
 
-        // 1. Find indices without manual loops or range bounds
+        // Find indices without manual loops or range bounds
         // .position() returns the first index where the predicate is true
         let old_pos = self.sorted_buffer.iter().position(|&val| val == oldest).unwrap_or(0); // Should always find a match
-
         let new_pos = self.sorted_buffer.iter().position(|&val| input < val).unwrap_or(COUNT);
 
-        // 2. Perform the update
-
+        // Perform the update
         match old_pos.cmp(&new_pos) {
             Ordering::Less => {
                 // Shift left
@@ -202,7 +200,7 @@ mod tests {
         //let mut filter: MedianFilter3f32; // as SignalFilter<f32, f32>>;
         let mut filter = MedianFilter3f32::new();
 
-        // 1. Initial values (filling the buffer)
+        // Initial values (filling the buffer)
         // Values: [10.0, 0.0, 0.0], count = 1: returns 10.0
         let output = filter.update(10.0);
         assert_eq!(10.0, output);
@@ -210,18 +208,18 @@ mod tests {
         let output = filter.update(20.0);
         assert_eq!(20.0, output);
 
-        // 2. The Buffer is now full: [10.0, 20.0, 30.0]
+        // The Buffer is now full: [10.0, 20.0, 30.0]
         // Median is 20.0
         let output = filter.update(30.0);
         assert_eq!(20.0, output);
 
-        // 3. Test a massive outlier "spike"
+        // Test an outlier "spike"
         // Buffer: [400.0, 20.0, 30.0] (400 replaces 10)
         // Median is 30.0 (The spike is ignored)
         let output = filter.update(400.0);
         assert_eq!(30.0, output);
 
-        // 4. Return to normal
+        // Return to normal
         // Buffer: [400.0, 25.0, 30.0] (25 replaces 20)
         // Median of {400, 25, 30} is 30.0
         let output = filter.update(25.0);

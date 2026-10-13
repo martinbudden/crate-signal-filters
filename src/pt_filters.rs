@@ -418,7 +418,7 @@ where
         let omega = two * R::PI * cutoff_frequency_hz * delta_t;
         let new_k = omega / (omega + R::one());
 
-        // 1. Clamp new_k strictly to ensure stability [0.0, 1.0]
+        // Clamp new_k strictly to ensure stability [0.0, 1.0]
         let safe_new_k = if new_k < R::zero() {
             R::zero()
         } else if new_k > R::one() {
@@ -427,7 +427,7 @@ where
             new_k
         };
 
-        // 2. Perform state correction if the filter isn't bypassing completely
+        // Perform state correction if the filter isn't bypassing completely
         if safe_new_k > R::zero() {
             let one_minus_new_k = R::one() - safe_new_k;
 

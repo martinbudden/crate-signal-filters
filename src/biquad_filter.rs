@@ -682,7 +682,7 @@ mod tests {
         // calculate the filter coefficients
         let coeffs = filter.calculate_notch_coefficients_assuming_q(notch_freq);
 
-        // --- 1. Coefficient Verification Statements ---
+        // Coefficient Verification Statements ---
         assert_near!(0.844_549_36, coeffs.b0, 1e-6);
         assert_near!(0.844_549_36, coeffs.b2, 1e-6);
         assert_eq!(coeffs.b1, coeffs.a1); // Hard invariant for the optimized loop
@@ -707,7 +707,7 @@ mod tests {
         // Commit verified coefficients to filter
         filter.set_coefficients(coeffs);
 
-        // --- 2. Iteration 1 State Verification ---
+        // Iteration 1 State Verification ---
         _ = filter.update_notch(1.0);
 
         // w1 remains zero because (input - output) is exactly 0.0
@@ -722,7 +722,7 @@ mod tests {
             expected_w2_iter1
         );
 
-        // --- 3. Iteration 2 State Verification ---
+        // Iteration 2 State Verification ---
         _ = filter.update_notch(1.0);
 
         // w1 shifts to capture the prior step's w2 value

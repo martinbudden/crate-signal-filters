@@ -128,14 +128,14 @@ mod tests {
         let fall_rate_per_second = 100.0;
         let mut limiter = SlewRateLimiterf32::new().with_rates(rise_rate_per_second, fall_rate_per_second, dt);
 
-        // 1. Test Ramping Up
+        // Test Ramping Up
         // Max rise per step = 10.0 * 0.1 = 1.0 unit
         // Target 10.0, last_output 0.0 -> result should be 1.0
         assert_eq!(1.0, limiter.update(10.0));
         // Next step: 1.0 + 1.0 = 2.0
         assert_eq!(2.0, limiter.update(10.0));
 
-        // 2. Test Ramping Down (Fast)
+        // Test Ramping Down (Fast)
         // Max fall per step = 100.0 * 0.1 = 10.0 units
         // Current state is 2.0. Target 0.0.
         // Difference is -2.0, which is less than the max fall (10.0).
@@ -220,9 +220,9 @@ mod tests {
         let mut output_filters = <[SlewRateLimiterf32; QUAD_MOTOR_COUNT]>::default();
 
         for ii in 0..QUAD_MOTOR_COUNT {
-            // 1. Take raw value from quad_outputs
-            // 2. Update it using the corresponding filter
-            // 3. Store result directly in the motor_outputs array
+            // Take raw value from quad_outputs
+            // Update it using the corresponding filter
+            // Store result directly in the motor_outputs array
             motor_outputs[ii] = output_filters[ii].update(quad_outputs[ii]);
         }
         /*type Outputs = [f32; 4];
