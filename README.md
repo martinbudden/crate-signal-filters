@@ -2,7 +2,7 @@
 
 This crate contains a collection of filters and utilities for digital signal processing.
 
-This crate is `no_std`, `no alloc`, and the Minimum Supported Rust Version (MSRV) is `Rust 1.89`.
+This crate is `no_std`, `no alloc`, `no panic`, `no unwrap`, `no expect`, and the Minimum Supported Rust Version (MSRV) is `Rust 1.89`.
 
 ## Overview
 
