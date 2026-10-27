@@ -1,7 +1,7 @@
 #![allow(clippy::cast_precision_loss)]
 
 use core::ops::{Add, Mul, Sub};
-use num_traits::{ConstZero, Zero};
+use num_traits::ConstZero;
 use vqm::{Vector2, Vector3, Vector4};
 
 /// `MovingAverageFilter` for `f32`<br>
@@ -54,10 +54,10 @@ where
 
 impl<T, const N: usize> MovingAverageFilter<T, N>
 where
-    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<f32, Output = T>,
+    T: Copy + ConstZero + Add<Output = T> + Sub<Output = T> + Mul<f32, Output = T>,
 {
     pub fn reset(&mut self) {
-        self.sum = T::zero();
+        self.sum = T::ZERO;
         self.count = 0;
         self.index = 0;
     }
