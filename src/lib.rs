@@ -56,17 +56,20 @@ pub use moving_average_filter::{
     MovingAverageFilterVector2f64, MovingAverageFilterVector3f64, MovingAverageFilterVector4f64, MovingAverageFilterf64,
 };
 
-pub use pt_filters::Pt1Filter;
-pub use pt_filters::{Pt1FilterVector2f32, Pt1FilterVector3f32, Pt1FilterVector4f32, Pt1Filterf32};
-pub use pt_filters::{Pt1FilterVector2f64, Pt1FilterVector3f64, Pt1FilterVector4f64, Pt1Filterf64};
+pub use pt_filters::{Pt1Filter, Pt1Filterf32, Pt1Filterf64};
+pub use pt_filters::{Pt1FilterVector2Vector2f32, Pt1FilterVector3Vector3f32, Pt1FilterVector4Vector4f32};
+pub use pt_filters::{Pt1FilterVector2f32, Pt1FilterVector3f32, Pt1FilterVector4f32};
+pub use pt_filters::{Pt1FilterVector2f64, Pt1FilterVector3f64, Pt1FilterVector4f64};
 
-pub use pt_filters::Pt2Filter;
-pub use pt_filters::{Pt2FilterVector2f32, Pt2FilterVector3f32, Pt2FilterVector4f32, Pt2Filterf32};
-pub use pt_filters::{Pt2FilterVector2f64, Pt2FilterVector3f64, Pt2FilterVector4f64, Pt2Filterf64};
+pub use pt_filters::{Pt2Filter, Pt2Filterf32, Pt2Filterf64};
+pub use pt_filters::{Pt2FilterVector2Vector2f32, Pt2FilterVector3Vector3f32, Pt2FilterVector4Vector4f32};
+pub use pt_filters::{Pt2FilterVector2f32, Pt2FilterVector3f32, Pt2FilterVector4f32};
+pub use pt_filters::{Pt2FilterVector2f64, Pt2FilterVector3f64, Pt2FilterVector4f64};
 
-pub use pt_filters::Pt3Filter;
-pub use pt_filters::{Pt3FilterVector2f32, Pt3FilterVector3f32, Pt3FilterVector4f32, Pt3Filterf32};
-pub use pt_filters::{Pt3FilterVector2f64, Pt3FilterVector3f64, Pt3FilterVector4f64, Pt3Filterf64};
+pub use pt_filters::{Pt3Filter, Pt3Filterf32, Pt3Filterf64};
+pub use pt_filters::{Pt3FilterVector2Vector2f32, Pt3FilterVector3Vector3f32, Pt3FilterVector4Vector4f32};
+pub use pt_filters::{Pt3FilterVector2f32, Pt3FilterVector3f32, Pt3FilterVector4f32};
+pub use pt_filters::{Pt3FilterVector2f64, Pt3FilterVector3f64, Pt3FilterVector4f64};
 
 pub use rolling_buffer::RollingBuffer;
 

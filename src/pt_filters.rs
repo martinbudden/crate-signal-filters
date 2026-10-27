@@ -4,14 +4,60 @@ use vqm::{Vector2, Vector3, Vector4};
 
 use crate::SignalFilter;
 
+// f64 variants.
+
 /// `Pt1Filter` for `f32`<br>
 pub type Pt1Filterf32 = Pt1Filter<f32, f32>;
+
 /// `Pt1Filter` for `Vector2f32`<br>
 pub type Pt1FilterVector2f32 = Pt1Filter<Vector2<f32>, f32>;
 /// `Pt1Filter` for `Vector3f32`<br>
 pub type Pt1FilterVector3f32 = Pt1Filter<Vector3<f32>, f32>;
 /// `Pt1Filter` for `Vector4f32`<br>
 pub type Pt1FilterVector4f32 = Pt1Filter<Vector4<f32>, f32>;
+
+/// `Pt1Filter` for `Vector2Vector2f32`<br>
+pub type Pt1FilterVector2Vector2f32 = Pt1Filter<Vector2<f32>, Vector2<f32>>;
+/// `Pt1Filter` for `Vector3Vector3f32`<br>
+pub type Pt1FilterVector3Vector3f32 = Pt1Filter<Vector3<f32>, Vector3<f32>>;
+/// `Pt1Filter` for `Vector4Vector4f32`<br>
+pub type Pt1FilterVector4Vector4f32 = Pt1Filter<Vector4<f32>, Vector4<f32>>;
+
+/// `Pt2Filter` for `f32`<br>
+pub type Pt2Filterf32 = Pt2Filter<f32, f32>;
+
+/// `Pt2Filter` for `Vector2f32`<br>
+pub type Pt2FilterVector2f32 = Pt2Filter<Vector2<f32>, f32>;
+/// `Pt2Filter` for `Vector3f32`<br>
+pub type Pt2FilterVector3f32 = Pt2Filter<Vector3<f32>, f32>;
+/// `Pt2Filter` for `Vector4f32`<br>
+pub type Pt2FilterVector4f32 = Pt2Filter<Vector4<f32>, f32>;
+
+/// `Pt2Filter` for `Vector2Vector2f32`<br>
+pub type Pt2FilterVector2Vector2f32 = Pt2Filter<Vector2<f32>, Vector2<f32>>;
+/// `Pt2Filter` for `Vector3Vector3f32`<br>
+pub type Pt2FilterVector3Vector3f32 = Pt2Filter<Vector3<f32>, Vector3<f32>>;
+/// `Pt2Filter` for `Vector4Vector4f32`<br>
+pub type Pt2FilterVector4Vector4f32 = Pt2Filter<Vector4<f32>, Vector4<f32>>;
+
+/// `Pt3Filter` for `f32`<br>
+pub type Pt3Filterf32 = Pt3Filter<f32, f32>;
+
+/// `Pt3Filter` for `Vector2f32`<br>
+pub type Pt3FilterVector2f32 = Pt3Filter<Vector2<f32>, f32>;
+/// `Pt3Filter` for `Vector3f32`<br>
+pub type Pt3FilterVector3f32 = Pt3Filter<Vector3<f32>, f32>;
+/// `Pt3Filter` for `Vector4f32`<br>
+pub type Pt3FilterVector4f32 = Pt3Filter<Vector4<f32>, f32>;
+
+/// `Pt3Filter` for `Vector2Vector2f32`<br>
+pub type Pt3FilterVector2Vector2f32 = Pt3Filter<Vector2<f32>, Vector2<f32>>;
+/// `Pt3Filter` for `Vector3Vector3f32`<br>
+pub type Pt3FilterVector3Vector3f32 = Pt3Filter<Vector3<f32>, Vector3<f32>>;
+/// `Pt3Filter` for `Vector4Vector4f32`<br>
+pub type Pt3FilterVector4Vector4f32 = Pt3Filter<Vector4<f32>, Vector4<f32>>;
+
+// f64 variants.
 
 /// `Pt1Filter` for `f64`<br><br>
 pub type Pt1Filterf64 = Pt1Filter<f64, f64>;
@@ -22,15 +68,6 @@ pub type Pt1FilterVector3f64 = Pt1Filter<Vector3<f64>, f64>;
 /// `Pt1Filter` for `Vector4f64`<br><br>
 pub type Pt1FilterVector4f64 = Pt1Filter<Vector4<f64>, f64>;
 
-/// `Pt2Filter` for `f32`<br>
-pub type Pt2Filterf32 = Pt2Filter<f32, f32>;
-/// `Pt2Filter` for `Vector2f32`<br>
-pub type Pt2FilterVector2f32 = Pt2Filter<Vector2<f32>, f32>;
-/// `Pt2Filter` for `Vector3f32`<br>
-pub type Pt2FilterVector3f32 = Pt2Filter<Vector3<f32>, f32>;
-/// `Pt2Filter` for `Vector4f32`<br>
-pub type Pt2FilterVector4f32 = Pt2Filter<Vector4<f32>, f32>;
-
 /// `Pt2Filter` for `f64`<br><br>
 pub type Pt2Filterf64 = Pt2Filter<f64, f64>;
 /// `Pt2Filter` for `Vector2f64`<br><br>
@@ -39,15 +76,6 @@ pub type Pt2FilterVector2f64 = Pt2Filter<Vector2<f64>, f64>;
 pub type Pt2FilterVector3f64 = Pt2Filter<Vector3<f64>, f64>;
 /// `Pt2Filter` for `Vector4f64`<br><br>
 pub type Pt2FilterVector4f64 = Pt2Filter<Vector4<f64>, f64>;
-
-/// `Pt3Filter` for `f32`<br>
-pub type Pt3Filterf32 = Pt3Filter<f32, f32>;
-/// `Pt3Filter` for `Vector2f32`<br>
-pub type Pt3FilterVector2f32 = Pt3Filter<Vector2<f32>, f32>;
-/// `Pt3Filter` for `Vector3f32`<br>
-pub type Pt3FilterVector3f32 = Pt3Filter<Vector3<f32>, f32>;
-/// `Pt3Filter` for `Vector4f32`<br>
-pub type Pt3FilterVector4f32 = Pt3Filter<Vector4<f32>, f32>;
 
 /// `Pt3Filter` for `f64`<br><br>
 pub type Pt3Filterf64 = Pt3Filter<f64, f64>;
