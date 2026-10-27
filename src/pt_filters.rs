@@ -672,7 +672,7 @@ mod tests {
     }
 
     #[test]
-    fn pt1_filter_vector3df32_method_call() {
+    fn pt1_filter_vector3f32_method_call() {
         use crate::UpdateFilter;
         use vqm::Vector3f32;
 
@@ -782,7 +782,7 @@ mod tests {
     }
 
     #[test]
-    fn pt1_filter_vector3df32() {
+    fn pt1_filter_vector3f32() {
         use vqm::Vector3f32;
 
         let mut filter = Pt1Filter::<Vector3f32, f32>::new().with_k(1.0);
@@ -812,5 +812,15 @@ mod tests {
         filter.set_to_passthrough();
         assert_eq!(1.0, filter.update(Vector3f32 { x: 1.0, y: 0.0, z: 0.0 }).x);
         assert_eq!(2.0, filter.update(Vector3f32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+    }
+
+    #[test]
+    fn pt1_filter_vector3vector3f32() {
+        use vqm::Vector3f32;
+        pub type Pt1FilterVector3Vector3f32 = Pt1Filter<Vector3f32, Vector3f32>;
+
+        let mut filter = Pt1FilterVector3Vector3f32::new().with_k(Vector3f32 { x: 0.9, y: 0.8, z: 1.0 });
+        let output = filter.update(Vector3f32 { x: 2.0, y: 3.0, z: 5.0 });
+        assert_eq!(output.z, 5.0);
     }
 }
