@@ -53,9 +53,9 @@ impl BiquadFilterConstants for f64 {
 /// The difference equation is:
 ///
 /// ```math
-/// y[n] = b{0} * x[n] + w{1}[n-1]
-/// w{1}[n] = b{1} * x[n] -a{1} * y[n] + w{2}[n-1]
-/// w{2}[n] = b{2} * x[n] -a{2} * y[n]
+/// yₙ  = b0·xₙ + w1ₙ₋₁
+/// w1ₙ = b1·xₙ - a1·yₙ + w2ₙ₋₁
+/// w2ₙ = b2·xₙ - a2·yₙ
 /// ```
 ///
 /// where `x` represents the input signal and `y` represents the filtered output.
@@ -221,13 +221,13 @@ where
         // Uses Direct Form II (note: Direct Form I uses at least 9 operations: 5 multiplications, 4 additions).
 
         // 6 operations: 3 mul_adds, 2 multiplications, 1 subtractions
-        // Calculate the current output sample: y[n] = b0 * x[n] + w1
+        // Calculate the current output sample: yₙ = b0 * xₙ + w1
         let output = input.mul_add(self.coeffs.b0, self.state.w1);
 
-        // Calculate the next w1 state: w1 = b1 * x[n] - a1 * y[n] + w2
+        // Calculate the next w1 state: w1 = b1 * xₙ - a1 * yₙ + w2
         self.state.w1 = input.mul_add(self.coeffs.b1, self.state.w2) - output * self.coeffs.a1;
 
-        // Calculate the next w2 state: w2 = b2 * x[n] - a2 * y[n]
+        // Calculate the next w2 state: w2 = b2 * xₙ - a2 * yₙ
         self.state.w2 = input.mul_add(self.coeffs.b2, output * -self.coeffs.a2);
         output
     }
@@ -245,15 +245,15 @@ where
     pub fn update_notch(&mut self, input: T) -> T {
         /*
         // 6 operations: 2 mul_add, 2 multiplications, 2 addition/subtractions
-        // Calculate output: y[n] = b0 * x[n] + w1
+        // Calculate output: yₙ = b0 * xₙ + w1
         let output = input.mul_add(self.coeffs.b0, self.state.w1);
 
-        // Calculate w1 = b1 * x[n] - a1 * y[n] + w2
-        // Refactored as w1 = (x[n] - y[n]) * a1 + w2
+        // Calculate w1 = b1 * xₙ - a1 * yₙ + w2
+        // Refactored as w1 = (xₙ - yₙ) * a1 + w2
         self.state.w1 = (input - output).mul_add(self.coeffs.a1, self.state.w2);
 
-        // Calculate w2 = b2 * x[n] - a2 * y[n]
-        // Because b2 == b0, this expands to: w2 = b0 * x[n] - a2 * y[n]
+        // Calculate w2 = b2 * xₙ - a2 * yₙ
+        // Because b2 == b0, this expands to: w2 = b0 * xₙ - a2 * yₙ
         self.state.w2 = input * self.coeffs.b0 - output * self.coeffs.a2;
         */
 
@@ -378,7 +378,7 @@ where
     /// This drastically reduces startup transient ringing and settling time.
     pub fn pre_charge(&mut self, initial_value: T) {
         // For a DC input, steady state output equals input (unity gain).
-        // Using: y[n] = b0*x + w1  =>  w1 = x * (1 - b0)
+        // Using: yₙ = b0*x + w1  =>  w1 = x * (1 - b0)
         self.state.w1 = initial_value * (R::ONE - self.coeffs.b0);
 
         // Using: w2 = b2*x - a2*y  =>  Because x == y and b2 == b0:

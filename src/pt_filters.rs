@@ -61,6 +61,7 @@ pub type Pt3FilterVector4Vector4f32 = Pt3Filter<Vector4<f32>, Vector4<f32>>;
 
 /// `Pt1Filter` for `f64`<br><br>
 pub type Pt1Filterf64 = Pt1Filter<f64, f64>;
+
 /// `Pt1Filter` for `Vector2f64`<br><br>
 pub type Pt1FilterVector2f64 = Pt1Filter<Vector2<f64>, f64>;
 /// `Pt1Filter` for `Vector3f64`<br><br>
@@ -68,8 +69,16 @@ pub type Pt1FilterVector3f64 = Pt1Filter<Vector3<f64>, f64>;
 /// `Pt1Filter` for `Vector4f64`<br><br>
 pub type Pt1FilterVector4f64 = Pt1Filter<Vector4<f64>, f64>;
 
+/// `Pt1Filter` for `Vector2Vector2f64`<br>
+pub type Pt1FilterVector2Vector2f64 = Pt1Filter<Vector2<f64>, Vector2<f64>>;
+/// `Pt1Filter` for `Vector3Vector3f64`<br>
+pub type Pt1FilterVector3Vector3f64 = Pt1Filter<Vector3<f64>, Vector3<f64>>;
+/// `Pt1Filter` for `Vector4Vector4f64`<br>
+pub type Pt1FilterVector4Vector4f64 = Pt1Filter<Vector4<f64>, Vector4<f64>>;
+
 /// `Pt2Filter` for `f64`<br><br>
 pub type Pt2Filterf64 = Pt2Filter<f64, f64>;
+
 /// `Pt2Filter` for `Vector2f64`<br><br>
 pub type Pt2FilterVector2f64 = Pt2Filter<Vector2<f64>, f64>;
 /// `Pt2Filter` for `Vector3f64`<br><br>
@@ -77,14 +86,28 @@ pub type Pt2FilterVector3f64 = Pt2Filter<Vector3<f64>, f64>;
 /// `Pt2Filter` for `Vector4f64`<br><br>
 pub type Pt2FilterVector4f64 = Pt2Filter<Vector4<f64>, f64>;
 
+/// `Pt2Filter` for `Vector2Vector2f64`<br>
+pub type Pt2FilterVector2Vector2f64 = Pt2Filter<Vector2<f64>, Vector2<f64>>;
+/// `Pt2Filter` for `Vector3Vector3f64`<br>
+pub type Pt2FilterVector3Vector3f64 = Pt2Filter<Vector3<f64>, Vector3<f64>>;
+/// `Pt2Filter` for `Vector4Vector4f64`<br>
+pub type Pt2FilterVector4Vector4f64 = Pt2Filter<Vector4<f64>, Vector4<f64>>;
 /// `Pt3Filter` for `f64`<br><br>
 pub type Pt3Filterf64 = Pt3Filter<f64, f64>;
+
 /// `Pt3Filter` for `Vector2f64`<br><br>
 pub type Pt3FilterVector2f64 = Pt3Filter<Vector2<f64>, f64>;
 /// `Pt3Filter` for `Vector3f64`<br><br>
 pub type Pt3FilterVector3f64 = Pt3Filter<Vector3<f64>, f64>;
 /// `Pt3Filter` for `Vector4f64`<br><br>
 pub type Pt3FilterVector4f64 = Pt3Filter<Vector4<f64>, f64>;
+
+/// `Pt3Filter` for `Vector2Vector2f64`<br>
+pub type Pt3FilterVector2Vector2f64 = Pt3Filter<Vector2<f64>, Vector2<f64>>;
+/// `Pt3Filter` for `Vector3Vector3f64`<br>
+pub type Pt3FilterVector3Vector3f64 = Pt3Filter<Vector3<f64>, Vector3<f64>>;
+/// `Pt3Filter` for `Vector4Vector4f64`<br>
+pub type Pt3FilterVector4Vector4f64 = Pt3Filter<Vector4<f64>, Vector4<f64>>;
 
 pub trait PtFilterConstants {
     const PI: Self;
@@ -119,7 +142,7 @@ impl PtFilterConstants for f64 {
 /// The discrete-time transfer function is:
 ///
 /// ```math
-/// y{n} = y{n-1} + k * (x{n} - y{n-1})
+/// yₙ = yₙ₋₁ + k·(xₙ - yₙ₋₁)
 /// ```
 ///
 /// where `k` is calculated from the time constant `T` and sample time `dt`:
