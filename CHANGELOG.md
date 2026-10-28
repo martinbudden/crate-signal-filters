@@ -9,11 +9,15 @@ that is each release may contain incompatible API changes.
 
 Once the API has stabilized this project will adopt semantic versioning, the first release to do so will be `0.2.0`.
 
-## [0.1.16] - 2026-10-xx
+## [0.1.16] - 2026-10-28
 
 ### Added
 
 - support for vector PtFilters.
+
+### Changed
+
+- updated to `vqm` version `0.1.19`.
 
 ## [0.1.15] - 2026-10-23
 
