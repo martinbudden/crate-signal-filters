@@ -30,8 +30,11 @@ pub type BiquadFilterVector3f64 = BiquadFilter<Vector3<f64>, f64>;
 /// `BiquadFilter` for `Vector4f64`<br><br>
 pub type BiquadFilterVector4f64 = BiquadFilter<Vector4<f64>, f64>;
 
+/// Math constants for use in generic code.<br><br>
 pub trait BiquadFilterConstants {
+    /// Constant PI for use in generic code.
     const PI: Self;
+    /// Constant 0.5 for use in generic code.
     const HALF: Self;
 }
 
@@ -47,6 +50,8 @@ impl BiquadFilterConstants for f64 {
 
 #[allow(clippy::doc_paragraphs_missing_punctuation)]
 /// Second-order biquad IIR filter.<br><br>
+///
+/// The filter supports weighted notch filtering.
 ///
 /// This implementation uses the Direct Form II Transposed (DF2T) structure.
 /// This minimizes floating-point rounding noise and requires only two internal state variables `w1` and `w2`.
@@ -125,6 +130,9 @@ where
     T: Copy,
     R: Copy + ConstOne + BiquadFilterConstants + Div<R, Output = R> + Add<Output = R>,
 {
+    /// Set `Q` the quality factor.
+    /// For notch filters `Q` governs the bandwidth of the filter. High `Q` results in a narrow notch, low `Q` a wide notch.
+    /// For high and low pass filters `Q` governs the resonance or peaking at the cutoff frequency.
     pub fn set_q(&mut self, q: R) {
         self.q = q;
         self.one_over_2q = R::ONE / ((R::ONE + R::ONE) * q); // cache value for faster setting of frequencies
@@ -216,6 +224,7 @@ where
         self.state.w2 = value * (self.coeffs.b2 - self.coeffs.a2);
     }
 
+    /// Update filter using Direct Form II.
     #[inline]
     fn update(&mut self, input: T) -> T {
         // Uses Direct Form II (note: Direct Form I uses at least 9 operations: 5 multiplications, 4 additions).
@@ -241,6 +250,7 @@ where
     T: Copy + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
     R: Copy + Neg<Output = R>,
 {
+    /// Update filter, optimized for case when filter is configured as a notch filter (ie `a1 = b1` and `b0 = b2`).
     #[inline]
     pub fn update_notch(&mut self, input: T) -> T {
         /*
@@ -272,6 +282,7 @@ where
     T: Copy,
     R: Copy + Mul<Output = R>,
 {
+    /// `weight` of 1.0 gives just output, `weight` of 0.0 gives just input.
     #[inline]
     pub const fn set_weight(&mut self, weight: R) {
         self.weight = weight;
@@ -282,11 +293,13 @@ where
         self.weight
     }
 
+    /// Directly set the filter coefficients.
     #[inline]
     pub const fn set_coefficients(&mut self, coeffs: BiquadFilterCoefficients<R>) {
         self.coeffs = coeffs;
     }
 
+    /// Directly set the filter coefficients and weight.
     #[inline]
     pub const fn set_coefficients_and_weight(&mut self, coeffs: BiquadFilterCoefficients<R>, weight: R) {
         self.weight = weight;
@@ -334,6 +347,7 @@ where
         + Div<R, Output = R>
         + Sub<R, Output = R>,
 {
+    /// Set the filter to passthrough mode (ie no filtering).
     pub fn set_to_passthrough(&mut self) {
         self.coeffs.b0 = R::ONE;
         self.coeffs.b1 = R::ZERO;
@@ -347,7 +361,7 @@ where
     #[inline]
     pub fn update_weighted(&mut self, input: T) -> T {
         let output = self.update(input);
-        // weight of 1.0 gives just output, weight of 0.0 gives just input
+        // weight of 1.0 gives just output, weight of 0.0 gives just input.
         (output - input).mul_add(self.weight, input)
     }
 
@@ -358,6 +372,7 @@ where
         (output - input).mul_add(self.weight, input)
     }
 
+    /// Initialize the filter as a low pass filter.
     pub fn init_low_pass(&mut self, frequency_hz: R, sample_interval_seconds: R, q: R) {
         debug_assert!(q > R::ZERO);
         self.set_sample_interval(sample_interval_seconds);
@@ -366,6 +381,7 @@ where
         self.reset();
     }
 
+    /// Initialize the filter as a notch filter.
     pub fn init_notch(&mut self, frequency_hz: R, sample_interval_seconds: R, q: R) {
         debug_assert!(q > R::ZERO);
         self.set_sample_interval(sample_interval_seconds);
@@ -388,6 +404,7 @@ where
 
     //Note: weight must be in range [0, 1].
     pub fn calculate_low_pass_coefficients_assuming_q(&mut self, frequency_hz: R) -> BiquadFilterCoefficients<R> {
+        debug_assert!(frequency_hz > R::ZERO);
         let omega = frequency_hz * self.two_pi_loop_time_seconds;
         let (sin_omega, cos_omega) = omega.sin_cos();
         let alpha = sin_omega * self.one_over_2q;

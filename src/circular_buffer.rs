@@ -45,7 +45,7 @@ impl<T, const N: usize> CircularBuffer<T, N>
 where
     T: Copy,
 {
-    // need one spare empty cell so we can avoid end == begin when full
+    /// Need one spare empty cell so we can avoid end == begin when full.
     pub fn capacity(&self) -> usize {
         N - 1
     }
@@ -54,10 +54,12 @@ where
         self.size
     }
 
+    /// Returns true if the circular buffer is empty.
     pub fn is_empty(&self) -> bool {
         self.size == 0
     }
 
+    /// Returns true if the circular buffer is full.
     pub fn is_full(&self) -> bool {
         self.size == self.capacity()
     }

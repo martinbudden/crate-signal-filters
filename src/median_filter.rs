@@ -16,10 +16,10 @@ pub type MedianFilter5f64 = MedianFilter5<f64>;
 /// It is effective at removing single-sample outliers without "smearing"
 /// the error into subsequent samples like a linear low-pass filter would.
 ///
-/// The output `y{n}` is defined as:
+/// The output `yₙ` is defined as:
 ///
 /// ```math
-/// y{n} = {median}(x{n}, x{n-1}, x{n-2})
+/// yₙ = median(xₙ, xₙ₋₁, xₙ₋₂)
 /// ```
 ///
 /// **Note:** This filter introduces a fixed lag of 1 sample. During the

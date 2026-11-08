@@ -155,12 +155,12 @@ pub struct Pt1Filter<T, R> {
     k: R,
 }
 
-/// Default is k = 1.0, which is passthrough.
 impl<T, R> Default for Pt1Filter<T, R>
 where
     T: Copy + ConstZero,
     R: Copy + ConstOne,
 {
+    /// Default is k = 1.0, which is passthrough.
     fn default() -> Self {
         Self::new()
     }
@@ -201,11 +201,12 @@ where
     T: Copy + ConstZero + Sub<Output = T> + MulAdd<R, T, Output = T>,
     R: Copy,
 {
+    /// Reset the historical state to zero.
     fn reset(&mut self) {
         self.state = T::ZERO;
     }
 
-    /// Reset the historical memory to a specific value instead of hard zero.
+    /// Reset the historical state to a specific value.
     fn reset_to_value(&mut self, value: T) {
         self.state = value;
     }
@@ -224,14 +225,17 @@ where
     T: Copy,
     R: Copy + ConstZero + ConstOne + PartialOrd,
 {
+    /// Set the filter constant so the filter is in passthrough mode (no filtering).
     pub const fn set_to_passthrough(&mut self) {
         self.k = R::ONE;
     }
 
+    /// Set the filter constant `k` directly. This is a low-level operation and should be used with care.
     pub const fn set_k(&mut self, k: R) {
         self.k = k;
     }
 
+    /// Set the filter constant `k`, clamping it to  the range [0, 1] to ensure stability.
     pub fn set_k_safe(&mut self, k: R) {
         self.k = if k < R::ZERO {
             R::ZERO
@@ -265,8 +269,9 @@ where
         self.reset();
     }
 
-    // Calculates filter gain based on delay (time constant of filter) - time it takes for filter response to reach 63.2% of a step input.
+    /// Calculates filter gain based on delay (time constant of filter) - time it takes for filter response to reach 63.2% of a step input.
     pub fn gain_from_delay(delay: R, delta_t: R) -> R {
+        debug_assert!(delta_t > R::ZERO);
         if delay <= R::ZERO {
             // gain of 1.0 means no filtering
             return R::ONE;
@@ -276,6 +281,8 @@ where
     }
 
     pub fn gain_from_frequency(cutoff_frequency_hz: R, delta_t: R) -> R {
+        debug_assert!(cutoff_frequency_hz > R::ZERO);
+        debug_assert!(delta_t > R::ZERO);
         let omega = (R::ONE + R::ONE) * R::PI * cutoff_frequency_hz * delta_t;
         omega / (omega + R::ONE)
     }
@@ -290,7 +297,7 @@ where
     pub fn set_cutoff_frequency_seamless(&mut self, cutoff_frequency_hz: R, delta_t: R, last_input: T) {
         let new_k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
 
-        // Clamp new_k
+        // Clamp new_k to [0.0, 1.0] to ensure stability
         let safe_new_k = if new_k < R::ZERO {
             R::ZERO
         } else if new_k > R::ONE {
@@ -299,17 +306,17 @@ where
             new_k
         };
 
-        // Adjust state if the filter is active and not an exact passthrough bypass
+        // Adjust state to avoid discontinuity if the filter is active and not in passthrough mode.
         if safe_new_k > R::ZERO {
-            // Reconstruct what the last output was using old parameters
+            // Reconstruct the last output using old parameters.
             let last_output = (last_input - self.state).mul_add(self.k, self.state);
-            // Compute the target state using the new k value
+            // Calculate the target state using the new k value.
             if safe_new_k < R::ONE {
                 self.state = (last_output - last_input * safe_new_k) / (R::ONE - safe_new_k);
             }
         }
 
-        // Apply the new coefficient
+        // Apply the new filter constant.
         self.k = safe_new_k;
     }
 }
@@ -321,14 +328,14 @@ where
 /// The discrete-time difference equations are:
 ///
 /// ```math
-/// w{n} = w{n-1} + k * (x{n} - w{n-1})
-/// y{n} = y{n-1} + k * (w{n} - y{n-1})
+/// wₙ = wₙ₋₁ + k·(xₙ - wₙ₋₁)
+/// yₙ = yₙ₋₁ + k·(wₙ - yₙ₋₁)
 /// ```
 ///
 /// where:
-/// - `x{n}` is the raw input
-/// - `w{n}` is the internal state (output of the first stage)
-/// - `y{n}` is the final filtered output
+/// - `xₙ` is the raw input
+/// - `wₙ` is the internal state (output of the first stage)
+/// - `yₙ` is the final filtered output
 /// - `k` is the filter gain
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Pt2Filter<T, R> {
@@ -336,12 +343,12 @@ pub struct Pt2Filter<T, R> {
     k: R,
 }
 
-/// Default is k = 1.0, which is passthrough.
 impl<T, R> Default for Pt2Filter<T, R>
 where
     T: Copy + ConstZero,
     R: Copy + ConstOne,
 {
+    /// Default is k = 1.0, which is passthrough.
     fn default() -> Self {
         Self::new()
     }
@@ -382,11 +389,12 @@ where
     T: Copy + ConstZero + Sub<Output = T> + MulAdd<R, T, Output = T>,
     R: Copy,
 {
+    /// Reset the historical state to zero.
     fn reset(&mut self) {
         self.state = [T::ZERO, T::ZERO];
     }
 
-    /// Reset the historical memory to a specific value instead of hard zero.
+    /// Reset the historical state to a specific value.
     fn reset_to_value(&mut self, value: T) {
         self.state[1] = value;
         self.state[0] = value;
@@ -405,14 +413,17 @@ where
     T: Copy,
     R: Copy + ConstZero + ConstOne + PartialOrd,
 {
+    /// Set the filter constant so the filter is in passthrough mode (no filtering).
     pub fn set_to_passthrough(&mut self) {
         self.k = R::ONE;
     }
 
+    /// Set the filter constant `k` directly. This is a low-level operation and should be used with care.
     pub fn set_k(&mut self, k: R) {
         self.k = k;
     }
 
+    /// Set the filter constant `k`, clamping it to  the range [0, 1] to ensure stability.
     pub fn set_k_safe(&mut self, k: R) {
         self.k = if k < R::ZERO {
             R::ZERO
@@ -460,14 +471,13 @@ where
     T: Copy + Sub<Output = T> + Div<R, Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
     R: Copy + ConstZero + ConstOne + PtFilterConstants + PartialOrd + Sub<Output = R> + Div<R, Output = R>,
 {
-    /// Seamlessly updates the cutoff frequency for the second-order filter
-    /// by recalculating historical internal states to eliminate signal "pops".
+    /// Updates the cutoff frequency seamlessly, ie without discontinuity in output.
     pub fn set_cutoff_frequency_seamless(&mut self, cutoff_frequency_hz: R, delta_t: R, last_input: T) {
         // Calculate the raw gain based on the cutoff frequency
         let omega = (R::ONE + R::ONE) * R::PI * cutoff_frequency_hz * delta_t;
         let new_k = omega / (omega + R::ONE);
 
-        // Clamp new_k strictly to ensure stability [0.0, 1.0]
+        // Clamp new_k to [0.0, 1.0] to ensure stability
         let safe_new_k = if new_k < R::ZERO {
             R::ZERO
         } else if new_k > R::ONE {
@@ -476,7 +486,7 @@ where
             new_k
         };
 
-        // Perform state correction if the filter isn't bypassing completely
+        // Adjust state to avoid discontinuity if the filter is active and not in passthrough mode.
         if safe_new_k > R::ZERO {
             let one_minus_new_k = R::ONE - safe_new_k;
 
@@ -496,7 +506,7 @@ where
             }
         }
 
-        // 3. Commit the new coefficient smoothly
+        // Apply the new filter constant.
         self.k = safe_new_k;
     }
 }
@@ -509,12 +519,12 @@ where
 /// The discrete-time difference equations are:
 ///
 /// ```math
-/// u{n} = u{n-1} + k * (x{n} - u{n-1})
-/// v{n} = v{n-1} + k * (u{n} - v{n-1})
-/// y{n} = y{n-1} + k * (v{n} - y{n-1})
+/// uₙ = uₙ₋₁ + k·(xₙ - uₙ₋₁)
+/// vₙ = vₙ₋₁ + k·(uₙ - vₙ₋₁)
+/// yₙ = yₙ₋₁ + k·(vₙ - yₙ₋₁)
 /// ```
 ///
-/// where `u{n}` and `v{n}` are internal intermediate states, and `y{n}` is the final output.
+/// where `uₙ` and `vₙ` are internal intermediate states, and `yₙ` is the final output.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Pt3Filter<T, R> {
     state: [T; 3],
@@ -527,6 +537,7 @@ where
     T: Copy + ConstZero,
     R: Copy + ConstOne,
 {
+    /// Default is k = 1.0, which is passthrough.
     fn default() -> Self {
         Self::new()
     }
@@ -563,11 +574,12 @@ where
     T: Copy + ConstZero + Sub<Output = T> + MulAdd<R, T, Output = T>,
     R: Copy,
 {
+    /// Reset the historical state to zero.
     fn reset(&mut self) {
         self.state = [T::ZERO, T::ZERO, T::ZERO];
     }
 
-    /// Reset the historical memory to a specific value instead of hard zero.
+    /// Reset the historical state to a specific value.
     fn reset_to_value(&mut self, value: T) {
         self.state[1] = value;
         self.state[0] = value;
@@ -587,14 +599,17 @@ where
     T: Copy,
     R: Copy + ConstZero + ConstOne + PartialOrd,
 {
+    /// Set the filter constant so the filter is in passthrough mode (no filtering).
     pub fn set_to_passthrough(&mut self) {
         self.k = R::ONE;
     }
 
+    /// Set the filter constant `k` directly. This is a low-level operation and should be used with care.
     pub fn set_k(&mut self, k: R) {
         self.k = k;
     }
 
+    /// Set the filter constant `k`, clamping it to  the range [0, 1] to ensure stability.
     pub fn set_k_safe(&mut self, k: R) {
         self.k = if k < R::ZERO {
             R::ZERO
@@ -628,6 +643,7 @@ where
         self.reset();
     }
 
+    /// Calculates filter gain based on delay (time constant of filter) - time it takes for filter response to reach 63.2% of a step input.
     pub fn gain_from_delay(delay: R, delta_t: R) -> R {
         Pt1Filter::<T, R>::gain_from_delay(delay * R::PT3_CUTOFF_CORRECTION, delta_t)
     }

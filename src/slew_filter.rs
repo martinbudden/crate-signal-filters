@@ -11,13 +11,15 @@ pub type SlewRateLimiterf64 = SlewRateLimiter<f64>;
 /// It allows for different rates depending on whether the signal is
 /// increasing (rising) or decreasing (falling).
 ///
-/// The algorithm calculates the difference `delta = x{n} - y{n-1}` and
+/// The algorithm calculates the difference `delta = xₙ - yₙ₋₁` and
 /// clamps it based on the elapsed time `delta_t`.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SlewRateLimiter<T> {
     last_output: T,
-    rise_step: T, // rise_rate_per_second * dt
-    fall_step: T, // fall_rate_per_second * dt
+    // rise_rate_per_second * dt
+    rise_step: T,
+    // fall_rate_per_second * dt
+    fall_step: T,
 }
 
 impl<T> Default for SlewRateLimiter<T>
