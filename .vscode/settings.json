@@ -43,6 +43,7 @@
         "memchr",
         "msrv",
         "msvc",
+        "nalgebra",
         "oorandom",
         "pico",
         "prettyplease",

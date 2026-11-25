@@ -546,13 +546,13 @@ mod tests {
 
     #[test]
     fn biquad_filter_vector3df32() {
-        use vqm::Vector3f32;
+        type Vector3f32 = Vector3<f32>;
         let mut filter = BiquadFilterVector3f32::default();
         let mut state: BiquadFilterState<Vector3f32>;
 
         // test that filter with default settings performs no filtering
-        let output = filter.update(Vector3f32 { x: 2.0, y: 3.0, z: 5.0 });
-        assert_eq!(Vector3f32 { x: 2.0, y: 3.0, z: 5.0 }, output);
+        let output = filter.update(Vector3f32::new(2.0, 3.0, 5.0));
+        assert_eq!(Vector3f32::new(2.0, 3.0, 5.0), output);
         state = filter.state();
         assert_eq!(0.0, state.w1.x);
         assert_eq!(0.0, state.w2.x);
@@ -561,17 +561,17 @@ mod tests {
         state = filter.state();
         assert_eq!(0.0, state.w1.x);
         assert_eq!(0.0, state.w2.x);
-        assert_eq!(4.0, filter.update(Vector3f32 { x: 4.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(4.0, filter.update(Vector3f32::new(4.0, 0.0, 0.0)).x);
 
         filter.set_coefficients_and_weight(
             BiquadFilterCoefficients { a1: 2.0, a2: 3.0, b0: 5.0, b1: 7.0, b2: 11.0 },
             13.0,
         );
         filter.set_to_passthrough();
-        assert_eq!(1.0, filter.update(Vector3f32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(2.0, filter.update(Vector3f32 { x: 2.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(1.0, filter.update_weighted(Vector3f32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(2.0, filter.update_weighted(Vector3f32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
+        assert_eq!(2.0, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
+        assert_eq!(1.0, filter.update_weighted(Vector3f32::new(1.0, 0.0, 0.0)).x);
+        assert_eq!(2.0, filter.update_weighted(Vector3f32::new(2.0, 0.0, 0.0)).x);
     }
 
     #[test]

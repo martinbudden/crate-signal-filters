@@ -9,7 +9,7 @@ use signal_filters::{
     BiquadFilterf32, MedianFilter3f32, MedianFilter5f32, MovingAverageFilterf32, Pt1FilterVector3f32, Pt1Filterf32,
     Pt2Filterf32, Pt3Filterf32, SignalFilter, SlewRateLimiterf32,
 };
-use vqm::Vector3f32;
+use vqm::Vector3;
 
 #[allow(clippy::too_many_lines)]
 fn bench_filter(c: &mut Criterion) {
@@ -127,7 +127,7 @@ fn bench_filter(c: &mut Criterion) {
             || {
                 // Setup: Generate two random vectors
                 let a: [f32; 3] = rng().random();
-                Vector3f32::from(a)
+                Vector3::<f32>::from(a)
             },
             |v| black_box(&mut pt1_v3_filter).update(black_box(v)),
             BatchSize::SmallInput,

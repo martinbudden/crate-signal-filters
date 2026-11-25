@@ -117,37 +117,37 @@ mod tests {
 
     #[test]
     fn moving_average_filter_vector3df32() {
-        use vqm::Vector3f32;
+        type Vector3f32 = Vector3<f32>;
         let mut filter = MovingAverageFilter::<Vector3f32, 4>::new();
-        let mut m = filter.update(Vector3f32 { x: 1.0, y: 0.0, z: -3.0 });
-        assert_eq!(Vector3f32 { x: 1.0, y: 0.0, z: -3.0 }, m);
+        let mut m = filter.update(Vector3f32::new(1.0, 0.0, -3.0));
+        assert_eq!(Vector3f32::new(1.0, 0.0, -3.0), m);
 
-        m = filter.update(Vector3f32 { x: 2.0, y: 0.0, z: -3.0 });
-        assert_eq!(Vector3f32 { x: 1.5, y: 0.0, z: -3.0 }, m);
+        m = filter.update(Vector3f32::new(2.0, 0.0, -3.0));
+        assert_eq!(Vector3f32::new(1.5, 0.0, -3.0), m);
 
-        m = filter.update(Vector3f32 { x: 3.0, y: 3.0, z: 0.0 });
-        assert_eq!(Vector3f32 { x: 2.0, y: 1.0, z: -2.0 }, m);
+        m = filter.update(Vector3f32::new(3.0, 3.0, 0.0));
+        assert_eq!(Vector3f32::new(2.0, 1.0, -2.0), m);
 
-        m = filter.update(Vector3f32 { x: 4.0, y: 2.0, z: -3.0 });
-        assert_eq!(Vector3f32 { x: 2.5, y: 1.25, z: -2.25 }, m);
+        m = filter.update(Vector3f32::new(4.0, 2.0, -3.0));
+        assert_eq!(Vector3f32::new(2.5, 1.25, -2.25), m);
 
-        m = filter.update(Vector3f32 { x: 5.0, y: 2.0, z: -3.0 });
-        assert_eq!(Vector3f32 { x: 3.5, y: 1.75, z: -2.25 }, m);
+        m = filter.update(Vector3f32::new(5.0, 2.0, -3.0));
+        assert_eq!(Vector3f32::new(3.5, 1.75, -2.25), m);
 
-        m = filter.update(Vector3f32 { x: 6.0, y: 2.0, z: -3.0 });
-        assert_eq!(Vector3f32 { x: 4.5, y: 2.25, z: -2.25 }, m);
+        m = filter.update(Vector3f32::new(6.0, 2.0, -3.0));
+        assert_eq!(Vector3f32::new(4.5, 2.25, -2.25), m);
 
-        m = filter.update(Vector3f32 { x: 10.0, y: 2.0, z: -3.0 });
-        assert_eq!(Vector3f32 { x: 6.25, y: 2.0, z: -3.0 }, m);
+        m = filter.update(Vector3f32::new(10.0, 2.0, -3.0));
+        assert_eq!(Vector3f32::new(6.25, 2.0, -3.0), m);
 
         filter.reset();
-        m = filter.update(Vector3f32 { x: 4.0, y: 2.0, z: -3.0 });
-        assert_eq!(Vector3f32 { x: 4.0, y: 2.0, z: -3.0 }, m);
+        m = filter.update(Vector3f32::new(4.0, 2.0, -3.0));
+        assert_eq!(Vector3f32::new(4.0, 2.0, -3.0), m);
 
-        m = filter.update(Vector3f32 { x: 20.0, y: 0.0, z: -3.0 });
-        assert_eq!(Vector3f32 { x: 12.0, y: 1.0, z: -3.0 }, m);
+        m = filter.update(Vector3f32::new(20.0, 0.0, -3.0));
+        assert_eq!(Vector3f32::new(12.0, 1.0, -3.0), m);
 
-        m = filter.update(Vector3f32 { x: -9.0, y: 0.0, z: -3.0 });
-        assert_eq!(Vector3f32 { x: 5.0, y: 2.0 / 3.0, z: -3.0 }, m);
+        m = filter.update(Vector3f32::new(-9.0, 0.0, -3.0));
+        assert_eq!(Vector3f32::new(5.0, 2.0 / 3.0, -3.0), m);
     }
 }

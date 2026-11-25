@@ -739,7 +739,6 @@ mod tests {
     #[test]
     fn pt1_filter_vector3f32_method_call() {
         use crate::UpdateFilter;
-        use vqm::Vector3f32;
 
         let mut filter = Pt1Filterf32::new().with_k(0.25);
         assert_eq!(0.05, filter.update(0.2));
@@ -749,14 +748,14 @@ mod tests {
         assert_eq!(0.375, filter.update(1.5));
 
         let mut filter = Pt1FilterVector3f32::new().with_k(0.25);
-        let value = Vector3f32 { x: 0.2, y: 0.5, z: 1.5 };
+        let value = Vector3::<f32>::new(0.2, 0.5, 1.5);
         let output = filter.update(value);
-        assert_eq!(Vector3f32 { x: 0.05, y: 0.125, z: 0.375 }, output);
+        assert_eq!(Vector3::<f32>::new(0.05, 0.125, 0.375), output);
 
         filter.reset();
-        let value = Vector3f32 { x: 0.2, y: 0.5, z: 1.5 };
+        let value = Vector3::<f32>::new(0.2, 0.5, 1.5);
         let value = value.filter_using(&mut filter);
-        assert_eq!(Vector3f32 { x: 0.05, y: 0.125, z: 0.375 }, value);
+        assert_eq!(Vector3::<f32>::new(0.05, 0.125, 0.375), value);
     }
 
     #[test]
@@ -848,44 +847,44 @@ mod tests {
 
     #[test]
     fn pt1_filter_vector3f32() {
-        use vqm::Vector3f32;
+        type Vector3f32 = Vector3<f32>;
 
         let mut filter = Pt1Filter::<Vector3f32, f32>::new().with_k(1.0);
 
         // test that filter with default settings performs no filtering
-        let output = filter.update(Vector3f32 { x: 2.0, y: 3.0, z: 5.0 });
-        assert_eq!(Vector3f32 { x: 2.0, y: 3.0, z: 5.0 }, output);
+        let output = filter.update(Vector3f32::new(2.0, 3.0, 5.0));
+        assert_eq!(Vector3f32::new(2.0, 3.0, 5.0), output);
         let state = filter.state();
-        assert_eq!(Vector3f32 { x: 2.0, y: 3.0, z: 5.0 }, state);
+        assert_eq!(Vector3f32::new(2.0, 3.0, 5.0), state);
 
         filter.reset();
         let state = filter.state();
-        assert_eq!(Vector3f32 { x: 0.0, y: 0.0, z: 0.0 }, state);
+        assert_eq!(Vector3f32::new(0.0, 0.0, 0.0), state);
 
         filter.set_cutoff_frequency(100.0, 0.001);
-        assert_eq!(0.385_869_56, filter.update(Vector3f32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(1.008_713_4, filter.update(Vector3f32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(0.385_869_56, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
+        assert_eq!(1.008_713_4, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
 
         filter.set_k(1.0);
-        assert_eq!(1.0, filter.update(Vector3f32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(2.0, filter.update(Vector3f32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
+        assert_eq!(2.0, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
 
         filter.set_cutoff_frequency_and_reset(100.0, 0.001);
-        assert_eq!(0.385_869_56, filter.update(Vector3f32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(1.008_713_4, filter.update(Vector3f32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(0.385_869_56, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
+        assert_eq!(1.008_713_4, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
 
         filter.set_to_passthrough();
-        assert_eq!(1.0, filter.update(Vector3f32 { x: 1.0, y: 0.0, z: 0.0 }).x);
-        assert_eq!(2.0, filter.update(Vector3f32 { x: 2.0, y: 0.0, z: 0.0 }).x);
+        assert_eq!(1.0, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
+        assert_eq!(2.0, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
     }
 
     #[test]
     fn pt1_filter_vector3vector3f32() {
-        use vqm::Vector3f32;
+        type Vector3f32 = Vector3<f32>;
         pub type Pt1FilterVector3Vector3f32 = Pt1Filter<Vector3f32, Vector3f32>;
 
-        let mut filter = Pt1FilterVector3Vector3f32::new().with_k(Vector3f32 { x: 0.9, y: 0.8, z: 1.0 });
-        let output = filter.update(Vector3f32 { x: 2.0, y: 3.0, z: 5.0 });
+        let mut filter = Pt1FilterVector3Vector3f32::new().with_k(Vector3f32::new(0.9, 0.8, 1.0));
+        let output = filter.update(Vector3f32::new(2.0, 3.0, 5.0));
         assert_eq!(output.z, 5.0);
     }
 }
