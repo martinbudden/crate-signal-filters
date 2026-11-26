@@ -1,12 +1,12 @@
 use core::ops::{Div, Mul, Sub};
-use num_traits::{MulAdd, One, Zero};
+use num_traits::{One, Zero};
 
 #[cfg(feature = "nalgebra")]
 use nalgebra::{Vector2, Vector3, Vector4};
 #[cfg(feature = "vqm")]
 use vqm::{Vector2, Vector3, Vector4};
 
-use crate::SignalFilter;
+use crate::{FilterMulAdd, FilterOne, SignalFilter};
 
 // f64 variants.
 
@@ -198,7 +198,7 @@ pub struct Pt1Filter<T, R> {
 impl<T, R> Default for Pt1Filter<T, R>
 where
     T: Copy + Zero,
-    R: Copy + One,
+    R: Copy + FilterOne,
 {
     /// Default is k = 1.0, which is passthrough.
     fn default() -> Self {
@@ -209,16 +209,16 @@ where
 impl<T, R> Pt1Filter<T, R>
 where
     T: Copy + Zero,
-    R: Copy + One,
+    R: Copy + FilterOne,
 {
     /// Create a passthrough filter starting at zero.
     #[must_use]
     pub fn new() -> Self
     where
         T: Zero,
-        R: One,
+        R: FilterOne,
     {
-        Self { state: T::zero(), k: R::one() }
+        Self { state: T::zero(), k: R::filter_one() }
     }
 
     /// Set the `k` of a newly constructed filter.
@@ -238,7 +238,7 @@ where
 
 impl<T, R> SignalFilter<T, R> for Pt1Filter<T, R>
 where
-    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Zero + Sub<Output = T> + FilterMulAdd<R>,
     R: Copy,
 {
     /// Reset the historical state to zero.
@@ -255,7 +255,7 @@ where
     fn update(&mut self, input: T) -> T {
         // Equation: state = (input - state) * k + state
 
-        self.state = (input - self.state).mul_add(self.k, self.state);
+        self.state = (input - self.state).filter_mul_add(self.k, self.state);
         self.state
     }
 }
@@ -263,11 +263,11 @@ where
 impl<T, R> Pt1Filter<T, R>
 where
     T: Copy,
-    R: Copy + Zero + One + PartialOrd,
+    R: Copy + Zero + FilterOne + PartialOrd,
 {
     /// Set the filter constant so the filter is in passthrough mode (no filtering).
     pub fn set_to_passthrough(&mut self) {
-        self.k = R::one();
+        self.k = R::filter_one();
     }
 
     /// Set the filter constant `k` directly. This is a low-level operation and should be used with care.
@@ -279,8 +279,8 @@ where
     pub fn set_k_safe(&mut self, k: R) {
         self.k = if k < R::zero() {
             R::zero()
-        } else if k > R::one() {
-            R::one()
+        } else if k > R::filter_one() {
+            R::filter_one()
         } else {
             k
         };
@@ -305,7 +305,7 @@ impl<T, R> Pt1Filter<T, R> {
 
     pub fn set_cutoff_frequency_and_reset(&mut self, cutoff_frequency_hz: R, delta_t: R)
     where
-        T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+        T: Copy + Zero + Sub<Output = T> + FilterMulAdd<R>,
         R: Copy + Zero + One + PtFilterConstants + PartialOrd + Div<R, Output = R>,
     {
         self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
@@ -341,7 +341,7 @@ impl<T, R> Pt1Filter<T, R> {
     /// Updates the cutoff frequency seamlessly, ie without discontinuity in output.
     pub fn set_cutoff_frequency_seamless(&mut self, cutoff_frequency_hz: R, delta_t: R, last_input: T)
     where
-        T: Copy + Zero + Sub<Output = T> + Mul<R, Output = T> + Div<R, Output = T> + MulAdd<R, T, Output = T>,
+        T: Copy + Zero + Sub<Output = T> + Mul<R, Output = T> + Div<R, Output = T> + FilterMulAdd<R>,
         R: Copy + Zero + One + PtFilterConstants + PartialOrd + Sub<Output = R> + Div<R, Output = R>,
     {
         let new_k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
@@ -358,7 +358,7 @@ impl<T, R> Pt1Filter<T, R> {
         // Adjust state to avoid discontinuity if the filter is active and not in passthrough mode.
         if safe_new_k > R::zero() {
             // Reconstruct the last output using old parameters.
-            let last_output = (last_input - self.state).mul_add(self.k, self.state);
+            let last_output = (last_input - self.state).filter_mul_add(self.k, self.state);
             // Calculate the target state using the new k value.
             if safe_new_k < R::one() {
                 self.state = (last_output - last_input * safe_new_k) / (R::one() - safe_new_k);
@@ -395,7 +395,7 @@ pub struct Pt2Filter<T, R> {
 impl<T, R> Default for Pt2Filter<T, R>
 where
     T: Copy + Zero,
-    R: Copy + One,
+    R: Copy + FilterOne,
 {
     /// Default is k = 1.0, which is passthrough.
     fn default() -> Self {
@@ -406,16 +406,16 @@ where
 impl<T, R> Pt2Filter<T, R>
 where
     T: Copy + Zero,
-    R: Copy + One,
+    R: Copy + FilterOne,
 {
     /// Create a passthrough filter starting at zero.
     #[must_use]
     pub fn new() -> Self
     where
         T: Zero,
-        R: One,
+        R: FilterOne,
     {
-        Self { state: [T::zero(), T::zero()], k: R::one() }
+        Self { state: [T::zero(), T::zero()], k: R::filter_one() }
     }
 
     /// Set the `k` of a newly constructed filter.
@@ -435,7 +435,7 @@ where
 
 impl<T, R> SignalFilter<T, R> for Pt2Filter<T, R>
 where
-    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Zero + Sub<Output = T> + FilterMulAdd<R>,
     R: Copy,
 {
     /// Reset the historical state to zero.
@@ -451,8 +451,8 @@ where
 
     #[inline]
     fn update(&mut self, input: T) -> T {
-        self.state[1] = (input - self.state[1]).mul_add(self.k, self.state[1]);
-        self.state[0] = (self.state[1] - self.state[0]).mul_add(self.k, self.state[0]);
+        self.state[1] = (input - self.state[1]).filter_mul_add(self.k, self.state[1]);
+        self.state[0] = (self.state[1] - self.state[0]).filter_mul_add(self.k, self.state[0]);
         self.state[0]
     }
 }
@@ -460,11 +460,11 @@ where
 impl<T, R> Pt2Filter<T, R>
 where
     T: Copy,
-    R: Copy + Zero + One + PartialOrd,
+    R: Copy + Zero + FilterOne + PartialOrd,
 {
     /// Set the filter constant so the filter is in passthrough mode (no filtering).
     pub fn set_to_passthrough(&mut self) {
-        self.k = R::one();
+        self.k = R::filter_one();
     }
 
     /// Set the filter constant `k` directly. This is a low-level operation and should be used with care.
@@ -476,8 +476,8 @@ where
     pub fn set_k_safe(&mut self, k: R) {
         self.k = if k < R::zero() {
             R::zero()
-        } else if k > R::one() {
-            R::one()
+        } else if k > R::filter_one() {
+            R::filter_one()
         } else {
             k
         };
@@ -502,7 +502,7 @@ impl<T, R> Pt2Filter<T, R> {
 
     pub fn set_cutoff_frequency_and_reset(&mut self, cutoff_frequency_hz: R, delta_t: R)
     where
-        T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+        T: Copy + Zero + Sub<Output = T> + FilterMulAdd<R>,
         R: Copy + Zero + One + PtFilterConstants + PartialOrd + Div<R, Output = R>,
     {
         self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
@@ -527,7 +527,7 @@ impl<T, R> Pt2Filter<T, R> {
 
 impl<T, R> Pt2Filter<T, R>
 where
-    T: Copy + Sub<Output = T> + Div<R, Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Sub<Output = T> + Div<R, Output = T> + Mul<R, Output = T> + FilterMulAdd<R>,
     R: Copy + Zero + One + PtFilterConstants + PartialOrd + Sub<Output = R> + Div<R, Output = R>,
 {
     /// Updates the cutoff frequency seamlessly, ie without discontinuity in output.
@@ -551,10 +551,10 @@ where
 
             if one_minus_new_k > R::zero() {
                 // Stage 1 output (prior to the coefficient switch)
-                let last_output_stage1 = (last_input - self.state[1]).mul_add(self.k, self.state[1]);
+                let last_output_stage1 = (last_input - self.state[1]).filter_mul_add(self.k, self.state[1]);
 
                 // Stage 2 output (the final filter result right before the switch)
-                let last_output_stage2 = (self.state[1] - self.state[0]).mul_add(self.k, self.state[0]);
+                let last_output_stage2 = (self.state[1] - self.state[0]).filter_mul_add(self.k, self.state[0]);
 
                 // Back-calculate the new internal memory state for Stage 1
                 self.state[1] = (last_output_stage1 - last_input * safe_new_k) / one_minus_new_k;
@@ -594,7 +594,7 @@ pub struct Pt3Filter<T, R> {
 impl<T, R> Default for Pt3Filter<T, R>
 where
     T: Copy + Zero,
-    R: Copy + One,
+    R: Copy + FilterOne,
 {
     /// Default is k = 1.0, which is passthrough.
     fn default() -> Self {
@@ -605,12 +605,12 @@ where
 impl<T, R> Pt3Filter<T, R>
 where
     T: Copy + Zero,
-    R: Copy + One,
+    R: Copy + FilterOne,
 {
     /// Create a passthrough filter starting at zero.
     #[must_use]
     pub fn new() -> Self {
-        Self { state: [T::zero(), T::zero(), T::zero()], k: R::one() }
+        Self { state: [T::zero(), T::zero(), T::zero()], k: R::filter_one() }
     }
 
     /// Set the `k` of a newly constructed filter.
@@ -630,7 +630,7 @@ where
 
 impl<T, R> SignalFilter<T, R> for Pt3Filter<T, R>
 where
-    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Zero + Sub<Output = T> + FilterMulAdd<R>,
     R: Copy,
 {
     /// Reset the historical state to zero.
@@ -646,9 +646,9 @@ where
 
     #[inline]
     fn update(&mut self, input: T) -> T {
-        self.state[2] = (input - self.state[2]).mul_add(self.k, self.state[2]);
-        self.state[1] = (self.state[2] - self.state[1]).mul_add(self.k, self.state[1]);
-        self.state[0] = (self.state[1] - self.state[0]).mul_add(self.k, self.state[0]);
+        self.state[2] = (input - self.state[2]).filter_mul_add(self.k, self.state[2]);
+        self.state[1] = (self.state[2] - self.state[1]).filter_mul_add(self.k, self.state[1]);
+        self.state[0] = (self.state[1] - self.state[0]).filter_mul_add(self.k, self.state[0]);
         self.state[0]
     }
 }
@@ -656,11 +656,11 @@ where
 impl<T, R> Pt3Filter<T, R>
 where
     T: Copy,
-    R: Copy + Zero + One + PartialOrd,
+    R: Copy + Zero + FilterOne + PartialOrd,
 {
     /// Set the filter constant so the filter is in passthrough mode (no filtering).
     pub fn set_to_passthrough(&mut self) {
-        self.k = R::one();
+        self.k = R::filter_one();
     }
 
     /// Set the filter constant `k` directly. This is a low-level operation and should be used with care.
@@ -672,8 +672,8 @@ where
     pub fn set_k_safe(&mut self, k: R) {
         self.k = if k < R::zero() {
             R::zero()
-        } else if k > R::one() {
-            R::one()
+        } else if k > R::filter_one() {
+            R::filter_one()
         } else {
             k
         };
@@ -690,7 +690,7 @@ where
 
 impl<T, R> Pt3Filter<T, R>
 where
-    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Zero + Sub<Output = T> + FilterMulAdd<R>,
     R: Copy + Zero + One + PtFilterConstants + PartialOrd + Div<R, Output = R>,
 {
     pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R) {

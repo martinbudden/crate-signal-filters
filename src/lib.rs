@@ -27,6 +27,9 @@
 #[cfg(all(not(feature = "std"), not(feature = "libm")))]
 compile_error!("signal-filters requires either the `std` or `libm` feature to provide a MulAdd trait in num-traits.");
 
+mod filter_mul_add;
+mod filter_one;
+
 mod biquad_filter;
 mod biquad_filter_methods;
 mod circular_buffer;
@@ -37,16 +40,18 @@ mod pt_filters;
 mod rolling_buffer;
 mod slew_filter;
 
-#[cfg(feature = "vqm")]
-pub use biquad_filter::BiquadFilter;
-#[cfg(feature = "vqm")]
-pub use biquad_filter::{BiquadFilterVector2f32, BiquadFilterVector3f32, BiquadFilterVector4f32, BiquadFilterf32};
-#[cfg(feature = "vqm")]
-pub use biquad_filter::{BiquadFilterVector2f64, BiquadFilterVector3f64, BiquadFilterVector4f64, BiquadFilterf64};
+pub use biquad_filter::{BiquadFilter, BiquadFilterf32, BiquadFilterf64};
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
+pub use biquad_filter::{
+    BiquadFilterVector2f32, BiquadFilterVector2f64, BiquadFilterVector3f32, BiquadFilterVector3f64,
+    BiquadFilterVector4f32, BiquadFilterVector4f64,
+};
 pub use biquad_filter_methods::BiquadFilterMethods;
 
 pub use circular_buffer::CircularBuffer;
 
+pub use filter_mul_add::FilterMulAdd;
+pub use filter_one::FilterOne;
 pub use filters::{SignalFilter, UpdateFilter};
 
 pub use median_filter::{MedianFilter3, MedianFilter5};

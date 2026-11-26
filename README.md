@@ -61,7 +61,7 @@ These filters have been developed for use in stabilized vehicles (self balancing
 
 ## Examples
 
-```rust
+```text
 use signal_filters::Pt1Filterf32;
 use signal_filters::Pt1FilterVector3f32;
 use signal_filters::BiquadFilterf32;
