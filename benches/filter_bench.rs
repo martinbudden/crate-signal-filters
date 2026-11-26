@@ -1,3 +1,4 @@
+#![cfg(any(feature = "vqm", feature = "nalgebra"))]
 #![warn(clippy::pedantic)]
 #![warn(unused_results)]
 
@@ -6,9 +7,21 @@ use rand::{RngExt, rng};
 use std::hint::black_box;
 
 use signal_filters::{
-    BiquadFilterf32, MedianFilter3f32, MedianFilter5f32, MovingAverageFilterf32, Pt1FilterVector3f32, Pt1Filterf32,
-    Pt2Filterf32, Pt3Filterf32, SignalFilter, SlewRateLimiterf32,
+    // BiquadFilterf32,
+    MedianFilter3f32,
+    MedianFilter5f32,
+    MovingAverageFilterf32,
+    Pt1FilterVector3f32,
+    Pt1Filterf32,
+    Pt2Filterf32,
+    Pt3Filterf32,
+    SignalFilter,
+    SlewRateLimiterf32,
 };
+
+#[cfg(feature = "nalgebra")]
+use nalgebra::Vector3;
+#[cfg(feature = "vqm")]
 use vqm::Vector3;
 
 #[allow(clippy::too_many_lines)]
@@ -20,7 +33,7 @@ fn bench_filter(c: &mut Criterion) {
     let mut pt1_filter = Pt1Filterf32::new();
     let mut pt2_filter = Pt2Filterf32::new();
     let mut pt3_filter = Pt3Filterf32::new();
-    let mut biquad_filter = BiquadFilterf32::new();
+    //let mut biquad_filter = BiquadFilterf32::new();
     let mut median_filter3 = MedianFilter3f32::new();
     let mut median_filter5 = MedianFilter5f32::new();
     let mut ma_filter4 = MovingAverageFilter4f32::new();
@@ -63,7 +76,7 @@ fn bench_filter(c: &mut Criterion) {
         );
     });
 
-    _ = group.bench_function("biquad", |b| {
+    /*_ = group.bench_function("biquad", |b| {
         b.iter_batched(
             || {
                 let v: f32 = rng().random();
@@ -72,7 +85,7 @@ fn bench_filter(c: &mut Criterion) {
             |v| black_box(&mut biquad_filter).update(black_box(v)),
             BatchSize::SmallInput,
         );
-    });
+    });*/
 
     _ = group.bench_function("median3", |b| {
         b.iter_batched(

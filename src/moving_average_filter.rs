@@ -1,25 +1,35 @@
 #![allow(clippy::cast_precision_loss)]
 
 use core::ops::{Add, Mul, Sub};
-use num_traits::ConstZero;
+use num_traits::Zero;
+
+#[cfg(feature = "nalgebra")]
+use nalgebra::{Vector2, Vector3, Vector4};
+#[cfg(feature = "vqm")]
 use vqm::{Vector2, Vector3, Vector4};
 
 /// `MovingAverageFilter` for `f32`<br>
 pub type MovingAverageFilterf32<const N: usize> = MovingAverageFilter<f32, N>;
 /// `MovingAverageFilter` for `Vector2f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type MovingAverageFilterVector2f32<const N: usize> = MovingAverageFilter<Vector2<f32>, N>;
 /// `MovingAverageFilter` for `Vector3f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type MovingAverageFilterVector3f32<const N: usize> = MovingAverageFilter<Vector3<f32>, N>;
 /// `MovingAverageFilter` for `Vector4f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type MovingAverageFilterVector4f32<const N: usize> = MovingAverageFilter<Vector4<f32>, N>;
 
 /// `MovingAverageFilter` for `f64`<br><br>
 pub type MovingAverageFilterf64<const N: usize> = MovingAverageFilter<f64, N>;
 /// `MovingAverageFilter` for `Vector2f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type MovingAverageFilterVector2f64<const N: usize> = MovingAverageFilter<Vector2<f64>, N>;
 /// `MovingAverageFilter` for `Vector3f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type MovingAverageFilterVector3f64<const N: usize> = MovingAverageFilter<Vector3<f64>, N>;
 /// `MovingAverageFilter` for `Vector4f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type MovingAverageFilterVector4f64<const N: usize> = MovingAverageFilter<Vector4<f64>, N>;
 
 /// Simple moving average filter.<br><br>
@@ -34,7 +44,7 @@ pub struct MovingAverageFilter<T, const N: usize> {
 
 impl<T, const N: usize> Default for MovingAverageFilter<T, N>
 where
-    T: Copy + ConstZero,
+    T: Copy + Zero,
 {
     fn default() -> Self {
         Self::new()
@@ -43,21 +53,21 @@ where
 
 impl<T, const N: usize> MovingAverageFilter<T, N>
 where
-    T: Copy + ConstZero,
+    T: Copy + Zero,
 {
     /// Constructor.
     #[must_use]
-    pub const fn new() -> Self {
-        Self { count: 0, index: 0, sum: T::ZERO, samples: [T::ZERO; N] }
+    pub fn new() -> Self {
+        Self { count: 0, index: 0, sum: T::zero(), samples: [T::zero(); N] }
     }
 }
 
 impl<T, const N: usize> MovingAverageFilter<T, N>
 where
-    T: Copy + ConstZero + Add<Output = T> + Sub<Output = T> + Mul<f32, Output = T>,
+    T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<f32, Output = T>,
 {
     pub fn reset(&mut self) {
-        self.sum = T::ZERO;
+        self.sum = T::zero();
         self.count = 0;
         self.index = 0;
     }
@@ -117,37 +127,40 @@ mod tests {
 
     #[test]
     fn moving_average_filter_vector3df32() {
-        type Vector3f32 = Vector3<f32>;
-        let mut filter = MovingAverageFilter::<Vector3f32, 4>::new();
-        let mut m = filter.update(Vector3f32::new(1.0, 0.0, -3.0));
-        assert_eq!(Vector3f32::new(1.0, 0.0, -3.0), m);
+        #[cfg(any(feature = "vqm", feature = "nalgebra"))]
+        {
+            type Vector3f32 = Vector3<f32>;
+            let mut filter = MovingAverageFilter::<Vector3f32, 4>::new();
+            let mut m = filter.update(Vector3f32::new(1.0, 0.0, -3.0));
+            assert_eq!(Vector3f32::new(1.0, 0.0, -3.0), m);
 
-        m = filter.update(Vector3f32::new(2.0, 0.0, -3.0));
-        assert_eq!(Vector3f32::new(1.5, 0.0, -3.0), m);
+            m = filter.update(Vector3f32::new(2.0, 0.0, -3.0));
+            assert_eq!(Vector3f32::new(1.5, 0.0, -3.0), m);
 
-        m = filter.update(Vector3f32::new(3.0, 3.0, 0.0));
-        assert_eq!(Vector3f32::new(2.0, 1.0, -2.0), m);
+            m = filter.update(Vector3f32::new(3.0, 3.0, 0.0));
+            assert_eq!(Vector3f32::new(2.0, 1.0, -2.0), m);
 
-        m = filter.update(Vector3f32::new(4.0, 2.0, -3.0));
-        assert_eq!(Vector3f32::new(2.5, 1.25, -2.25), m);
+            m = filter.update(Vector3f32::new(4.0, 2.0, -3.0));
+            assert_eq!(Vector3f32::new(2.5, 1.25, -2.25), m);
 
-        m = filter.update(Vector3f32::new(5.0, 2.0, -3.0));
-        assert_eq!(Vector3f32::new(3.5, 1.75, -2.25), m);
+            m = filter.update(Vector3f32::new(5.0, 2.0, -3.0));
+            assert_eq!(Vector3f32::new(3.5, 1.75, -2.25), m);
 
-        m = filter.update(Vector3f32::new(6.0, 2.0, -3.0));
-        assert_eq!(Vector3f32::new(4.5, 2.25, -2.25), m);
+            m = filter.update(Vector3f32::new(6.0, 2.0, -3.0));
+            assert_eq!(Vector3f32::new(4.5, 2.25, -2.25), m);
 
-        m = filter.update(Vector3f32::new(10.0, 2.0, -3.0));
-        assert_eq!(Vector3f32::new(6.25, 2.0, -3.0), m);
+            m = filter.update(Vector3f32::new(10.0, 2.0, -3.0));
+            assert_eq!(Vector3f32::new(6.25, 2.0, -3.0), m);
 
-        filter.reset();
-        m = filter.update(Vector3f32::new(4.0, 2.0, -3.0));
-        assert_eq!(Vector3f32::new(4.0, 2.0, -3.0), m);
+            filter.reset();
+            m = filter.update(Vector3f32::new(4.0, 2.0, -3.0));
+            assert_eq!(Vector3f32::new(4.0, 2.0, -3.0), m);
 
-        m = filter.update(Vector3f32::new(20.0, 0.0, -3.0));
-        assert_eq!(Vector3f32::new(12.0, 1.0, -3.0), m);
+            m = filter.update(Vector3f32::new(20.0, 0.0, -3.0));
+            assert_eq!(Vector3f32::new(12.0, 1.0, -3.0), m);
 
-        m = filter.update(Vector3f32::new(-9.0, 0.0, -3.0));
-        assert_eq!(Vector3f32::new(5.0, 2.0 / 3.0, -3.0), m);
+            m = filter.update(Vector3f32::new(-9.0, 0.0, -3.0));
+            assert_eq!(Vector3f32::new(5.0, 2.0 / 3.0, -3.0), m);
+        }
     }
 }

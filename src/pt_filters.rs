@@ -1,5 +1,9 @@
 use core::ops::{Div, Mul, Sub};
-use num_traits::{ConstOne, ConstZero, MulAdd};
+use num_traits::{MulAdd, One, Zero};
+
+#[cfg(feature = "nalgebra")]
+use nalgebra::{Vector2, Vector3, Vector4};
+#[cfg(feature = "vqm")]
 use vqm::{Vector2, Vector3, Vector4};
 
 use crate::SignalFilter;
@@ -10,51 +14,69 @@ use crate::SignalFilter;
 pub type Pt1Filterf32 = Pt1Filter<f32, f32>;
 
 /// `Pt1Filter` for `Vector2f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector2f32 = Pt1Filter<Vector2<f32>, f32>;
 /// `Pt1Filter` for `Vector3f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector3f32 = Pt1Filter<Vector3<f32>, f32>;
 /// `Pt1Filter` for `Vector4f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector4f32 = Pt1Filter<Vector4<f32>, f32>;
 
 /// `Pt1Filter` for `Vector2Vector2f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector2Vector2f32 = Pt1Filter<Vector2<f32>, Vector2<f32>>;
 /// `Pt1Filter` for `Vector3Vector3f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector3Vector3f32 = Pt1Filter<Vector3<f32>, Vector3<f32>>;
 /// `Pt1Filter` for `Vector4Vector4f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector4Vector4f32 = Pt1Filter<Vector4<f32>, Vector4<f32>>;
 
 /// `Pt2Filter` for `f32`<br>
 pub type Pt2Filterf32 = Pt2Filter<f32, f32>;
 
 /// `Pt2Filter` for `Vector2f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector2f32 = Pt2Filter<Vector2<f32>, f32>;
 /// `Pt2Filter` for `Vector3f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector3f32 = Pt2Filter<Vector3<f32>, f32>;
 /// `Pt2Filter` for `Vector4f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector4f32 = Pt2Filter<Vector4<f32>, f32>;
 
 /// `Pt2Filter` for `Vector2Vector2f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector2Vector2f32 = Pt2Filter<Vector2<f32>, Vector2<f32>>;
 /// `Pt2Filter` for `Vector3Vector3f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector3Vector3f32 = Pt2Filter<Vector3<f32>, Vector3<f32>>;
 /// `Pt2Filter` for `Vector4Vector4f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector4Vector4f32 = Pt2Filter<Vector4<f32>, Vector4<f32>>;
 
 /// `Pt3Filter` for `f32`<br>
 pub type Pt3Filterf32 = Pt3Filter<f32, f32>;
 
 /// `Pt3Filter` for `Vector2f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector2f32 = Pt3Filter<Vector2<f32>, f32>;
 /// `Pt3Filter` for `Vector3f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector3f32 = Pt3Filter<Vector3<f32>, f32>;
 /// `Pt3Filter` for `Vector4f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector4f32 = Pt3Filter<Vector4<f32>, f32>;
 
 /// `Pt3Filter` for `Vector2Vector2f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector2Vector2f32 = Pt3Filter<Vector2<f32>, Vector2<f32>>;
 /// `Pt3Filter` for `Vector3Vector3f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector3Vector3f32 = Pt3Filter<Vector3<f32>, Vector3<f32>>;
 /// `Pt3Filter` for `Vector4Vector4f32`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector4Vector4f32 = Pt3Filter<Vector4<f32>, Vector4<f32>>;
 
 // f64 variants.
@@ -63,50 +85,68 @@ pub type Pt3FilterVector4Vector4f32 = Pt3Filter<Vector4<f32>, Vector4<f32>>;
 pub type Pt1Filterf64 = Pt1Filter<f64, f64>;
 
 /// `Pt1Filter` for `Vector2f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector2f64 = Pt1Filter<Vector2<f64>, f64>;
 /// `Pt1Filter` for `Vector3f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector3f64 = Pt1Filter<Vector3<f64>, f64>;
 /// `Pt1Filter` for `Vector4f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector4f64 = Pt1Filter<Vector4<f64>, f64>;
 
 /// `Pt1Filter` for `Vector2Vector2f64`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector2Vector2f64 = Pt1Filter<Vector2<f64>, Vector2<f64>>;
 /// `Pt1Filter` for `Vector3Vector3f64`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector3Vector3f64 = Pt1Filter<Vector3<f64>, Vector3<f64>>;
 /// `Pt1Filter` for `Vector4Vector4f64`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt1FilterVector4Vector4f64 = Pt1Filter<Vector4<f64>, Vector4<f64>>;
 
 /// `Pt2Filter` for `f64`<br><br>
 pub type Pt2Filterf64 = Pt2Filter<f64, f64>;
 
 /// `Pt2Filter` for `Vector2f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector2f64 = Pt2Filter<Vector2<f64>, f64>;
 /// `Pt2Filter` for `Vector3f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector3f64 = Pt2Filter<Vector3<f64>, f64>;
 /// `Pt2Filter` for `Vector4f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector4f64 = Pt2Filter<Vector4<f64>, f64>;
 
 /// `Pt2Filter` for `Vector2Vector2f64`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector2Vector2f64 = Pt2Filter<Vector2<f64>, Vector2<f64>>;
 /// `Pt2Filter` for `Vector3Vector3f64`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector3Vector3f64 = Pt2Filter<Vector3<f64>, Vector3<f64>>;
 /// `Pt2Filter` for `Vector4Vector4f64`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt2FilterVector4Vector4f64 = Pt2Filter<Vector4<f64>, Vector4<f64>>;
+
 /// `Pt3Filter` for `f64`<br><br>
 pub type Pt3Filterf64 = Pt3Filter<f64, f64>;
-
 /// `Pt3Filter` for `Vector2f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector2f64 = Pt3Filter<Vector2<f64>, f64>;
 /// `Pt3Filter` for `Vector3f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector3f64 = Pt3Filter<Vector3<f64>, f64>;
 /// `Pt3Filter` for `Vector4f64`<br><br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector4f64 = Pt3Filter<Vector4<f64>, f64>;
 
 /// `Pt3Filter` for `Vector2Vector2f64`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector2Vector2f64 = Pt3Filter<Vector2<f64>, Vector2<f64>>;
 /// `Pt3Filter` for `Vector3Vector3f64`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector3Vector3f64 = Pt3Filter<Vector3<f64>, Vector3<f64>>;
 /// `Pt3Filter` for `Vector4Vector4f64`<br>
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub type Pt3FilterVector4Vector4f64 = Pt3Filter<Vector4<f64>, Vector4<f64>>;
 
 pub trait PtFilterConstants {
@@ -157,8 +197,8 @@ pub struct Pt1Filter<T, R> {
 
 impl<T, R> Default for Pt1Filter<T, R>
 where
-    T: Copy + ConstZero,
-    R: Copy + ConstOne,
+    T: Copy + Zero,
+    R: Copy + One,
 {
     /// Default is k = 1.0, which is passthrough.
     fn default() -> Self {
@@ -168,17 +208,17 @@ where
 
 impl<T, R> Pt1Filter<T, R>
 where
-    T: Copy + ConstZero,
-    R: Copy + ConstOne,
+    T: Copy + Zero,
+    R: Copy + One,
 {
     /// Create a passthrough filter starting at zero.
     #[must_use]
-    pub const fn new() -> Self
+    pub fn new() -> Self
     where
-        T: ConstZero,
-        R: ConstOne,
+        T: Zero,
+        R: One,
     {
-        Self { state: T::ZERO, k: R::ONE }
+        Self { state: T::zero(), k: R::one() }
     }
 
     /// Set the `k` of a newly constructed filter.
@@ -198,12 +238,12 @@ where
 
 impl<T, R> SignalFilter<T, R> for Pt1Filter<T, R>
 where
-    T: Copy + ConstZero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
     R: Copy,
 {
     /// Reset the historical state to zero.
     fn reset(&mut self) {
-        self.state = T::ZERO;
+        self.state = T::zero();
     }
 
     /// Reset the historical state to a specific value.
@@ -223,11 +263,11 @@ where
 impl<T, R> Pt1Filter<T, R>
 where
     T: Copy,
-    R: Copy + ConstZero + ConstOne + PartialOrd,
+    R: Copy + Zero + One + PartialOrd,
 {
     /// Set the filter constant so the filter is in passthrough mode (no filtering).
-    pub const fn set_to_passthrough(&mut self) {
-        self.k = R::ONE;
+    pub fn set_to_passthrough(&mut self) {
+        self.k = R::one();
     }
 
     /// Set the filter constant `k` directly. This is a low-level operation and should be used with care.
@@ -237,10 +277,10 @@ where
 
     /// Set the filter constant `k`, clamping it to  the range [0, 1] to ensure stability.
     pub fn set_k_safe(&mut self, k: R) {
-        self.k = if k < R::ZERO {
-            R::ZERO
-        } else if k > R::ONE {
-            R::ONE
+        self.k = if k < R::zero() {
+            R::zero()
+        } else if k > R::one() {
+            R::one()
         } else {
             k
         };
@@ -255,64 +295,73 @@ where
     }
 }
 
-impl<T, R> Pt1Filter<T, R>
-where
-    T: Copy + ConstZero + Sub<Output = T> + MulAdd<R, T, Output = T>,
-    R: Copy + ConstZero + ConstOne + PtFilterConstants + PartialOrd + Div<R, Output = R>,
-{
-    pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R) {
+impl<T, R> Pt1Filter<T, R> {
+    pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R)
+    where
+        R: Copy + Zero + One + PartialOrd + Div<Output = R> + PtFilterConstants,
+    {
         self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
     }
 
-    pub fn set_cutoff_frequency_and_reset(&mut self, cutoff_frequency_hz: R, delta_t: R) {
+    pub fn set_cutoff_frequency_and_reset(&mut self, cutoff_frequency_hz: R, delta_t: R)
+    where
+        T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+        R: Copy + Zero + One + PtFilterConstants + PartialOrd + Div<R, Output = R>,
+    {
         self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
         self.reset();
     }
 
     /// Calculates filter gain based on delay (time constant of filter) - time it takes for filter response to reach 63.2% of a step input.
-    pub fn gain_from_delay(delay: R, delta_t: R) -> R {
-        debug_assert!(delta_t > R::ZERO);
-        if delay <= R::ZERO {
+    pub fn gain_from_delay(delay: R, delta_t: R) -> R
+    where
+        R: Copy + Zero + One + PartialOrd + Div<Output = R>,
+    {
+        debug_assert!(delta_t > R::zero());
+        if delay <= R::zero() {
             // gain of 1.0 means no filtering
-            return R::ONE;
+            return R::one();
         }
         let omega = delta_t / delay;
-        omega / (omega + R::ONE)
+        omega / (omega + R::one())
     }
 
-    pub fn gain_from_frequency(cutoff_frequency_hz: R, delta_t: R) -> R {
-        debug_assert!(cutoff_frequency_hz > R::ZERO);
-        debug_assert!(delta_t > R::ZERO);
-        let omega = (R::ONE + R::ONE) * R::PI * cutoff_frequency_hz * delta_t;
-        omega / (omega + R::ONE)
+    pub fn gain_from_frequency(cutoff_frequency_hz: R, delta_t: R) -> R
+    where
+        R: Copy + Zero + One + PartialOrd + Div<Output = R> + PtFilterConstants,
+    {
+        debug_assert!(cutoff_frequency_hz > R::zero());
+        debug_assert!(delta_t > R::zero());
+        let omega = (R::one() + R::one()) * R::PI * cutoff_frequency_hz * delta_t;
+        omega / (omega + R::one())
     }
 }
 
-impl<T, R> Pt1Filter<T, R>
-where
-    T: Copy + ConstZero + Sub<Output = T> + Mul<R, Output = T> + Div<R, Output = T> + MulAdd<R, T, Output = T>,
-    R: Copy + ConstZero + ConstOne + PtFilterConstants + PartialOrd + Sub<Output = R> + Div<R, Output = R>,
-{
+impl<T, R> Pt1Filter<T, R> {
     /// Updates the cutoff frequency seamlessly, ie without discontinuity in output.
-    pub fn set_cutoff_frequency_seamless(&mut self, cutoff_frequency_hz: R, delta_t: R, last_input: T) {
+    pub fn set_cutoff_frequency_seamless(&mut self, cutoff_frequency_hz: R, delta_t: R, last_input: T)
+    where
+        T: Copy + Zero + Sub<Output = T> + Mul<R, Output = T> + Div<R, Output = T> + MulAdd<R, T, Output = T>,
+        R: Copy + Zero + One + PtFilterConstants + PartialOrd + Sub<Output = R> + Div<R, Output = R>,
+    {
         let new_k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
 
         // Clamp new_k to [0.0, 1.0] to ensure stability
-        let safe_new_k = if new_k < R::ZERO {
-            R::ZERO
-        } else if new_k > R::ONE {
-            R::ONE
+        let safe_new_k = if new_k < R::zero() {
+            R::zero()
+        } else if new_k > R::one() {
+            R::one()
         } else {
             new_k
         };
 
         // Adjust state to avoid discontinuity if the filter is active and not in passthrough mode.
-        if safe_new_k > R::ZERO {
+        if safe_new_k > R::zero() {
             // Reconstruct the last output using old parameters.
             let last_output = (last_input - self.state).mul_add(self.k, self.state);
             // Calculate the target state using the new k value.
-            if safe_new_k < R::ONE {
-                self.state = (last_output - last_input * safe_new_k) / (R::ONE - safe_new_k);
+            if safe_new_k < R::one() {
+                self.state = (last_output - last_input * safe_new_k) / (R::one() - safe_new_k);
             }
         }
 
@@ -345,8 +394,8 @@ pub struct Pt2Filter<T, R> {
 
 impl<T, R> Default for Pt2Filter<T, R>
 where
-    T: Copy + ConstZero,
-    R: Copy + ConstOne,
+    T: Copy + Zero,
+    R: Copy + One,
 {
     /// Default is k = 1.0, which is passthrough.
     fn default() -> Self {
@@ -356,17 +405,17 @@ where
 
 impl<T, R> Pt2Filter<T, R>
 where
-    T: Copy + ConstZero,
-    R: Copy + ConstOne,
+    T: Copy + Zero,
+    R: Copy + One,
 {
     /// Create a passthrough filter starting at zero.
     #[must_use]
-    pub const fn new() -> Self
+    pub fn new() -> Self
     where
-        T: ConstZero,
-        R: ConstOne,
+        T: Zero,
+        R: One,
     {
-        Self { state: [T::ZERO, T::ZERO], k: R::ONE }
+        Self { state: [T::zero(), T::zero()], k: R::one() }
     }
 
     /// Set the `k` of a newly constructed filter.
@@ -386,12 +435,12 @@ where
 
 impl<T, R> SignalFilter<T, R> for Pt2Filter<T, R>
 where
-    T: Copy + ConstZero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
     R: Copy,
 {
     /// Reset the historical state to zero.
     fn reset(&mut self) {
-        self.state = [T::ZERO, T::ZERO];
+        self.state = [T::zero(), T::zero()];
     }
 
     /// Reset the historical state to a specific value.
@@ -411,11 +460,11 @@ where
 impl<T, R> Pt2Filter<T, R>
 where
     T: Copy,
-    R: Copy + ConstZero + ConstOne + PartialOrd,
+    R: Copy + Zero + One + PartialOrd,
 {
     /// Set the filter constant so the filter is in passthrough mode (no filtering).
     pub fn set_to_passthrough(&mut self) {
-        self.k = R::ONE;
+        self.k = R::one();
     }
 
     /// Set the filter constant `k` directly. This is a low-level operation and should be used with care.
@@ -425,10 +474,10 @@ where
 
     /// Set the filter constant `k`, clamping it to  the range [0, 1] to ensure stability.
     pub fn set_k_safe(&mut self, k: R) {
-        self.k = if k < R::ZERO {
-            R::ZERO
-        } else if k > R::ONE {
-            R::ONE
+        self.k = if k < R::zero() {
+            R::zero()
+        } else if k > R::one() {
+            R::one()
         } else {
             k
         };
@@ -443,24 +492,34 @@ where
     }
 }
 
-impl<T, R> Pt2Filter<T, R>
-where
-    T: Copy + ConstZero + Sub<Output = T> + MulAdd<R, T, Output = T>,
-    R: Copy + ConstZero + ConstOne + PtFilterConstants + PartialOrd + Div<R, Output = R>,
-{
-    pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R) {
+impl<T, R> Pt2Filter<T, R> {
+    pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R)
+    where
+        R: Copy + Zero + One + PartialOrd + Div<Output = R> + PtFilterConstants,
+    {
         self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
     }
 
-    pub fn set_cutoff_frequency_and_reset(&mut self, cutoff_frequency_hz: R, delta_t: R) {
+    pub fn set_cutoff_frequency_and_reset(&mut self, cutoff_frequency_hz: R, delta_t: R)
+    where
+        T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+        R: Copy + Zero + One + PtFilterConstants + PartialOrd + Div<R, Output = R>,
+    {
         self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
         self.reset();
     }
 
-    pub fn gain_from_delay(delay: R, delta_t: R) -> R {
+    pub fn gain_from_delay(delay: R, delta_t: R) -> R
+    where
+        R: Copy + Zero + One + PartialOrd + Div<Output = R> + PtFilterConstants,
+    {
         Pt1Filter::<T, R>::gain_from_delay(delay * R::PT2_CUTOFF_CORRECTION, delta_t)
     }
-    pub fn gain_from_frequency(cutoff_frequency_hz: R, delta_t: R) -> R {
+
+    pub fn gain_from_frequency(cutoff_frequency_hz: R, delta_t: R) -> R
+    where
+        R: Copy + Zero + One + PartialOrd + Div<Output = R> + PtFilterConstants,
+    {
         // shift cutoffFrequency to satisfy -3dB cutoff condition
         Pt1Filter::<T, R>::gain_from_frequency(cutoff_frequency_hz * R::PT2_CUTOFF_CORRECTION, delta_t)
     }
@@ -469,28 +528,28 @@ where
 impl<T, R> Pt2Filter<T, R>
 where
     T: Copy + Sub<Output = T> + Div<R, Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
-    R: Copy + ConstZero + ConstOne + PtFilterConstants + PartialOrd + Sub<Output = R> + Div<R, Output = R>,
+    R: Copy + Zero + One + PtFilterConstants + PartialOrd + Sub<Output = R> + Div<R, Output = R>,
 {
     /// Updates the cutoff frequency seamlessly, ie without discontinuity in output.
     pub fn set_cutoff_frequency_seamless(&mut self, cutoff_frequency_hz: R, delta_t: R, last_input: T) {
         // Calculate the raw gain based on the cutoff frequency
-        let omega = (R::ONE + R::ONE) * R::PI * cutoff_frequency_hz * delta_t;
-        let new_k = omega / (omega + R::ONE);
+        let omega = (R::one() + R::one()) * R::PI * cutoff_frequency_hz * delta_t;
+        let new_k = omega / (omega + R::one());
 
         // Clamp new_k to [0.0, 1.0] to ensure stability
-        let safe_new_k = if new_k < R::ZERO {
-            R::ZERO
-        } else if new_k > R::ONE {
-            R::ONE
+        let safe_new_k = if new_k < R::zero() {
+            R::zero()
+        } else if new_k > R::one() {
+            R::one()
         } else {
             new_k
         };
 
         // Adjust state to avoid discontinuity if the filter is active and not in passthrough mode.
-        if safe_new_k > R::ZERO {
-            let one_minus_new_k = R::ONE - safe_new_k;
+        if safe_new_k > R::zero() {
+            let one_minus_new_k = R::one() - safe_new_k;
 
-            if one_minus_new_k > R::ZERO {
+            if one_minus_new_k > R::zero() {
                 // Stage 1 output (prior to the coefficient switch)
                 let last_output_stage1 = (last_input - self.state[1]).mul_add(self.k, self.state[1]);
 
@@ -534,8 +593,8 @@ pub struct Pt3Filter<T, R> {
 /// Default is k = 1.0, which is passthrough.
 impl<T, R> Default for Pt3Filter<T, R>
 where
-    T: Copy + ConstZero,
-    R: Copy + ConstOne,
+    T: Copy + Zero,
+    R: Copy + One,
 {
     /// Default is k = 1.0, which is passthrough.
     fn default() -> Self {
@@ -545,13 +604,13 @@ where
 
 impl<T, R> Pt3Filter<T, R>
 where
-    T: Copy + ConstZero,
-    R: Copy + ConstOne,
+    T: Copy + Zero,
+    R: Copy + One,
 {
     /// Create a passthrough filter starting at zero.
     #[must_use]
-    pub const fn new() -> Self {
-        Self { state: [T::ZERO, T::ZERO, T::ZERO], k: R::ONE }
+    pub fn new() -> Self {
+        Self { state: [T::zero(), T::zero(), T::zero()], k: R::one() }
     }
 
     /// Set the `k` of a newly constructed filter.
@@ -571,12 +630,12 @@ where
 
 impl<T, R> SignalFilter<T, R> for Pt3Filter<T, R>
 where
-    T: Copy + ConstZero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
     R: Copy,
 {
     /// Reset the historical state to zero.
     fn reset(&mut self) {
-        self.state = [T::ZERO, T::ZERO, T::ZERO];
+        self.state = [T::zero(), T::zero(), T::zero()];
     }
 
     /// Reset the historical state to a specific value.
@@ -597,11 +656,11 @@ where
 impl<T, R> Pt3Filter<T, R>
 where
     T: Copy,
-    R: Copy + ConstZero + ConstOne + PartialOrd,
+    R: Copy + Zero + One + PartialOrd,
 {
     /// Set the filter constant so the filter is in passthrough mode (no filtering).
     pub fn set_to_passthrough(&mut self) {
-        self.k = R::ONE;
+        self.k = R::one();
     }
 
     /// Set the filter constant `k` directly. This is a low-level operation and should be used with care.
@@ -611,10 +670,10 @@ where
 
     /// Set the filter constant `k`, clamping it to  the range [0, 1] to ensure stability.
     pub fn set_k_safe(&mut self, k: R) {
-        self.k = if k < R::ZERO {
-            R::ZERO
-        } else if k > R::ONE {
-            R::ONE
+        self.k = if k < R::zero() {
+            R::zero()
+        } else if k > R::one() {
+            R::one()
         } else {
             k
         };
@@ -631,8 +690,8 @@ where
 
 impl<T, R> Pt3Filter<T, R>
 where
-    T: Copy + ConstZero + Sub<Output = T> + MulAdd<R, T, Output = T>,
-    R: Copy + ConstZero + ConstOne + PtFilterConstants + PartialOrd + Div<R, Output = R>,
+    T: Copy + Zero + Sub<Output = T> + MulAdd<R, T, Output = T>,
+    R: Copy + Zero + One + PtFilterConstants + PartialOrd + Div<R, Output = R>,
 {
     pub fn set_cutoff_frequency(&mut self, cutoff_frequency_hz: R, delta_t: R) {
         self.k = Self::gain_from_frequency(cutoff_frequency_hz, delta_t);
@@ -738,8 +797,6 @@ mod tests {
 
     #[test]
     fn pt1_filter_vector3f32_method_call() {
-        use crate::UpdateFilter;
-
         let mut filter = Pt1Filterf32::new().with_k(0.25);
         assert_eq!(0.05, filter.update(0.2));
         filter.reset();
@@ -747,15 +804,19 @@ mod tests {
         filter.reset();
         assert_eq!(0.375, filter.update(1.5));
 
-        let mut filter = Pt1FilterVector3f32::new().with_k(0.25);
-        let value = Vector3::<f32>::new(0.2, 0.5, 1.5);
-        let output = filter.update(value);
-        assert_eq!(Vector3::<f32>::new(0.05, 0.125, 0.375), output);
+        #[cfg(any(feature = "vqm", feature = "nalgebra"))]
+        {
+            use crate::UpdateFilter;
+            let mut filter = Pt1FilterVector3f32::new().with_k(0.25);
+            let value = Vector3::<f32>::new(0.2, 0.5, 1.5);
+            let output = filter.update(value);
+            assert_eq!(Vector3::<f32>::new(0.05, 0.125, 0.375), output);
 
-        filter.reset();
-        let value = Vector3::<f32>::new(0.2, 0.5, 1.5);
-        let value = value.filter_using(&mut filter);
-        assert_eq!(Vector3::<f32>::new(0.05, 0.125, 0.375), value);
+            filter.reset();
+            let value = Vector3::<f32>::new(0.2, 0.5, 1.5);
+            let value = value.filter_using(&mut filter);
+            assert_eq!(Vector3::<f32>::new(0.05, 0.125, 0.375), value);
+        }
     }
 
     #[test]
@@ -847,44 +908,50 @@ mod tests {
 
     #[test]
     fn pt1_filter_vector3f32() {
-        type Vector3f32 = Vector3<f32>;
+        #[cfg(any(feature = "vqm", feature = "nalgebra"))]
+        {
+            type Vector3f32 = Vector3<f32>;
 
-        let mut filter = Pt1Filter::<Vector3f32, f32>::new().with_k(1.0);
+            let mut filter = Pt1Filter::<Vector3f32, f32>::new().with_k(1.0);
 
-        // test that filter with default settings performs no filtering
-        let output = filter.update(Vector3f32::new(2.0, 3.0, 5.0));
-        assert_eq!(Vector3f32::new(2.0, 3.0, 5.0), output);
-        let state = filter.state();
-        assert_eq!(Vector3f32::new(2.0, 3.0, 5.0), state);
+            // test that filter with default settings performs no filtering
+            let output = filter.update(Vector3f32::new(2.0, 3.0, 5.0));
+            assert_eq!(Vector3f32::new(2.0, 3.0, 5.0), output);
+            let state = filter.state();
+            assert_eq!(Vector3f32::new(2.0, 3.0, 5.0), state);
 
-        filter.reset();
-        let state = filter.state();
-        assert_eq!(Vector3f32::new(0.0, 0.0, 0.0), state);
+            filter.reset();
+            let state = filter.state();
+            assert_eq!(Vector3f32::new(0.0, 0.0, 0.0), state);
 
-        filter.set_cutoff_frequency(100.0, 0.001);
-        assert_eq!(0.385_869_56, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
-        assert_eq!(1.008_713_4, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
+            filter.set_cutoff_frequency(100.0, 0.001);
+            assert_eq!(0.385_869_56, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
+            assert_eq!(1.008_713_4, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
 
-        filter.set_k(1.0);
-        assert_eq!(1.0, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
-        assert_eq!(2.0, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
+            filter.set_k(1.0);
+            assert_eq!(1.0, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
+            assert_eq!(2.0, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
 
-        filter.set_cutoff_frequency_and_reset(100.0, 0.001);
-        assert_eq!(0.385_869_56, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
-        assert_eq!(1.008_713_4, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
+            filter.set_cutoff_frequency_and_reset(100.0, 0.001);
+            assert_eq!(0.385_869_56, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
+            assert_eq!(1.008_713_4, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
 
-        filter.set_to_passthrough();
-        assert_eq!(1.0, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
-        assert_eq!(2.0, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
+            filter.set_to_passthrough();
+            assert_eq!(1.0, filter.update(Vector3f32::new(1.0, 0.0, 0.0)).x);
+            assert_eq!(2.0, filter.update(Vector3f32::new(2.0, 0.0, 0.0)).x);
+        }
     }
 
     #[test]
     fn pt1_filter_vector3vector3f32() {
-        type Vector3f32 = Vector3<f32>;
-        pub type Pt1FilterVector3Vector3f32 = Pt1Filter<Vector3f32, Vector3f32>;
+        #[cfg(any(feature = "vqm", feature = "nalgebra"))]
+        {
+            type Vector3f32 = Vector3<f32>;
+            pub type Pt1FilterVector3Vector3f32 = Pt1Filter<Vector3f32, Vector3f32>;
 
-        let mut filter = Pt1FilterVector3Vector3f32::new().with_k(Vector3f32::new(0.9, 0.8, 1.0));
-        let output = filter.update(Vector3f32::new(2.0, 3.0, 5.0));
-        assert_eq!(output.z, 5.0);
+            let mut filter = Pt1FilterVector3Vector3f32::new().with_k(Vector3f32::new(0.9, 0.8, 1.0));
+            let output = filter.update(Vector3f32::new(2.0, 3.0, 5.0));
+            assert_eq!(output.z, 5.0);
+        }
     }
 }

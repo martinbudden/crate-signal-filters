@@ -22,9 +22,9 @@ fn run_ci_pipeline() {
         ("fmt", &["--check"]),
         ("clippy", &["--all-targets", "--", "-D", "warnings"]),
         ("check", &[]),
-        ("check", &["--no-default-features", "--features", "libm, serde, storage"]),
+        ("check", &["--no-default-features", "--features", "vqm, libm, serde, storage"]),
         ("test", &[]),
-        ("test", &["--no-default-features", "--features", "libm, serde, storage"]),
+        ("test", &["--no-default-features", "--features", "vqm, libm, serde, storage"]),
         ("doc", &["--no-deps"]),
         ("publish", &["--dry-run"]),
     ];

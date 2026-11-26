@@ -1,11 +1,14 @@
+#[cfg(feature = "nalgebra")]
+use nalgebra::{Vector2, Vector3, Vector4};
+#[cfg(feature = "vqm")]
+use vqm::{Vector2, Vector3, Vector4};
+
 /// Note the "filter" function is called "update" rather than "apply" or "filter".
 /// This is because update implies the filter has internal state whereas
 /// apply sometimes implies a "pure" mathematical function with no memory.
 ///
 /// `filter.update()` reads better than `filter.filter()`
 /// and it also avoids confusion with the filter function in the Iterator trait.
-use vqm::{Vector2, Vector3, Vector4};
-
 #[allow(clippy::doc_paragraphs_missing_punctuation)]
 /// Filter Definition trait.
 /// `filter.reset()`
@@ -62,6 +65,7 @@ impl UpdateFilter<f32, f32> for f32 {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector2<f32>, f32> for Vector2<f32> {
     fn filter_using<F: SignalFilter<Vector2<f32>, f32>>(self, filter: &mut F) -> Self {
         // self is Vector2<f32>, filter.update handles the whole vector at once
@@ -69,6 +73,7 @@ impl UpdateFilter<Vector2<f32>, f32> for Vector2<f32> {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector3<f32>, f32> for Vector3<f32> {
     fn filter_using<F: SignalFilter<Vector3<f32>, f32>>(self, filter: &mut F) -> Self {
         // self is Vector3<f32>, filter.update handles the whole vector at once
@@ -76,6 +81,7 @@ impl UpdateFilter<Vector3<f32>, f32> for Vector3<f32> {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector4<f32>, f32> for Vector4<f32> {
     fn filter_using<F: SignalFilter<Vector4<f32>, f32>>(self, filter: &mut F) -> Self {
         // self is Vector4<f32>, filter.update handles the whole vector at once
@@ -83,6 +89,7 @@ impl UpdateFilter<Vector4<f32>, f32> for Vector4<f32> {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector2<f32>, Vector2<f32>> for Vector2<f32> {
     fn filter_using<F: SignalFilter<Vector2<f32>, Vector2<f32>>>(self, filter: &mut F) -> Self {
         // self is Vector2<f32>, filter.update handles the whole vector at once
@@ -90,6 +97,7 @@ impl UpdateFilter<Vector2<f32>, Vector2<f32>> for Vector2<f32> {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector3<f32>, Vector3<f32>> for Vector3<f32> {
     fn filter_using<F: SignalFilter<Vector3<f32>, Vector3<f32>>>(self, filter: &mut F) -> Self {
         // self is Vector3<f32>, filter.update handles the whole vector at once
@@ -97,6 +105,7 @@ impl UpdateFilter<Vector3<f32>, Vector3<f32>> for Vector3<f32> {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector4<f32>, Vector4<f32>> for Vector4<f32> {
     fn filter_using<F: SignalFilter<Vector4<f32>, Vector4<f32>>>(self, filter: &mut F) -> Self {
         // self is Vector4<f32>, filter.update handles the whole vector at once
@@ -113,6 +122,7 @@ impl UpdateFilter<f64, f64> for f64 {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector2<f64>, f64> for Vector2<f64> {
     fn filter_using<F: SignalFilter<Vector2<f64>, f64>>(self, filter: &mut F) -> Self {
         // self is Vector2<f64>, filter.update handles the whole vector at once
@@ -120,6 +130,7 @@ impl UpdateFilter<Vector2<f64>, f64> for Vector2<f64> {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector3<f64>, f64> for Vector3<f64> {
     fn filter_using<F: SignalFilter<Vector3<f64>, f64>>(self, filter: &mut F) -> Self {
         // self is Vector3<f64>, filter.update handles the whole vector at once
@@ -127,6 +138,7 @@ impl UpdateFilter<Vector3<f64>, f64> for Vector3<f64> {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector4<f64>, f64> for Vector4<f64> {
     fn filter_using<F: SignalFilter<Vector4<f64>, f64>>(self, filter: &mut F) -> Self {
         // self is Vector4<f64>, filter.update handles the whole vector at once
@@ -134,6 +146,7 @@ impl UpdateFilter<Vector4<f64>, f64> for Vector4<f64> {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector2<f64>, Vector2<f64>> for Vector2<f64> {
     fn filter_using<F: SignalFilter<Vector2<f64>, Vector2<f64>>>(self, filter: &mut F) -> Self {
         // self is Vector2<f64>, filter.update handles the whole vector at once
@@ -141,6 +154,7 @@ impl UpdateFilter<Vector2<f64>, Vector2<f64>> for Vector2<f64> {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector3<f64>, Vector3<f64>> for Vector3<f64> {
     fn filter_using<F: SignalFilter<Vector3<f64>, Vector3<f64>>>(self, filter: &mut F) -> Self {
         // self is Vector3<f64>, filter.update handles the whole vector at once
@@ -148,6 +162,7 @@ impl UpdateFilter<Vector3<f64>, Vector3<f64>> for Vector3<f64> {
     }
 }
 
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 impl UpdateFilter<Vector4<f64>, Vector4<f64>> for Vector4<f64> {
     fn filter_using<F: SignalFilter<Vector4<f64>, Vector4<f64>>>(self, filter: &mut F) -> Self {
         // self is Vector4<f64>, filter.update handles the whole vector at once

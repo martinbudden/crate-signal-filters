@@ -1,6 +1,13 @@
+#![cfg(feature = "vqm")]
+
+use crate::BiquadFilterMethods;
 use core::ops::{Add, Div, Mul, Neg, Sub};
-use num_traits::{ConstOne, ConstZero, MulAdd};
-use vqm::{MathMethods, Vector2, Vector3, Vector4};
+use num_traits::{MulAdd, One, Zero};
+
+#[cfg(feature = "nalgebra")]
+use nalgebra::{Vector2, Vector3, Vector4};
+#[cfg(feature = "vqm")]
+use vqm::{Vector2, Vector3, Vector4};
 
 #[cfg(feature = "storage")]
 use sequential_storage::map::PostcardValue;
@@ -77,74 +84,88 @@ pub struct BiquadFilter<T, R> {
 
 impl<T, R> Default for BiquadFilter<T, R>
 where
-    T: Copy + ConstZero,
-    R: Copy + ConstZero + ConstOne + BiquadFilterConstants + Div<R, Output = R>,
+    T: Copy + Zero,
+    R: Copy + Zero + One + BiquadFilterConstants + Div<R, Output = R>,
 {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T, R> BiquadFilter<T, R>
-where
-    T: Copy + ConstZero,
-    R: Copy + ConstZero + ConstOne + ConstZero + ConstOne + BiquadFilterConstants + Div<R, Output = R>,
-{
+impl<T, R> BiquadFilter<T, R> {
     /// Constructor.
     #[must_use]
-    pub const fn new() -> Self {
+    pub fn new() -> Self
+    where
+        T: Copy + Zero,
+        R: Copy + Zero + One + BiquadFilterConstants,
+    {
         Self {
             state: BiquadFilterState::new(),
             coeffs: BiquadFilterCoefficients::new(),
-            weight: R::ONE,
-            loop_time_seconds: R::ZERO,
-            two_pi_loop_time_seconds: R::ZERO,
-            q: R::ONE,
+            weight: R::one(),
+            loop_time_seconds: R::zero(),
+            two_pi_loop_time_seconds: R::zero(),
+            q: R::one(),
             one_over_2q: R::HALF,
         }
     }
 
     /// Set the coefficients of a newly constructed filter.
     #[must_use]
-    pub const fn with_coefficients(mut self, coeffs: BiquadFilterCoefficients<R>) -> Self {
+    pub const fn with_coefficients(mut self, coeffs: BiquadFilterCoefficients<R>) -> Self
+    where
+        R: Copy,
+    {
         self.coeffs = coeffs;
         self
     }
 
     /// Set the `q` of a newly constructed filter.
     #[must_use]
-    pub fn with_q(mut self, q: R) -> Self {
+    pub fn with_q(mut self, q: R) -> Self
+    where
+        R: Copy + One + Add<Output = R> + Div<Output = R>,
+    {
         self.set_q(q);
         self
     }
     /// Set the sample interval of a newly constructed filter.
     #[must_use]
-    pub fn with_sample_interval(mut self, loop_time_seconds: R) -> Self {
+    pub fn with_sample_interval(mut self, loop_time_seconds: R) -> Self
+    where
+        R: Copy + One + BiquadFilterConstants + Add<Output = R>,
+    {
         self.set_sample_interval(loop_time_seconds);
         self
     }
 }
 
-impl<T, R> BiquadFilter<T, R>
-where
-    T: Copy,
-    R: Copy + ConstOne + BiquadFilterConstants + Div<R, Output = R> + Add<Output = R>,
-{
+impl<T, R> BiquadFilter<T, R> {
     /// Set `Q` the quality factor.
     /// For notch filters `Q` governs the bandwidth of the filter. High `Q` results in a narrow notch, low `Q` a wide notch.
     /// For high and low pass filters `Q` governs the resonance or peaking at the cutoff frequency.
-    pub fn set_q(&mut self, q: R) {
+    pub fn set_q(&mut self, q: R)
+    where
+        R: Copy + One + Add<Output = R> + Div<Output = R>,
+    {
         self.q = q;
-        self.one_over_2q = R::ONE / ((R::ONE + R::ONE) * q); // cache value for faster setting of frequencies
+        self.one_over_2q = R::one() / ((R::one() + R::one()) * q); // cache value for faster setting of frequencies
     }
 
-    pub fn set_sample_interval(&mut self, sample_interval_seconds: R) {
+    pub fn set_sample_interval(&mut self, sample_interval_seconds: R)
+    where
+        R: Copy + One + BiquadFilterConstants + Add<Output = R> + Mul<Output = R>,
+    {
         self.loop_time_seconds = sample_interval_seconds;
-        self.two_pi_loop_time_seconds = (R::ONE + R::ONE) * R::PI * sample_interval_seconds; // cache value for faster setting of frequencies
+        self.two_pi_loop_time_seconds = (R::one() + R::one()) * R::PI * sample_interval_seconds; // cache value for faster setting of frequencies
     }
 
-    pub fn set_sample_rate_hz(&mut self, sample_rate_hz: R) {
-        self.set_sample_interval(R::ONE / sample_rate_hz);
+    pub fn set_sample_rate_hz(&mut self, sample_rate_hz: R)
+    where
+        R: Copy + One + BiquadFilterConstants + Add<Output = R> + Div<Output = R>,
+    {
+        self.set_sample_interval(R::one() / sample_rate_hz);
     }
 }
 
@@ -165,7 +186,7 @@ impl<T> PostcardValue<'_> for BiquadFilterCoefficients<T> where T: Serialize + M
 
 impl<T> Default for BiquadFilterCoefficients<T>
 where
-    T: Copy + ConstZero + ConstOne,
+    T: Copy + Zero + One,
 {
     fn default() -> Self {
         Self::new()
@@ -174,10 +195,10 @@ where
 
 impl<R> BiquadFilterCoefficients<R>
 where
-    R: Copy + ConstZero + ConstOne,
+    R: Copy + Zero + One,
 {
-    pub const fn new() -> Self {
-        Self { a1: R::ZERO, a2: R::ZERO, b0: R::ONE, b1: R::ZERO, b2: R::ZERO }
+    pub fn new() -> Self {
+        Self { a1: R::zero(), a2: R::zero(), b0: R::one(), b1: R::zero(), b2: R::zero() }
     }
 }
 
@@ -189,16 +210,16 @@ pub struct BiquadFilterState<T> {
 
 impl<T> BiquadFilterState<T>
 where
-    T: Copy + ConstZero,
+    T: Copy + Zero,
 {
-    pub const fn new() -> Self {
-        Self { w1: T::ZERO, w2: T::ZERO }
+    pub fn new() -> Self {
+        Self { w1: T::zero(), w2: T::zero() }
     }
 }
 
 impl<T> Default for BiquadFilterState<T>
 where
-    T: Copy + ConstZero,
+    T: Copy + Zero,
 {
     fn default() -> Self {
         Self::new()
@@ -207,19 +228,19 @@ where
 
 impl<T, R> SignalFilter<T, R> for BiquadFilter<T, R>
 where
-    T: Copy + ConstZero + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
-    R: Copy + ConstOne + Sub<Output = R> + Neg<Output = R>,
+    T: Copy + Zero + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
+    R: Copy + One + Sub<Output = R> + Neg<Output = R>,
 {
     fn reset(&mut self) {
-        self.state.w1 = T::ZERO;
-        self.state.w2 = T::ZERO;
+        self.state.w1 = T::zero();
+        self.state.w2 = T::zero();
     }
 
     /// Sets the Biquad filter's state cleanly to a specific DC value,
     /// ie setting w1/w2 to a mathematical equilibrium to prevent signal jumps.
     fn reset_to_value(&mut self, value: T) {
         // w1 = value * (1.0 - b0)
-        self.state.w1 = value * (R::ONE - self.coeffs.b0);
+        self.state.w1 = value * (R::one() - self.coeffs.b0);
         // w2 = value * (b2 - a2)
         self.state.w2 = value * (self.coeffs.b2 - self.coeffs.a2);
     }
@@ -334,47 +355,80 @@ where
     }
 }
 
-impl<T, R> BiquadFilter<T, R>
-where
-    T: Copy + ConstZero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
-    R: Copy
-        + ConstZero
-        + ConstOne
-        + PartialOrd
-        + Neg<Output = R>
-        + BiquadFilterConstants
-        + MathMethods
-        + Div<R, Output = R>
-        + Sub<R, Output = R>,
-{
+impl<T, R> BiquadFilter<T, R> {
     /// Set the filter to passthrough mode (ie no filtering).
-    pub fn set_to_passthrough(&mut self) {
-        self.coeffs.b0 = R::ONE;
-        self.coeffs.b1 = R::ZERO;
-        self.coeffs.b2 = R::ZERO;
-        self.coeffs.a1 = R::ZERO;
-        self.coeffs.a2 = R::ZERO;
-        self.weight = R::ONE;
+    pub fn set_to_passthrough(&mut self)
+    where
+        T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
+        R: Copy
+            + Zero
+            + One
+            + PartialOrd
+            + Neg<Output = R>
+            + BiquadFilterConstants
+            + Div<R, Output = R>
+            + Sub<R, Output = R>,
+    {
+        self.coeffs.b0 = R::one();
+        self.coeffs.b1 = R::zero();
+        self.coeffs.b2 = R::zero();
+        self.coeffs.a1 = R::zero();
+        self.coeffs.a2 = R::zero();
+        self.weight = R::one();
         self.reset();
     }
 
     #[inline]
-    pub fn update_weighted(&mut self, input: T) -> T {
+    pub fn update_weighted(&mut self, input: T) -> T
+    where
+        T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
+        R: Copy
+            + Zero
+            + One
+            + PartialOrd
+            + Neg<Output = R>
+            + BiquadFilterConstants
+            + Div<R, Output = R>
+            + Sub<R, Output = R>,
+    {
         let output = self.update(input);
         // weight of 1.0 gives just output, weight of 0.0 gives just input.
         (output - input).mul_add(self.weight, input)
     }
 
     #[inline]
-    pub fn update_notch_weighted(&mut self, input: T) -> T {
+    pub fn update_notch_weighted(&mut self, input: T) -> T
+    where
+        T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
+        R: Copy
+            + Zero
+            + One
+            + PartialOrd
+            + Neg<Output = R>
+            + BiquadFilterConstants
+            + Div<R, Output = R>
+            + Sub<R, Output = R>,
+    {
         let output = self.update_notch(input);
         // weight of 1.0 gives just output, weight of 0.0 gives just input
         (output - input).mul_add(self.weight, input)
     }
 
     /// Initialize the filter as a low pass filter.
-    pub fn init_low_pass(&mut self, frequency_hz: R, sample_interval_seconds: R, q: R) {
-        debug_assert!(q > R::ZERO);
+    pub fn init_low_pass(&mut self, frequency_hz: R, sample_interval_seconds: R, q: R)
+    where
+        T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
+        R: Copy
+            + Zero
+            + One
+            + PartialOrd
+            + Neg<Output = R>
+            + BiquadFilterConstants
+            + Div<R, Output = R>
+            + Sub<R, Output = R>
+            + BiquadFilterMethods,
+    {
+        debug_assert!(q > R::zero());
         self.set_sample_interval(sample_interval_seconds);
         self.set_q(q);
         self.set_low_pass_frequency_assuming_q(frequency_hz);
@@ -382,8 +436,20 @@ where
     }
 
     /// Initialize the filter as a notch filter.
-    pub fn init_notch(&mut self, frequency_hz: R, sample_interval_seconds: R, q: R) {
-        debug_assert!(q > R::ZERO);
+    pub fn init_notch(&mut self, frequency_hz: R, sample_interval_seconds: R, q: R)
+    where
+        T: Copy + Zero + Add<Output = T> + Sub<Output = T> + Mul<R, Output = T> + MulAdd<R, T, Output = T>,
+        R: Copy
+            + Zero
+            + One
+            + PartialOrd
+            + Neg<Output = R>
+            + BiquadFilterConstants
+            + Div<R, Output = R>
+            + Sub<R, Output = R>
+            + BiquadFilterMethods,
+    {
+        debug_assert!(q > R::zero());
         self.set_sample_interval(sample_interval_seconds);
         self.set_q(q);
         self.set_notch_frequency_assuming_q(frequency_hz);
@@ -392,10 +458,14 @@ where
 
     /// Pre-charges the filter states based on the initial sample value.
     /// This drastically reduces startup transient ringing and settling time.
-    pub fn pre_charge(&mut self, initial_value: T) {
+    pub fn pre_charge(&mut self, initial_value: T)
+    where
+        T: Copy + MulAdd<R, T, Output = T> + Mul<R, Output = T>,
+        R: Copy + One + Sub<Output = R>,
+    {
         // For a DC input, steady state output equals input (unity gain).
         // Using: yₙ = b0*x + w1  =>  w1 = x * (1 - b0)
-        self.state.w1 = initial_value * (R::ONE - self.coeffs.b0);
+        self.state.w1 = initial_value * (R::one() - self.coeffs.b0);
 
         // Using: w2 = b2*x - a2*y  =>  Because x == y and b2 == b0:
         // w2 = x * (b0 - a2)
@@ -403,78 +473,138 @@ where
     }
 
     //Note: weight must be in range [0, 1].
-    pub fn calculate_low_pass_coefficients_assuming_q(&mut self, frequency_hz: R) -> BiquadFilterCoefficients<R> {
-        debug_assert!(frequency_hz > R::ZERO);
+    pub fn calculate_low_pass_coefficients_assuming_q(&mut self, frequency_hz: R) -> BiquadFilterCoefficients<R>
+    where
+        R: Copy + Zero + One + PartialOrd + Div<Output = R> + Sub<Output = R> + Neg<Output = R> + BiquadFilterMethods,
+    {
+        debug_assert!(frequency_hz > R::zero());
         let omega = frequency_hz * self.two_pi_loop_time_seconds;
         let (sin_omega, cos_omega) = omega.sin_cos();
         let alpha = sin_omega * self.one_over_2q;
-        let a0_reciprocal = R::ONE / (R::ONE + alpha);
+        let a0_reciprocal = R::one() / (R::one() + alpha);
 
-        let b1 = (R::ONE - cos_omega) * a0_reciprocal;
-        let b0 = b1 * (R::ONE / (R::ONE + R::ONE));
+        let b1 = (R::one() - cos_omega) * a0_reciprocal;
+        let b0 = b1 * (R::one() / (R::one() + R::one()));
         BiquadFilterCoefficients {
             b0,
             b1,
             b2: b0,
-            a1: -(R::ONE + R::ONE) * cos_omega * a0_reciprocal,
-            a2: (R::ONE - alpha) * a0_reciprocal,
+            a1: -(R::one() + R::one()) * cos_omega * a0_reciprocal,
+            a2: (R::one() - alpha) * a0_reciprocal,
         }
     }
 
-    pub fn set_low_pass_frequency_weighted_assuming_q(&mut self, frequency_hz: R, weight: R) {
+    pub fn set_low_pass_frequency_weighted_assuming_q(&mut self, frequency_hz: R, weight: R)
+    where
+        R: Copy + Zero + One + PartialOrd + Div<Output = R> + Sub<Output = R> + Neg<Output = R> + BiquadFilterMethods,
+    {
         self.weight = weight;
         self.coeffs = self.calculate_low_pass_coefficients_assuming_q(frequency_hz);
     }
 
-    pub fn set_low_pass_frequency_assuming_q(&mut self, frequency_hz: R) {
-        self.set_low_pass_frequency_weighted_assuming_q(frequency_hz, R::ONE);
+    pub fn set_low_pass_frequency_assuming_q(&mut self, frequency_hz: R)
+    where
+        R: Copy + Zero + One + PartialOrd + Div<Output = R> + Sub<Output = R> + Neg<Output = R> + BiquadFilterMethods,
+    {
+        self.set_low_pass_frequency_weighted_assuming_q(frequency_hz, R::one());
     }
 
     pub fn calculate_notch_coefficients_from_sin_cos_assuming_q(
         &mut self,
         sin_omega: R,
         cos_omega: R,
-    ) -> BiquadFilterCoefficients<R> {
+    ) -> BiquadFilterCoefficients<R>
+    where
+        R: Copy + One + Add<Output = R> + Mul<Output = R> + Div<Output = R> + Neg<Output = R> + Sub<Output = R>,
+    {
         let alpha = sin_omega * self.one_over_2q;
-        let a0reciprocal = R::ONE / (R::ONE + alpha);
-        let b1 = -(R::ONE + R::ONE) * cos_omega * a0reciprocal;
-        BiquadFilterCoefficients { b0: a0reciprocal, b2: a0reciprocal, b1, a1: b1, a2: (R::ONE - alpha) * a0reciprocal }
+        let a0reciprocal = R::one() / (R::one() + alpha);
+        let b1 = -(R::one() + R::one()) * cos_omega * a0reciprocal;
+        BiquadFilterCoefficients {
+            b0: a0reciprocal,
+            b2: a0reciprocal,
+            b1,
+            a1: b1,
+            a2: (R::one() - alpha) * a0reciprocal,
+        }
     }
     #[inline]
-    pub fn set_notch_frequency_weighted_from_sin_cos_assuming_q(&mut self, sin_omega: R, cos_omega: R, weight: R) {
+    pub fn set_notch_frequency_weighted_from_sin_cos_assuming_q(&mut self, sin_omega: R, cos_omega: R, weight: R)
+    where
+        R: Copy + One + Add<Output = R> + Mul<Output = R> + Div<Output = R> + Neg<Output = R> + Sub<Output = R>,
+    {
         self.weight = weight;
         self.coeffs = self.calculate_notch_coefficients_from_sin_cos_assuming_q(sin_omega, cos_omega);
     }
 
-    pub fn calculate_notch_coefficients_assuming_q(&mut self, frequency_hz: R) -> BiquadFilterCoefficients<R> {
+    pub fn calculate_notch_coefficients_assuming_q(&mut self, frequency_hz: R) -> BiquadFilterCoefficients<R>
+    where
+        R: Copy
+            + One
+            + Add<Output = R>
+            + Mul<Output = R>
+            + Div<Output = R>
+            + Neg<Output = R>
+            + Sub<Output = R>
+            + BiquadFilterMethods,
+    {
         let omega = frequency_hz * self.two_pi_loop_time_seconds;
         let (sin_omega, cos_omega) = omega.sin_cos();
         self.calculate_notch_coefficients_from_sin_cos_assuming_q(sin_omega, cos_omega)
     }
 
     #[inline]
-    pub fn set_notch_frequency_weighted_assuming_q(&mut self, frequency_hz: R, weight: R) {
+    pub fn set_notch_frequency_weighted_assuming_q(&mut self, frequency_hz: R, weight: R)
+    where
+        R: Copy
+            + One
+            + Add<Output = R>
+            + Mul<Output = R>
+            + Div<Output = R>
+            + Neg<Output = R>
+            + Sub<Output = R>
+            + BiquadFilterMethods,
+    {
         self.weight = weight;
         self.coeffs = self.calculate_notch_coefficients_assuming_q(frequency_hz);
     }
 
     #[inline]
-    pub fn set_notch_frequency_assuming_q(&mut self, frequency_hz: R) {
-        self.set_notch_frequency_weighted_assuming_q(frequency_hz, R::ONE);
+    pub fn set_notch_frequency_assuming_q(&mut self, frequency_hz: R)
+    where
+        R: Copy
+            + One
+            + Add<Output = R>
+            + Mul<Output = R>
+            + Div<Output = R>
+            + Neg<Output = R>
+            + Sub<Output = R>
+            + BiquadFilterMethods,
+    {
+        self.set_notch_frequency_weighted_assuming_q(frequency_hz, R::one());
     }
 
     #[inline]
-    pub fn set_notch_frequency(&mut self, center_frequency_hz: R, lower_cutoff_frequency_hz: R) {
+    pub fn set_notch_frequency(&mut self, center_frequency_hz: R, lower_cutoff_frequency_hz: R)
+    where
+        R: Copy + One + Add<Output = R> + Div<Output = R> + Sub<Output = R> + Neg<Output = R> + BiquadFilterMethods,
+    {
         self.set_q(Self::calculate_q(center_frequency_hz, lower_cutoff_frequency_hz));
         self.set_notch_frequency_assuming_q(center_frequency_hz);
     }
 
-    pub fn calculate_q(center_frequency_hz: R, lower_cutoff_frequency_hz: R) -> R {
+    pub fn calculate_q(center_frequency_hz: R, lower_cutoff_frequency_hz: R) -> R
+    where
+        R: Copy + Mul<Output = R> + Sub<Output = R> + Div<Output = R>,
+    {
         center_frequency_hz * lower_cutoff_frequency_hz
             / (center_frequency_hz * center_frequency_hz - lower_cutoff_frequency_hz * lower_cutoff_frequency_hz)
     }
 
-    pub fn set_q_from_frequencies(&mut self, center_frequency_hz: R, lower_cutoff_frequency_hz: R) {
+    pub fn set_q_from_frequencies(&mut self, center_frequency_hz: R, lower_cutoff_frequency_hz: R)
+    where
+        R: Copy + One + Add<Output = R> + Div<Output = R> + Sub<Output = R>,
+    {
         self.set_q(Self::calculate_q(center_frequency_hz, lower_cutoff_frequency_hz));
     }
 }

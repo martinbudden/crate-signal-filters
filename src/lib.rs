@@ -28,6 +28,7 @@
 compile_error!("signal-filters requires either the `std` or `libm` feature to provide a MulAdd trait in num-traits.");
 
 mod biquad_filter;
+mod biquad_filter_methods;
 mod circular_buffer;
 mod filters;
 mod median_filter;
@@ -36,9 +37,13 @@ mod pt_filters;
 mod rolling_buffer;
 mod slew_filter;
 
+#[cfg(feature = "vqm")]
 pub use biquad_filter::BiquadFilter;
+#[cfg(feature = "vqm")]
 pub use biquad_filter::{BiquadFilterVector2f32, BiquadFilterVector3f32, BiquadFilterVector4f32, BiquadFilterf32};
+#[cfg(feature = "vqm")]
 pub use biquad_filter::{BiquadFilterVector2f64, BiquadFilterVector3f64, BiquadFilterVector4f64, BiquadFilterf64};
+pub use biquad_filter_methods::BiquadFilterMethods;
 
 pub use circular_buffer::CircularBuffer;
 
@@ -48,31 +53,36 @@ pub use median_filter::{MedianFilter3, MedianFilter5};
 pub use median_filter::{MedianFilter3f32, MedianFilter5f32};
 pub use median_filter::{MedianFilter3f64, MedianFilter5f64};
 
-pub use moving_average_filter::MovingAverageFilter;
+pub use moving_average_filter::{MovingAverageFilter, MovingAverageFilterf32, MovingAverageFilterf64};
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
 pub use moving_average_filter::{
-    MovingAverageFilterVector2f32, MovingAverageFilterVector3f32, MovingAverageFilterVector4f32, MovingAverageFilterf32,
-};
-pub use moving_average_filter::{
-    MovingAverageFilterVector2f64, MovingAverageFilterVector3f64, MovingAverageFilterVector4f64, MovingAverageFilterf64,
+    MovingAverageFilterVector2f32, MovingAverageFilterVector2f64, MovingAverageFilterVector3f32,
+    MovingAverageFilterVector3f64, MovingAverageFilterVector4f32, MovingAverageFilterVector4f64,
 };
 
 pub use pt_filters::{Pt1Filter, Pt1Filterf32, Pt1Filterf64};
-pub use pt_filters::{Pt1FilterVector2Vector2f32, Pt1FilterVector3Vector3f32, Pt1FilterVector4Vector4f32};
-pub use pt_filters::{Pt1FilterVector2Vector2f64, Pt1FilterVector3Vector3f64, Pt1FilterVector4Vector4f64};
-pub use pt_filters::{Pt1FilterVector2f32, Pt1FilterVector3f32, Pt1FilterVector4f32};
-pub use pt_filters::{Pt1FilterVector2f64, Pt1FilterVector3f64, Pt1FilterVector4f64};
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
+pub use pt_filters::{
+    Pt1FilterVector2Vector2f32, Pt1FilterVector2Vector2f64, Pt1FilterVector2f32, Pt1FilterVector2f64,
+    Pt1FilterVector3Vector3f32, Pt1FilterVector3Vector3f64, Pt1FilterVector3f32, Pt1FilterVector3f64,
+    Pt1FilterVector4Vector4f32, Pt1FilterVector4Vector4f64, Pt1FilterVector4f32, Pt1FilterVector4f64,
+};
 
 pub use pt_filters::{Pt2Filter, Pt2Filterf32, Pt2Filterf64};
-pub use pt_filters::{Pt2FilterVector2Vector2f32, Pt2FilterVector3Vector3f32, Pt2FilterVector4Vector4f32};
-pub use pt_filters::{Pt2FilterVector2Vector2f64, Pt2FilterVector3Vector3f64, Pt2FilterVector4Vector4f64};
-pub use pt_filters::{Pt2FilterVector2f32, Pt2FilterVector3f32, Pt2FilterVector4f32};
-pub use pt_filters::{Pt2FilterVector2f64, Pt2FilterVector3f64, Pt2FilterVector4f64};
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
+pub use pt_filters::{
+    Pt2FilterVector2Vector2f32, Pt2FilterVector2Vector2f64, Pt2FilterVector2f32, Pt2FilterVector2f64,
+    Pt2FilterVector3Vector3f32, Pt2FilterVector3Vector3f64, Pt2FilterVector3f32, Pt2FilterVector3f64,
+    Pt2FilterVector4Vector4f32, Pt2FilterVector4Vector4f64, Pt2FilterVector4f32, Pt2FilterVector4f64,
+};
 
 pub use pt_filters::{Pt3Filter, Pt3Filterf32, Pt3Filterf64};
-pub use pt_filters::{Pt3FilterVector2Vector2f32, Pt3FilterVector3Vector3f32, Pt3FilterVector4Vector4f32};
-pub use pt_filters::{Pt3FilterVector2Vector2f64, Pt3FilterVector3Vector3f64, Pt3FilterVector4Vector4f64};
-pub use pt_filters::{Pt3FilterVector2f32, Pt3FilterVector3f32, Pt3FilterVector4f32};
-pub use pt_filters::{Pt3FilterVector2f64, Pt3FilterVector3f64, Pt3FilterVector4f64};
+#[cfg(any(feature = "vqm", feature = "nalgebra"))]
+pub use pt_filters::{
+    Pt3FilterVector2Vector2f32, Pt3FilterVector2Vector2f64, Pt3FilterVector2f32, Pt3FilterVector2f64,
+    Pt3FilterVector3Vector3f32, Pt3FilterVector3Vector3f64, Pt3FilterVector3f32, Pt3FilterVector3f64,
+    Pt3FilterVector4Vector4f32, Pt3FilterVector4Vector4f64, Pt3FilterVector4f32, Pt3FilterVector4f64,
+};
 
 pub use rolling_buffer::RollingBuffer;
 

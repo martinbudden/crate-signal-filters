@@ -1,4 +1,4 @@
-use num_traits::ConstZero;
+use num_traits::Zero;
 
 /// `Median3Filter` for `f32`<br>
 pub type MedianFilter3f32 = MedianFilter3<f32>;
@@ -33,7 +33,7 @@ pub struct MedianFilter3<T> {
 
 impl<T> Default for MedianFilter3<T>
 where
-    T: Copy + ConstZero,
+    T: Copy + Zero,
 {
     fn default() -> Self {
         Self::new()
@@ -42,13 +42,13 @@ where
 
 impl<T> MedianFilter3<T>
 where
-    T: Copy + ConstZero,
+    T: Copy + Zero,
 {
     /// Constructor.
     #[must_use]
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         const COUNT: usize = 3;
-        Self { buffer: [T::ZERO; COUNT], index: 0, count: 0 }
+        Self { buffer: [T::zero(); COUNT], index: 0, count: 0 }
     }
 }
 
