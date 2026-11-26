@@ -7,13 +7,10 @@ use nalgebra::{Vector2, Vector3, Vector4};
 #[cfg(feature = "vqm")]
 use vqm::{Vector2, Vector3, Vector4};
 
-#[cfg(feature = "storage")]
-use sequential_storage::map::PostcardValue;
 #[cfg(feature = "serde")]
-use {
-    postcard::experimental::max_size::MaxSize,
-    serde::{Deserialize, Serialize},
-};
+use ::serde::{Deserialize, Serialize};
+#[cfg(feature = "storage")]
+use {postcard::experimental::max_size::MaxSize, sequential_storage::map::PostcardValue};
 
 use crate::SignalFilter;
 
@@ -176,7 +173,8 @@ impl<T, R> BiquadFilter<T, R> {
 /// NOTE: b2 == b0 for lowpass filter.
 /// NOTE: b2 == b0 and a1 == b1 for notch filter.
 #[derive(Clone, Copy, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize, MaxSize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "storage", derive(MaxSize))]
 pub struct BiquadFilterCoefficients<R> {
     pub a1: R,
     pub a2: R,
@@ -621,9 +619,9 @@ mod test_traits {
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     fn _is_full_eq<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + Eq + PartialEq>() {}
     #[cfg(feature = "serde")]
-    fn is_serde<T: Serialize + MaxSize + for<'a> Deserialize<'a>>() {}
+    fn is_serde<T: Serialize + for<'a> Deserialize<'a>>() {}
     #[cfg(feature = "storage")]
-    fn is_storage<T: for<'a> PostcardValue<'a>>() {}
+    fn is_storage<T: MaxSize + for<'a> PostcardValue<'a>>() {}
 
     #[test]
     fn normal_types() {
