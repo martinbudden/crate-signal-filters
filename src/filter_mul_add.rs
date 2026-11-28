@@ -1,7 +1,7 @@
 #[cfg(feature = "nalgebra")]
-use nalgebra::Vector3;
+use nalgebra::{Vector2, Vector3, Vector4};
 #[cfg(feature = "vqm")]
-use vqm::Vector3;
+use vqm::{Vector2, Vector3, Vector4};
 
 pub trait FilterMulAdd<R, A = Self> {
     #[must_use]
@@ -21,29 +21,61 @@ impl FilterMulAdd<f64> for f64 {
 }
 
 #[cfg(feature = "nalgebra")]
-impl FilterMulAdd<f32> for Vector3<f32> {
-    fn filter_mul_add(self, a: f32, b: Self) -> Self {
-        self * a + b
-    }
+macro_rules! nalgebra_filter_mul_add {
+    ($vector:ty, $scalar:ty) => {
+        impl FilterMulAdd<$scalar> for $vector {
+            fn filter_mul_add(self, a: $scalar, b: Self) -> Self {
+                self * a + b
+            }
+        }
+        impl FilterMulAdd<$vector> for $vector {
+            fn filter_mul_add(self, a: $vector, b: Self) -> Self {
+                self.component_mul(&a) + b
+            }
+        }
+    };
+}
+
+#[cfg(feature = "vqm")]
+macro_rules! vqm_filter_mul_add {
+    ($vector:ty, $scalar:ty) => {
+        impl FilterMulAdd<$scalar> for $vector {
+            fn filter_mul_add(self, a: $scalar, b: Self) -> Self {
+                num_traits::MulAdd::mul_add(self, a, b)
+            }
+        }
+        impl FilterMulAdd<$vector> for $vector {
+            fn filter_mul_add(self, a: $vector, b: Self) -> Self {
+                num_traits::MulAdd::mul_add(self, a, b)
+            }
+        }
+    };
 }
 
 #[cfg(feature = "nalgebra")]
-impl FilterMulAdd<Vector3<f32>> for Vector3<f32> {
-    fn filter_mul_add(self, a: Vector3<f32>, b: Self) -> Self {
-        self.component_mul(&a) + b
-    }
-}
+nalgebra_filter_mul_add!(Vector2<f32>, f32);
+#[cfg(feature = "nalgebra")]
+nalgebra_filter_mul_add!(Vector3<f32>, f32);
+#[cfg(feature = "nalgebra")]
+nalgebra_filter_mul_add!(Vector4<f32>, f32);
+
+#[cfg(feature = "nalgebra")]
+nalgebra_filter_mul_add!(Vector2<f64>, f64);
+#[cfg(feature = "nalgebra")]
+nalgebra_filter_mul_add!(Vector3<f64>, f64);
+#[cfg(feature = "nalgebra")]
+nalgebra_filter_mul_add!(Vector4<f64>, f64);
 
 #[cfg(feature = "vqm")]
-impl FilterMulAdd<f32> for Vector3<f32> {
-    fn filter_mul_add(self, a: f32, b: Self) -> Self {
-        num_traits::MulAdd::mul_add(self, a, b)
-    }
-}
+vqm_filter_mul_add!(Vector2<f32>, f32);
+#[cfg(feature = "vqm")]
+vqm_filter_mul_add!(Vector3<f32>, f32);
+#[cfg(feature = "vqm")]
+vqm_filter_mul_add!(Vector4<f32>, f32);
 
 #[cfg(feature = "vqm")]
-impl FilterMulAdd<Vector3<f32>> for Vector3<f32> {
-    fn filter_mul_add(self, a: Vector3<f32>, b: Self) -> Self {
-        num_traits::MulAdd::mul_add(self, a, b)
-    }
-}
+vqm_filter_mul_add!(Vector2<f64>, f64);
+#[cfg(feature = "vqm")]
+vqm_filter_mul_add!(Vector3<f64>, f64);
+#[cfg(feature = "vqm")]
+vqm_filter_mul_add!(Vector4<f64>, f64);
