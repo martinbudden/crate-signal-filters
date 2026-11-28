@@ -61,7 +61,8 @@ These filters have been developed for use in stabilized vehicles (self balancing
 
 ## Examples
 
-```text
+```rust
+#[cfg(feature = "vqm")] {
 use signal_filters::Pt1Filterf32;
 use signal_filters::Pt1FilterVector3f32;
 use signal_filters::BiquadFilterf32;
@@ -121,6 +122,7 @@ notch_filter.set_notch_frequency_assuming_q(notch_frequency_hz);
 
 let gyro = Vector3f32 { x: 0.8, y: 2.1, z: -0.2 };
 let output = notch_filter.update(gyro);
+}
 ```
 
 ## Original implementation

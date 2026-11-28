@@ -33,6 +33,7 @@ libm = ["dep:libm", "num-traits/libm", "vqm?/libm", "nalgebra?/libm"]
 serde = ["dep:serde", "postcard", "vqm?/serde"]
 storage = ["dep:sequential-storage", "serde", "vqm?/storage"]
 vqm = ["dep:vqm"]
+nalgebra = ["dep:nalgebra"]
 
 [dependencies]
 # Set default-features = false to prevent host target leakage
